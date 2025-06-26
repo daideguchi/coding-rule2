@@ -144,9 +144,10 @@ ls -la ai-agents/
 ### パターン 2: 開発環境設定
 
 ```
-scripts/claude-cursor-sync.sh         # 同期スクリプト
+scripts/claude-cursor-sync.sh         # 同期状況確認スクリプト
 ai-agents/docs/CLAUDE.md      # プロジェクト情報
 # Claude Code起動: claude（通常）
+# 自動連携: CursorとClaude Codeがリアルタイム同期
 ```
 
 ### パターン 3: 完全設定
@@ -196,12 +197,14 @@ claude --dangerously-skip-permissions
 
 **同期機能**
 
-```bash
-# 作業状況を記録
-./scripts/claude-cursor-sync.sh record
+Claude Code と Cursor は自動的に連携されており、リアルタイムでファイル変更と Git 状況を共有します。
 
-# Claude Code で共有
+```bash
+# 手動で同期状況を確認したい場合
 ./scripts/claude-cursor-sync.sh share
+
+# 手動で現在状況を記録したい場合
+./scripts/claude-cursor-sync.sh record
 ```
 
 ### AI 組織システム（パターン 3）
@@ -359,8 +362,7 @@ cat .cursor/rules.md
 # パターン2: claude
 # パターン3: claude --dangerously-skip-permissions
 
-# 同期実行
-./scripts/claude-cursor-sync.sh record
+# 同期状況確認（自動連携済み）
 ./scripts/claude-cursor-sync.sh share
 
 # 設定確認
