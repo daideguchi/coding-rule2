@@ -34,7 +34,7 @@
     "**/*.mdc",
     "**/*.md"
   ],
-  "editor.wordBasedSuggestions": false,
+  "editor.wordBasedSuggestions": "off",
   "editor.quickSuggestions": {
     "other": false,
     "comments": false,
