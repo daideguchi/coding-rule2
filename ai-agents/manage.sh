@@ -816,54 +816,54 @@ setup_claude_semi_auto() {
                 # 各ワーカーに役割メッセージを即座送信（起動済みの場合）
                 for worker_id in {0..3}; do
                     # ワーカーの起動状況をチェック
-                    worker_content=\$(tmux capture-pane -t multiagent:0.\$worker_id -p 2>/dev/null || echo \"\")
+                    worker_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
                     
-                    if echo \"\$worker_content\" | grep -q \"Welcome to Claude Code\\|Bypassing Permissions\\|cwd:\" 2>/dev/null; then
-                        log_info \"📤 WORKER\${worker_id} 既に起動済み - 即座役割メッセージ送信\"
+                    if echo "$worker_content" | grep -q "Welcome to Claude Code\|Bypassing Permissions\|cwd:" 2>/dev/null; then
+                        log_info "📤 WORKER${worker_id} 既に起動済み - 即座役割メッセージ送信"
                         
                         # 役割別メッセージ設定（肩書きに合わせて更新）
-                        case \$worker_id in
-                            0) role_msg=\"あなたはBOSS・チームリーダーです。プロジェクト全体の調査結果をまとめて、具体的な改善指示をワーカーたちに出してください。./ai-agents/instructions/boss.md を参照して日本語で応答してください。\" ;;
-                            1) role_msg=\"あなたはフロントエンドエンジニアです。React・Vue・HTML/CSS等の技術でUI改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。\" ;;
-                            2) role_msg=\"あなたはバックエンドエンジニアです。Node.js・Python・データベース等の技術でシステム改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。\" ;;
-                            3) role_msg=\"あなたはUI/UXデザイナーです。デザインシステム・ユーザビリティ改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。\" ;;
+                        case $worker_id in
+                            0) role_msg="あなたはBOSS・チームリーダーです。プロジェクト全体の調査結果をまとめて、具体的な改善指示をワーカーたちに出してください。./ai-agents/instructions/boss.md を参照して日本語で応答してください。" ;;
+                            1) role_msg="あなたはフロントエンドエンジニアです。React・Vue・HTML/CSS等の技術でUI改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                            2) role_msg="あなたはバックエンドエンジニアです。Node.js・Python・データベース等の技術でシステム改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                            3) role_msg="あなたはUI/UXデザイナーです。デザインシステム・ユーザビリティ改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
                         esac
                         
                         # 役割メッセージを即座送信（Enterキーも含む）
-                        tmux send-keys -t multiagent:0.\$worker_id \"\$role_msg\" C-m
-                        log_success \"✅ WORKER\${worker_id} 役割メッセージ即座送信完了\"
+                        tmux send-keys -t multiagent:0.$worker_id "$role_msg" C-m
+                        log_success "✅ WORKER${worker_id} 役割メッセージ即座送信完了"
                         
                         # 送信完了をログに記録
-                        echo \"✅ WORKER\${worker_id} 役割メッセージ即座送信完了 \$(date)\" >> /tmp/ai-agents-role-messages.log
+                        echo "✅ WORKER${worker_id} 役割メッセージ即座送信完了 $(date)" >> /tmp/ai-agents-role-messages.log
                     else
-                        log_warn \"⚠️ WORKER\${worker_id} 未起動 - 役割メッセージ送信スキップ\"
+                        log_warn "⚠️ WORKER${worker_id} 未起動 - 役割メッセージ送信スキップ"
                     fi
                     
                     # 連続送信の間隔を開ける
                     sleep 0.5
                 done
                 
-                log_success \"🎉 全ワーカー役割メッセージ即座送信完了！\"
+                log_success "🎉 全ワーカー役割メッセージ即座送信完了！"
                 
                 # 起動済みワーカーへの即座タスク配布機能
-                log_info \"🚀 起動済みワーカーへの即座タスク配布開始...\"
+                log_info "🚀 起動済みワーカーへの即座タスク配布開始..."
                 
                 # 各ワーカーに具体的なタスクを即座配布
                 for worker_id in {0..3}; do
-                    if tmux capture-pane -t multiagent:0.\$worker_id -p 2>/dev/null | grep -q \"Welcome to Claude Code\\|Please let me know\" 2>/dev/null; then
-                        case \$worker_id in
-                            0) task_msg=\"プロジェクト調査レポートを作成してください。cursor-rules、ai-agents、scripts等のディレクトリを分析し、改善提案をまとめてください。\" ;;
-                            1) task_msg=\"README.mdとsetup.shの内容を確認し、ユーザビリティを改善してください。わかりやすいフォーマットや視覚的改善を提案してください。\" ;;
-                            2) task_msg=\"ai-agents/manage.shの構造を分析し、パフォーマンス改善とエラーハンドリング強化を実装してください。\" ;;
-                            3) task_msg=\"tmuxペインタイトルとAI組織システムの視覚的表示を改善してください。カラー設定や見やすさを向上させてください。\" ;;
+                    if tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null | grep -q "Welcome to Claude Code\|Please let me know" 2>/dev/null; then
+                        case $worker_id in
+                            0) task_msg="プロジェクト調査レポートを作成してください。cursor-rules、ai-agents、scripts等のディレクトリを分析し、改善提案をまとめてください。" ;;
+                            1) task_msg="README.mdとsetup.shの内容を確認し、ユーザビリティを改善してください。わかりやすいフォーマットや視覚的改善を提案してください。" ;;
+                            2) task_msg="ai-agents/manage.shの構造を分析し、パフォーマンス改善とエラーハンドリング強化を実装してください。" ;;
+                            3) task_msg="tmuxペインタイトルとAI組織システムの視覚的表示を改善してください。カラー設定や見やすさを向上させてください。" ;;
                         esac
                         
-                        tmux send-keys -t multiagent:0.\$worker_id \"\$task_msg\" C-m
-                        log_success \"✅ WORKER\${worker_id} 即座タスク配布完了\"
+                        tmux send-keys -t multiagent:0.$worker_id "$task_msg" C-m
+                        log_success "✅ WORKER${worker_id} 即座タスク配布完了"
                     fi
                 done
                 
-                log_success \"🎉 即座タスク配布完了 - 全ワーカー稼働中！\"
+                log_success "🎉 即座タスク配布完了 - 全ワーカー稼働中！"
                 
                 echo "✅ 【メッセージ自動セット完了】送信は手動で行ってください" > /tmp/ai-agents-message-set.log
                 log_success "✅ PRESIDENTメッセージ自動セット完了（送信は手動）"
@@ -973,6 +973,56 @@ main() {
             # セッション削除
             clean_sessions
             ;;
+        "auto-executor")
+            # 自動実行監視システム
+            log_info "🤖 自動実行監視システムを開始します..."
+            if [ -f "./ai-agents/auto-executor.sh" ]; then
+                ./ai-agents/auto-executor.sh
+            else
+                log_error "❌ auto-executor.sh が見つかりません"
+                return 1
+            fi
+            ;;
+        "setup-click")
+            # tmuxクリック設定
+            log_info "🖱️ tmuxクリック設定を適用します..."
+            if [ -f "./ai-agents/tmux-click-config.sh" ]; then
+                ./ai-agents/tmux-click-config.sh
+            else
+                log_error "❌ tmux-click-config.sh が見つかりません"
+                return 1
+            fi
+            ;;
+        "execute")
+            # シンプルプロンプト実行
+            log_info "⚡ プロンプト実行します..."
+            if [ -f "./ai-agents/execute-prompts.sh" ]; then
+                ./ai-agents/execute-prompts.sh "${2:-workers}"
+            else
+                log_error "❌ execute-prompts.sh が見つかりません"
+                return 1
+            fi
+            ;;
+        "watch")
+            # 軽量プロンプト監視
+            log_info "🔍 軽量プロンプト監視を開始します..."
+            if [ -f "./ai-agents/auto-enter.sh" ]; then
+                ./ai-agents/auto-enter.sh
+            else
+                log_error "❌ auto-enter.sh が見つかりません"
+                return 1
+            fi
+            ;;
+        "debug")
+            # デバッグ監視
+            log_info "🔍 デバッグ監視を開始します..."
+            if [ -f "./ai-agents/debug-monitor.sh" ]; then
+                ./ai-agents/debug-monitor.sh
+            else
+                log_error "❌ debug-monitor.sh が見つかりません"
+                return 1
+            fi
+            ;;
         # 🔧 詳細コマンド（必要時のみ）
         "quick-start")
             quick_start
@@ -1004,6 +1054,9 @@ main() {
             echo "📊 セッション操作:"
             echo "  ./ai-agents/manage.sh president          # PRESIDENT画面"
             echo "  ./ai-agents/manage.sh multiagent         # 4画面確認"
+            echo "  ./ai-agents/manage.sh watch              # 🔍 軽量プロンプト監視（推奨）"
+            echo "  ./ai-agents/manage.sh execute            # ⚡ プロンプト実行"
+            echo "  ./ai-agents/manage.sh setup-click        # 🖱️ クリック操作設定"
             echo "  ./ai-agents/manage.sh clean              # セッション削除"
             echo ""
             echo "💡 参照リポジトリ:"

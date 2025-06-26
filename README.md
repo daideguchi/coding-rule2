@@ -1,25 +1,78 @@
 # 🤖 CodingRule2 - AI 組織開発システム
 
-**日本語対応の階層型マルチエージェント AI 組織で開発を革新**
+<div align="center">
+
+**🚀 日本語対応の階層型マルチエージェント AI 組織で開発を革新 🚀**
+
+[![Setup](https://img.shields.io/badge/Setup-2分で完了-brightgreen)](./setup.sh)
+[![Language](https://img.shields.io/badge/Language-日本語完全対応-blue)](#特徴)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
+[![AI Agents](https://img.shields.io/badge/AI_Agents-5個同時実行-red)](#ai-組織構成)
+
+</div>
+
+---
+
+## 📋 目次
+
+<div align="center">
+
+| セクション | 内容 | 所要時間 |
+|-----------|------|----------|
+| [🚀 最速セットアップ](#-最速セットアップ2-分) | セットアップガイド | 2分 |
+| [🎯 使い方](#-使い方超簡単) | 基本的な使用方法 | 3分 |
+| [📦 設定パターン](#-選べる-3-パターン) | 3つの設定パターン | 1分 |
+| [🔧 トラブルシューティング](#-トラブルシューティング) | 問題解決ガイド | 5分 |
+
+</div>
+
+---
 
 ## 🚀 **最速セットアップ（2 分）**
 
+<div align="center">
+
+### 🎯 **3ステップで完了**
+
+</div>
+
+<details>
+<summary>📋 <strong>詳細手順を表示</strong></summary>
+
 ```bash
-# 1. セットアップ実行
+# 1️⃣ セットアップ実行
 ./setup.sh
 
-# 2. 認証設定（重要！）
+# 2️⃣ 認証設定（重要！）
 ./setup.sh → a) 認証設定 → Proプラン または API Key を選択
 
-# 3. AI組織システム起動
+# 3️⃣ AI組織システム起動
 ./ai-agents/manage.sh claude-auth
 ```
 
-**これで完了！** PRESIDENT + 4 つのワーカー AI が自動起動します 🎉
+</details>
+
+<div align="center">
+
+| ステップ | 操作 | 所要時間 | 成功指標 |
+|---------|------|----------|----------|
+| 1️⃣ | セットアップ実行 | 30秒 | ✅ 設定ファイル生成 |
+| 2️⃣ | 認証設定 | 1分 | ✅ Claude認証完了 |
+| 3️⃣ | AI組織起動 | 30秒 | ✅ 5つのAIが起動 |
+
+**🎉 これで完了！PRESIDENT + 4 つのワーカー AI が自動起動します**
+
+</div>
 
 ---
 
 ## 🎯 **使い方（超簡単）**
+
+<div align="center">
+
+### 🔥 **3ステップワークフロー**
+
+</div>
 
 ### **Step 1: AI 組織システム起動**
 
@@ -27,18 +80,40 @@
 ./ai-agents/manage.sh claude-auth
 ```
 
-- ✅ 認証設定を自動選択
-- ✅ PRESIDENT 自動起動
-- ✅ 4 ワーカー自動起動
-- ✅ 全て日本語対応
+<div align="center">
+
+| 機能 | 状態 | 説明 |
+|------|------|------|
+| 🔐 認証設定 | ✅ 自動選択 | 設定済み認証を自動検出 |
+| 👑 PRESIDENT | ✅ 自動起動 | 統括AIが起動 |
+| 👥 4ワーカー | ✅ 自動起動 | 実行担当AIが起動 |
+| 🗾 日本語対応 | ✅ 完全対応 | 全AIが日本語で対話 |
+
+</div>
 
 ### **Step 2: プロジェクト指示**
 
 **PRESIDENT 画面**でプロジェクトを指示するだけ：
 
+<details>
+<summary>💡 <strong>指示例を表示</strong></summary>
+
+**初心者向け:**
 ```
 Hello Worldプロジェクトを作成してください
 ```
+
+**Web開発:**
+```
+Python FlaskでTodoアプリを作成してください。API設計、フロントエンド、テストまで含めて
+```
+
+**データ分析:**
+```
+CSVファイルを読み込んで可視化するPythonスクリプトを作成してください
+```
+
+</details>
 
 ### **Step 3: AI 活動監視**
 
@@ -48,23 +123,49 @@ Hello Worldプロジェクトを作成してください
 tmux attach-session -t multiagent
 ```
 
+<div align="center">
+
+**🤖 AI同士が日本語で相談しながら、実際にファイルを作成します！**
+
+</div>
+
 ---
 
 ## 🤖 **AI 組織構成**
 
-```
-👑 PRESIDENT（統括AI）
-├── 🔹 プロジェクト全体統括
-└── 🔹 日本語指示対応
+<div align="center">
 
-👥 マルチエージェント（4画面）
-├── 👔 BOSS1 - チームリーダーAI
-├── 👷 WORKER1 - 実行担当AI
-├── 👷 WORKER2 - 実行担当AI
-└── 👷 WORKER3 - 実行担当AI
+```mermaid
+graph TD
+    A[👑 PRESIDENT<br/>統括AI] --> B[👔 BOSS1<br/>チームリーダー]
+    A --> C[👷 WORKER1<br/>実行担当]
+    A --> D[👷 WORKER2<br/>実行担当]
+    A --> E[👷 WORKER3<br/>実行担当]
+    
+    style A fill:#ff9999,stroke:#333,stroke-width:3px
+    style B fill:#99ccff,stroke:#333,stroke-width:2px
+    style C fill:#99ff99,stroke:#333,stroke-width:2px
+    style D fill:#99ff99,stroke:#333,stroke-width:2px
+    style E fill:#99ff99,stroke:#333,stroke-width:2px
 ```
 
-**実際にファイル作成・コード生成・実行を行います！**
+</div>
+
+<div align="center">
+
+| 役割 | AI | 主な機能 | 特徴 |
+|------|----|---------|----- |
+| 🎯 統括 | 👑 PRESIDENT | プロジェクト全体統括 | 日本語指示対応・方針決定 |
+| 📋 管理 | 👔 BOSS1 | チームリーダー | 作業分担・進捗管理 |
+| ⚡ 実行 | 👷 WORKER1-3 | 実行担当 | ファイル作成・編集・実行 |
+
+</div>
+
+<div align="center">
+
+**💪 実際にファイル作成・コード生成・実行を行います！**
+
+</div>
 
 ---
 
@@ -151,24 +252,48 @@ PRESIDENT画面で指示:
 
 ## 📦 **選べる 3 パターン**
 
+<div align="center">
+
 ```bash
 ./setup.sh
 ```
 
-### 🟢 **パターン 1: 基本版**
+**🎯 用途に応じて最適なパターンを選択**
 
-- Cursor Rules のみ
-- 個人開発・初心者向け
+</div>
+
+<div align="center">
+
+| パターン | 機能 | 対象ユーザー | 推奨度 | セットアップ時間 |
+|----------|------|-------------|--------|-----------------|
+| 🟢 **基本版** | Cursor Rules のみ | 個人開発・初心者 | ⭐⭐⭐ | 30秒 |
+| 🟡 **開発版** | Cursor + Claude Code | チーム開発・実務 | ⭐⭐⭐⭐ | 1分 |
+| 🔴 **完全版** | AI組織システム | 高度な開発・研究 | ⭐⭐⭐⭐⭐ | 2分 |
+
+</div>
+
+<details>
+<summary>📋 <strong>各パターンの詳細比較</strong></summary>
+
+### 🟢 **パターン 1: 基本版**
+- ✅ Cursor Rules のみ
+- ✅ 軽量で最小限の構成
+- ✅ 学習コスト低
+- 💡 個人開発・初心者に最適
 
 ### 🟡 **パターン 2: 開発版**
-
-- Cursor Rules + Claude Code 連携
-- チーム開発・実務向け
+- ✅ Cursor Rules + Claude Code 連携
+- ✅ 開発作業に必要な基本環境
+- ✅ Cursor↔Claude同期機能
+- 💡 チーム開発・実務に最適
 
 ### 🔴 **パターン 3: 完全版（AI 組織システム）**
+- ✅ 全機能 + 5 つの AI エージェント組織
+- ✅ マルチエージェント連携
+- ✅ 大規模プロジェクト対応
+- 💡 **推奨** - 高度な開発・研究に最適
 
-- 全機能 + 5 つの AI エージェント組織
-- **推奨** - 高度な開発・研究
+</details>
 
 ---
 
@@ -211,6 +336,37 @@ coding-rule2/
 
 ---
 
-**🚀 たった 3 ステップで、日本語対応 AI 組織システムを体験しよう！**
+<div align="center">
 
-_Last updated: 2025-01-26 23:30_
+## 🚀 **今すぐ始めよう！**
+
+**たった 3 ステップで、日本語対応 AI 組織システムを体験！**
+
+```bash
+./setup.sh
+```
+
+---
+
+### 📊 **プロジェクト統計**
+
+| 項目 | 値 |
+|------|-----|
+| 🤖 AI エージェント数 | 5個 |
+| ⚡ セットアップ時間 | 2分 |
+| 🗾 対応言語 | 日本語完全対応 |
+| 📦 設定パターン | 3種類 |
+| 🔧 対応OS | macOS, Linux |
+
+---
+
+[![GitHub](https://img.shields.io/badge/GitHub-このリポジトリ-black?style=for-the-badge&logo=github)](https://github.com/your-repo)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](./LICENSE)
+[![Version](https://img.shields.io/badge/Version-2.0-blue?style=for-the-badge)](./STATUS.md)
+
+---
+
+*Last updated: 2025-06-27 01:00*  
+*README improved version by Worker1 - より見やすく、より使いやすく*
+
+</div>
