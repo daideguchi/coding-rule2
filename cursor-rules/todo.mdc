@@ -163,6 +163,14 @@ alwaysApply: true
 
 ### 今後のタスク
 
+- [ ] 🔴 自動実行監視システムの完全復旧（緊急）
+
+  - start_auto_execute_monitor 関数の再実装
+  - stop_auto_execute_monitor 関数の再実装
+  - AI 組織システムの完全自動化復旧
+  - 「>」付きメッセージ自動実行機能の復活
+  - 手動介入不要の AI 組織システム実現
+
 - [x] 🔴 AI 組織立ち上げの bypass permissions mode 自動選択機能実装
   - Claude Code 起動時の「2. Yes, I accept」自動選択システム完成
   - expect スクリプト、パイプ、バックグラウンドプロセスによる多重自動化実装

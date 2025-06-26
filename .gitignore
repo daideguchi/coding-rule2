@@ -9,3 +9,11 @@ scripts/*.log
 project-improvement-report.md
 reports/
 .claude/
+# セキュリティ関連ファイル
+.claude-auth-method
+.env
+*.key
+*.pem
+nohup.out
+# 一時的なログファイル
+/tmp/ai-agents-*.log
