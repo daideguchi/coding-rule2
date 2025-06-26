@@ -42,6 +42,10 @@ show_menu() {
     echo "   - 全機能 + AI組織システム"
     echo "   - 高度な開発・分析環境"
     echo ""
+    echo "a) 認証設定"
+    echo "   - Claude Code認証方法の設定"
+    echo "   - Proプラン/API Key選択"
+    echo ""
     echo "s) 設定状況確認"
     echo "   - 現在のセットアップ状況をチェック"
     echo ""
@@ -286,11 +290,198 @@ EOF
     echo "  4. Cursor連携: ./scripts/claude-cursor-sync.sh record"
 }
 
+# 認証設定選択
+setup_auth() {
+    clear
+    echo "🔐 Claude Code認証設定"
+    echo "======================"
+    echo ""
+    echo "利用する認証方法を選択してください："
+    echo ""
+    echo "1) claude.ai Proプラン"
+    echo "   - Web版のProプランアカウント"
+    echo "   - 推奨：高性能で使いやすい"
+    echo ""
+    echo "2) ANTHROPIC_API_KEY"
+    echo "   - 開発者向けAPIキー"
+    echo "   - 従量課金制"
+    echo ""
+    echo "3) 現在の設定確認"
+    echo "   - 認証状況をチェック"
+    echo ""
+    echo "b) 戻る"
+    echo ""
+    
+    read -p "選択してください [1-3, b]: " auth_choice
+    
+    case $auth_choice in
+        1)
+            setup_claude_ai_pro
+            ;;
+        2)
+            setup_api_key
+            ;;
+        3)
+            check_auth_status
+            ;;
+        b)
+            return
+            ;;
+        *)
+            log_error "無効な選択です"
+            read -p "Enterキーで続行..."
+            setup_auth
+            ;;
+    esac
+}
+
+# claude.ai Proプラン設定
+setup_claude_ai_pro() {
+    log_info "🏆 claude.ai Proプラン設定を開始..."
+    
+    # ANTHROPIC_API_KEYが設定されている場合は警告
+    if [ ! -z "$ANTHROPIC_API_KEY" ]; then
+        log_warn "⚠️ ANTHROPIC_API_KEYが設定されています"
+        echo "   claude.aiを使用する場合は競合を避けるため、一時的に無効化します"
+        read -p "ANTHROPIC_API_KEYを無効化しますか？ [y/N]: " unset_api_key
+        
+        if [[ $unset_api_key =~ ^[Yy]$ ]]; then
+            unset ANTHROPIC_API_KEY
+            log_success "✅ ANTHROPIC_API_KEYを無効化しました（この設定は再起動まで有効）"
+            
+            # 永続的な無効化の案内
+            echo ""
+            echo "💡 永続的に無効化する場合は、以下をシェル設定ファイルから削除してください："
+            echo "   ~/.zshrc、~/.bashrc、~/.profile など"
+            echo "   export ANTHROPIC_API_KEY=sk-ant-..."
+        fi
+    fi
+    
+    log_info "🔄 claude.aiからログアウトして再ログインします..."
+    
+    # 既存の認証をクリア
+    claude /logout 2>/dev/null || true
+    
+    echo ""
+    echo "📋 次の手順で認証を設定してください："
+    echo "   1. 以下のコマンドを実行: claude"
+    echo "   2. 「Login to claude.ai」を選択"
+    echo "   3. ブラウザでログイン"
+    echo "   4. Proプランアカウントでログイン"
+    echo ""
+    echo "🎯 認証完了後、AI組織システムが利用可能になります"
+    
+    # 設定ファイルに記録
+    echo "claude_ai_pro" > .claude-auth-method
+    
+    log_success "✅ claude.ai Proプラン設定完了"
+    read -p "Enterキーで続行..."
+}
+
+# API Key設定
+setup_api_key() {
+    log_info "🔑 ANTHROPIC_API_KEY設定を開始..."
+    
+    # 既存のclaude.ai認証があるかチェック
+    if claude /status 2>/dev/null | grep -q "Logged in"; then
+        log_warn "⚠️ claude.aiにログインしています"
+        echo "   API Keyを使用する場合は競合を避けるため、ログアウトします"
+        read -p "claude.aiからログアウトしますか？ [y/N]: " logout_claude
+        
+        if [[ $logout_claude =~ ^[Yy]$ ]]; then
+            claude /logout
+            log_success "✅ claude.aiからログアウトしました"
+        fi
+    fi
+    
+    echo ""
+    echo "📋 API Key設定手順："
+    echo "   1. https://console.anthropic.com/ にアクセス"
+    echo "   2. API Keyを作成"
+    echo "   3. 以下のコマンドでAPI Keyを設定:"
+    echo ""
+    echo "      export ANTHROPIC_API_KEY=sk-ant-..."
+    echo ""
+    echo "   4. シェル設定ファイル（~/.zshrc等）に追加して永続化"
+    echo ""
+    
+    if [ -z "$ANTHROPIC_API_KEY" ]; then
+        log_warn "⚠️ ANTHROPIC_API_KEYが設定されていません"
+        read -p "API Keyを入力しますか？ [y/N]: " input_key
+        
+        if [[ $input_key =~ ^[Yy]$ ]]; then
+            read -p "API Keyを入力してください: " api_key
+            if [[ $api_key =~ ^sk-ant- ]]; then
+                export ANTHROPIC_API_KEY="$api_key"
+                log_success "✅ API Keyを設定しました（この設定は再起動まで有効）"
+                
+                echo ""
+                echo "💡 永続的に設定する場合は、以下をシェル設定ファイルに追加してください："
+                echo "   export ANTHROPIC_API_KEY=\"$api_key\""
+            else
+                log_error "❌ 無効なAPI Key形式です"
+            fi
+        fi
+    else
+        log_success "✅ ANTHROPIC_API_KEYが設定されています"
+    fi
+    
+    # 設定ファイルに記録
+    echo "api_key" > .claude-auth-method
+    
+    log_success "✅ API Key設定完了"
+    read -p "Enterキーで続行..."
+}
+
+# 認証状況確認
+check_auth_status() {
+    echo "🔍 認証状況確認"
+    echo "=============="
+    echo ""
+    
+    # 設定ファイル確認
+    if [ -f ".claude-auth-method" ]; then
+        method=$(cat .claude-auth-method)
+        echo "📝 設定済み認証方法: $method"
+        echo ""
+    fi
+    
+    # claude.ai状況確認
+    echo "1. claude.ai認証状況:"
+    if claude /status 2>/dev/null | grep -q "Logged in"; then
+        echo "   ✅ ログイン済み"
+    else
+        echo "   ❌ 未ログイン"
+    fi
+    
+    # API Key状況確認
+    echo ""
+    echo "2. ANTHROPIC_API_KEY状況:"
+    if [ ! -z "$ANTHROPIC_API_KEY" ]; then
+        echo "   ✅ 設定済み (${ANTHROPIC_API_KEY:0:12}...)"
+    else
+        echo "   ❌ 未設定"
+    fi
+    
+    # 競合チェック
+    echo ""
+    echo "3. 競合チェック:"
+    if [ ! -z "$ANTHROPIC_API_KEY" ] && claude /status 2>/dev/null | grep -q "Logged in"; then
+        echo "   ⚠️  競合あり: 両方の認証が有効です"
+        echo "      推奨: どちらか一方を使用してください"
+    else
+        echo "   ✅ 競合なし"
+    fi
+    
+    echo ""
+    read -p "Enterキーで続行..."
+}
+
 # メイン処理
 main() {
     while true; do
         show_menu
-        echo -n "選択してください (1-3, q): "
+        echo -n "選択してください (1-3, a, s, q): "
         read choice
         
         case $choice in
@@ -305,6 +496,9 @@ main() {
             3)
                 setup_complete
                 break
+                ;;
+            a)
+                setup_auth
                 ;;
             s|S)
                 if [ -f "scripts/status-checker.sh" ]; then
@@ -326,7 +520,7 @@ main() {
                 exit 0
                 ;;
             *)
-                echo "無効な選択です。1-3, s またはqを入力してください。"
+                echo "無効な選択です。1-3, a, s またはqを入力してください。"
                 echo -n "Enterキーで続行..."
                 read
                 ;;

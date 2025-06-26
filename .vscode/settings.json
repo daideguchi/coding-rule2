@@ -24,18 +24,10 @@
     "組織",
     "プロジェクト"
   ],
-  "spellright.language": [
-    "en"
-  ],
-  "spellright.documentTypes": [
-    "plaintext"
-  ],
-  "spellright.ignoreFiles": [
-    "**/*.mdc",
-    "**/*.md",
-    "ai-agents/docs/CLAUDE.md"
-  ],
-  "editor.wordBasedSuggestions": false,
+  "spellright.language": ["en"],
+  "spellright.documentTypes": ["plaintext"],
+  "spellright.ignoreFiles": ["**/*.mdc", "**/*.md", "ai-agents/docs/CLAUDE.md"],
+  "editor.wordBasedSuggestions": "off",
   "editor.quickSuggestions": {
     "other": false,
     "comments": false,
@@ -49,4 +41,4 @@
   "cursor.rules.autoSync": true,
   "cursor.rules.sourcePath": "cursor-rules",
   "cursor.rules.targetPath": ".cursor/rules"
-} 
+}
