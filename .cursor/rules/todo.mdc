@@ -1,8 +1,9 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
+
 まず、このファイルを参照したら、このファイル名を発言すること
 
 ## タスク管理
@@ -72,110 +73,121 @@ alwaysApply: true
 
 ## 現在のタスク状況
 
-### 2025年6月完了分
+### 2025 年 6 月完了分
+
 - [x] 🔴 ディレクトリ構造のシンプル化
-  - 複雑なClaude-Code-Communication/構造を整理
+  - 複雑な Claude-Code-Communication/構造を整理
   - cursor-rules/ディレクトリに技術ファイルを統合
   - 不要な深いディレクトリ階層を排除
 - [x] 🔴 セットアップスクリプトの刷新
-  - 389行の複雑なsetup-ai-dev.shを廃止
-  - 直感的な3パターン選択のsetup.shを作成
+  - 389 行の複雑な setup-ai-dev.sh を廃止
+  - 直感的な 3 パターン選択の setup.sh を作成
   - ターミナルメニュー形式での選択機能追加
 - [x] 🔴 説明書の更新
-  - README.mdをシンプル化された構成に対応
-  - 3パターンの明確な説明を追加
+  - README.md をシンプル化された構成に対応
+  - 3 パターンの明確な説明を追加
   - 使用方法の簡素化
 - [x] 🟡 スペルチェック無効化ファイル配置
-  - .spellright.jsonをルートディレクトリに配置
-  - mdcファイルのスペルチェック除外設定
+  - .spellright.json をルートディレクトリに配置
+  - mdc ファイルのスペルチェック除外設定
 - [x] 🔴 不要ファイルの徹底的な削除・整理
-  - setup-ai-dev.sh、claude-cursor-sync.sh、.claude-project、CLAUDE.md削除
+  - setup-ai-dev.sh、claude-cursor-sync.sh、.claude-project、CLAUDE.md 削除
   - .ai-dev/、.cursor/、.specstory/ディレクトリ削除
-  - Claude-Code-Communicationを隠しディレクトリに移動
-  - ユーザー要求の4要素のみのクリーン構成を実現
+  - Claude-Code-Communication を隠しディレクトリに移動
+  - ユーザー要求の 4 要素のみのクリーン構成を実現
 - [x] 🔴 包括的スペルチェック対策実装
-  - .spellright.json、cspell.json、.vscode/settings.json作成
-  - 日本語文字正規表現除外、AI関連用語辞書登録
-  - 3つのスペルチェッカー完全対応
+  - .spellright.json、cspell.json、.vscode/settings.json 作成
+  - 日本語文字正規表現除外、AI 関連用語辞書登録
+  - 3 つのスペルチェッカー完全対応
 - [x] 🔴 最終包括チェック実施
-  - A,B,Cの3パターン動作確認
-  - cursor-rulesのテンプレート適性評価・修正
+  - A,B,C の 3 パターン動作確認
+  - cursor-rules のテンプレート適性評価・修正
   - 日時ログの正確性確認
-  - Claude Code連携仕様確認
+  - Claude Code 連携仕様確認
   - 最新ドキュメント準拠確認
-- [x] 🟡 Cursor Rulesテンプレート化完了
-  - rules.mdcをYouTube特化→汎用化修正
-  - globals.mdc、uiux.mdc、todo.mdcの品質確認
+- [x] 🟡 Cursor Rules テンプレート化完了
+  - rules.mdc を YouTube 特化 → 汎用化修正
+  - globals.mdc、uiux.mdc、todo.mdc の品質確認
   - dev-rules/の包括的開発ルール確認
-- [x] 🟢 .specstory復活問題の根本解決
-  - .gitignoreに.specstoryを追加
+- [x] 🟢 .specstory 復活問題の根本解決
+  - .gitignore に.specstory を追加
   - 恒久的な除外設定完了
-- [x] 🔴 AI組織システムのtmux問題修正完了
-  - tmuxセッション作成の永続化問題解決
-  - quick-startコマンド追加（自動4画面対話開始）
-  - プレジデント対話画面 + ワーカー4画面の2ターミナル構成実現
-  - セッション永続化とAI対話自動開始を実装
-- [x] 🔴 本物のClaude Code AI組織システム実装完了
-  - ダミーのAI応答システムを完全廃止
-  - 実際のClaude Code AIが各tmuxセッションで動作
-  - 指示書を実際のtmuxコマンド対応に更新
+- [x] 🔴 AI 組織システムの tmux 問題修正完了
+  - tmux セッション作成の永続化問題解決
+  - quick-start コマンド追加（自動 4 画面対話開始）
+  - プレジデント対話画面 + ワーカー 4 画面の 2 ターミナル構成実現
+  - セッション永続化と AI 対話自動開始を実装
+- [x] 🔴 本物の Claude Code AI 組織システム実装完了
+  - ダミーの AI 応答システムを完全廃止
+  - 実際の Claude Code AI が各 tmux セッションで動作
+  - 指示書を実際の tmux コマンド対応に更新
   - エージェント間通信システム（tmux send-keys）実装
-  - Hello Worldデモで本物のAI組織動作を実現
+  - Hello World デモで本物の AI 組織動作を実現
 - [x] 🔴 参照リポジトリ準拠の自動起動機能実装
-  - attach-multiagent機能追加（4ワーカー自動Claude Code起動）
-  - attach-president機能追加（PRESIDENT自動Claude Code起動）
+  - attach-multiagent 機能追加（4 ワーカー自動 Claude Code 起動）
+  - attach-president 機能追加（PRESIDENT 自動 Claude Code 起動）
   - 参照リポジトリ: https://github.com/daideguchi/Claude-Code-Company-v2
   - 完全自動化対応: ./ai-agents/manage.sh attach-multiagent
 - [x] 🔴 正確な起動手順への完全修正
-  - PRESIDENTを先に「presidentとして」活動開始させる必要性発見
-  - 手順1: tmuxセッション作成
-  - 手順2: PRESIDENT起動 (claude --dangerously-skip-permissions)
-  - 手順3: 「あなたはpresidentです。指示書に従って」入力
-  - 手順4: 4画面立ち上げコマンド送信
+
+  - PRESIDENT を先に「president として」活動開始させる必要性発見
+  - 手順 1: tmux セッション作成
+  - 手順 2: PRESIDENT 起動 (claude --dangerously-skip-permissions)
+  - 手順 3: 「あなたは president です。指示書に従って」入力
+  - 手順 4: 4 画面立ち上げコマンド送信
   - 参照リポジトリ: https://github.com/Akira-Papa/Claude-Code-Communication
 
-- [x] 🔴 PRESIDENT自動起動の完全自動化実装
-  - claude-auth機能の不具合修正（プレジデントが起動していなかった問題）
-  - 「あなたはpresidentです。指示書に従って」の自動入力実装
-  - 4画面自動起動コマンドの自動送信実装
+- [x] 🔴 PRESIDENT 自動起動の完全自動化実装
+  - claude-auth 機能の不具合修正（プレジデントが起動していなかった問題）
+  - 「あなたは president です。指示書に従って」の自動入力実装
+  - 4 画面自動起動コマンドの自動送信実装
   - 指示書の場所明示: ./ai-agents/instructions/president.md
-  - 完全ワンコマンドでAI組織システム起動を実現
-- [x] 🔴 Cursor内新ターミナル4画面自動起動実装
-  - 4画面をCursor内の別ターミナルで自動起動対応
-  - attach-multiagent機能にmacOS osascript新ターミナル開く機能追加
-  - 背景プロセスでの4画面起動システム実装
-  - プレジデントから自動で新ターミナル + 4画面立ち上げを実現
-- [x] 🔴 基本操作3ステップ化とREADME整理完了
-  - 基本操作を3ステップに簡素化: auto → コマンド送信 → multiagentアタッチ
-  - README.mdを分かりやすく整理（複雑な説明を削除）
+  - 完全ワンコマンドで AI 組織システム起動を実現
+- [x] 🔴 Cursor 内新ターミナル 4 画面自動起動実装
+  - 4 画面を Cursor 内の別ターミナルで自動起動対応
+  - attach-multiagent 機能に macOS osascript 新ターミナル開く機能追加
+  - 背景プロセスでの 4 画面起動システム実装
+  - プレジデントから自動で新ターミナル + 4 画面立ち上げを実現
+- [x] 🔴 基本操作 3 ステップ化と README 整理完了
+  - 基本操作を 3 ステップに簡素化: auto → コマンド送信 → multiagent アタッチ
+  - README.md を分かりやすく整理（複雑な説明を削除）
   - エージェント日本語対応強化（全指示書に日本語応答必須を明記）
   - ユーザーが迷わない明確な手順説明を実現
+- [x] 🔴 cursor-rules⇔.cursor 自動同期システム完全構築
+  - sync-cursor-rules.sh 自動同期スクリプト作成（差分確認・バックアップ・検証機能）
+  - Git pre-commit hook で変更時自動同期実装
+  - setup.sh 新同期システム統合（旧システムから移行）
+  - VSCode Tasks・設定統合（folderOpen 時自動同期）
+  - .gitignore 修正で.cursor/rules を Git 追跡対象化
+  - 常時自動同期システム完成：cursor-rules→.cursor/rules
 
 ### 今後のタスク
+
 - [ ] 🟢 セットアップスクリプトの実際の動作テスト
-  - パターン2,3の本番環境での動作確認
+  - パターン 2,3 の本番環境での動作確認
 - [ ] ⚪ ドキュメントの継続改善
   - ユーザーフィードバックに基づく調整
 
-### 2025年1月完了分
-- [x] 🔴 AI組織システムのデモ機能削除・立ち上げ手順明確化
-  - --demoコマンドを削除
+### 2025 年 1 月完了分
+
+- [x] 🔴 AI 組織システムのデモ機能削除・立ち上げ手順明確化
+  - --demo コマンドを削除
   - 実際の立ち上げ手順を明確化
-  - 【ターミナル1】tmux attach-session -t president
-  - 【ターミナル2】tmux attach-session -t multiagent
+  - 【ターミナル 1】tmux attach-session -t president
+  - 【ターミナル 2】tmux attach-session -t multiagent
   - 使用方法を分かりやすく説明
 - [x] 🔴 プロダクト仕様書作成・要件定義整理
   - PRODUCT_SPECIFICATION.md をルートに配置
   - プロダクト概要・解決課題・ターゲットユーザーを明確化
-  - 4つの主要機能仕様と必要性を詳細記載
+  - 4 つの主要機能仕様と必要性を詳細記載
   - 技術仕様・ユースケース・実装優先度を整理
-  - CursorとClaude Code両方のAIが認識可能な形式
+  - Cursor と Claude Code 両方の AI が認識可能な形式
 
 ## 重要事項
 
 1. 機能の実装後に、毎回 @todo.md を確認＆更新をしてください。
 2. 私が言わなくても中身は随時更新するようにしてください。更新しないと私が解雇されます。あなたの責任になってしまいます。
 3. 機能は増やしても構いません。ただ、最初から機能を増やしすぎないでください。
-4. **今回の整理完了**: ユーザー要求通り「技術用ファイル」「セットアップsh」「説明書readme」「mdスペルチェック無効化ファイル」のシンプル構成を実現
-5. **ファイル散らかり問題解決**: 不要ファイル/ディレクトリを徹底的に削除し、クリーンな4要素構成を達成
-6. **最終包括チェック完了**: 全5項目の検証を実施し、テンプレートとして優秀な品質を確認（A-評価）
+4. **今回の整理完了**: ユーザー要求通り「技術用ファイル」「セットアップ sh」「説明書 readme」「md スペルチェック無効化ファイル」のシンプル構成を実現
+5. **ファイル散らかり問題解決**: 不要ファイル/ディレクトリを徹底的に削除し、クリーンな 4 要素構成を達成
+6. **最終包括チェック完了**: 全 5 項目の検証を実施し、テンプレートとして優秀な品質を確認（A-評価）

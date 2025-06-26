@@ -40,5 +40,13 @@
     "other": false,
     "comments": false,
     "strings": false
-  }
+  },
+  "files.watcherExclude": {},
+  "files.associations": {
+    "*.mdc": "markdown"
+  },
+  "tasks.autoDetect": "on",
+  "cursor.rules.autoSync": true,
+  "cursor.rules.sourcePath": "cursor-rules",
+  "cursor.rules.targetPath": ".cursor/rules"
 } 

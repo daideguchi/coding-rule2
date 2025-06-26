@@ -56,8 +56,12 @@ setup_basic() {
     # .cursorディレクトリ作成
     mkdir -p .cursor/rules
     
-    # cursor-rulesの内容を.cursor/rulesにコピー
-    if [ -d "cursor-rules" ]; then
+    # cursor-rulesの内容を.cursor/rulesに同期（新システム使用）
+    if [ -f "scripts/sync-cursor-rules.sh" ]; then
+        log_info "🔄 新同期システムで同期実行中..."
+        ./scripts/sync-cursor-rules.sh --force
+    elif [ -d "cursor-rules" ]; then
+        log_warn "⚠️ 旧システムで同期実行中（新システムへの移行を推奨）..."
         cp -r cursor-rules/* .cursor/rules/
         log_success "✅ Cursor Rules設定完了"
     else
