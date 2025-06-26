@@ -121,8 +121,9 @@ chmod +x setup.sh
 # 設定確認
 ls -la .cursor/
 
-# Claude Code 起動確認（パターン 2・3）
-claude --dangerously-skip-permissions
+# Claude Code 起動確認
+# パターン2: claude
+# パターン3: claude --dangerously-skip-permissions
 
 # AI 組織システム確認（パターン 3）
 ls -la ai-agents/
@@ -145,7 +146,7 @@ ls -la ai-agents/
 ```
 scripts/claude-cursor-sync.sh         # 同期スクリプト
 ai-agents/docs/CLAUDE.md      # プロジェクト情報
-# Claude Code起動: claude --dangerously-skip-permissions
+# Claude Code起動: claude（通常）
 ```
 
 ### パターン 3: 完全設定
@@ -156,6 +157,7 @@ ai-agents/
 ├── logs/                     # ログファイル
 ├── sessions/                 # セッション管理
 └── manage.sh                 # 管理スクリプト
+# Claude Code起動: claude --dangerously-skip-permissions（必須）
 ```
 
 ---
@@ -185,7 +187,10 @@ cat STATUS.md
 **⚠️ 重要: Claude Code の起動コマンド**
 
 ```bash
-# Claude Code 起動（必須オプション）
+# パターン2（開発環境設定）: 通常起動
+claude
+
+# パターン3（完全設定）: 必須オプション
 claude --dangerously-skip-permissions
 ```
 
@@ -236,7 +241,7 @@ claude --dangerously-skip-permissions
 ./ai-agents/manage.sh claude-setup
 
 # Claude Codeが各セッションで自動起動
-# 起動コマンド: claude --dangerously-skip-permissions
+# 起動コマンド: claude --dangerously-skip-permissions（パターン3必須）
 # PRESIDENTで指示開始: "指示書に従って"
 ```
 
@@ -325,7 +330,8 @@ rm -rf .cursor/ ai-agents/
 ./setup.sh
 
 # Claude Code 正しい起動
-claude --dangerously-skip-permissions
+# パターン2: claude
+# パターン3: claude --dangerously-skip-permissions
 
 # ログ確認
 tail -f logs/system/current.log
@@ -350,7 +356,8 @@ cat .cursor/rules.md
 
 ```bash
 # 正しい起動コマンドで起動
-claude --dangerously-skip-permissions
+# パターン2: claude
+# パターン3: claude --dangerously-skip-permissions
 
 # 同期実行
 ./scripts/claude-cursor-sync.sh record
