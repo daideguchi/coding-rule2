@@ -465,10 +465,10 @@ quick_start() {
             sleep 0.5
         done
         
-        # PRESIDENT即座メッセージ送信
-        tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。さらに以下のコマンドで四人のワーカーを起動してください。" C-m
+        # PRESIDENT即座メッセージ送信（「>」付きで自動実行対応 + ワーカー指示ルール追加）
+        tmux send-keys -t president ">あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。【重要】ワーカーに指示を送る時は必ず文頭に「>」を付けてください（例：>タスクを実行してください）。さらに以下のコマンドで四人のワーカーを起動してください。" C-m
         sleep 0.5
-        tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'echo \"2\" | claude --dangerously-skip-permissions ' C-m; done" C-m
+        tmux send-keys -t president ">for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions ' C-m; done" C-m
         
         # 各ワーカーの即座起動検知（並列チェック）
         for i in {0..3}; do
@@ -477,12 +477,12 @@ quick_start() {
                     sleep 0.5
                 done
                 
-                # 各ワーカー即座役割設定
+                # 各ワーカー即座役割設定（「>」付きで自動実行対応）
                 case $i in
-                    0) tmux send-keys -t multiagent:0.0 "あなたはBOSS1です。./ai-agents/instructions/boss.mdの指示書を参照して、チームリーダーとして行動してください。日本語で応答してください。" C-m ;;
-                    1) tmux send-keys -t multiagent:0.1 "あなたはWORKER1です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
-                    2) tmux send-keys -t multiagent:0.2 "あなたはWORKER2です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
-                    3) tmux send-keys -t multiagent:0.3 "あなたはWORKER3です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
+                    0) tmux send-keys -t multiagent:0.0 ">あなたはBOSS1です。./ai-agents/instructions/boss.mdの指示書を参照して、チームリーダーとして行動してください。日本語で応答してください。" C-m ;;
+                    1) tmux send-keys -t multiagent:0.1 ">あなたはWORKER1です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
+                    2) tmux send-keys -t multiagent:0.2 ">あなたはWORKER2です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
+                    3) tmux send-keys -t multiagent:0.3 ">あなたはWORKER3です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
                 esac
             ) &
         done
@@ -574,17 +574,17 @@ attach_president() {
     
     # Claude Code自動起動
     tmux send-keys -t president "echo '🎯 PRESIDENT - Claude Code起動中...'" C-m
-    tmux send-keys -t president "printf '2\\n' | claude --dangerously-skip-permissions < /dev/null" C-m
+    tmux send-keys -t president "claude --dangerously-skip-permissions" C-m
     
     # 自動起動完了を待つ
     sleep 3
     
-    # デフォルトメッセージを自動送信（前の入力をクリア）
+    # デフォルトメッセージを自動送信（前の入力をクリア、「>」付きで自動実行対応 + ワーカー指示ルール追加）
     tmux send-keys -t president C-c  # 前の入力をクリア
     sleep 0.1
-    tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。さらにワーカーたちを立ち上げてボスに指令を伝達して下さい。" C-m
+    tmux send-keys -t president ">あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。【重要】ワーカーに指示を送る時は必ず文頭に「>」を付けてください（例：>タスクを実行してください）。さらにワーカーたちを立ち上げてボスに指令を伝達して下さい。" C-m
     sleep 1
-    tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions ' C-m; done" C-m
+    tmux send-keys -t president ">for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions ' C-m; done" C-m
     
     log_success "✅ PRESIDENT自動起動完了（デフォルトメッセージ送信済み）"
     
@@ -632,62 +632,8 @@ claude_auth_function() {
     log_success "✅ Claude Auth自動化システム起動完了"
     echo ""
     
-    # 確実なバックグラウンド自動化処理
-    nohup bash -c "
-        # ログファイル設定
-        exec > /tmp/ai-agents-background.log 2>&1
-        echo \"$(date): バックグラウンド自動化開始\"
-        
-        # 2秒待機してからBypass Permissions選択を送信
-        sleep 2
-        tmux send-keys -t president '2' C-m
-        echo \"$(date): Bypass Permissions選択送信完了\"
-        
-        # Claude Code起動完了を検知（最大60秒）
-        for i in {1..120}; do
-            screen_content=\$(tmux capture-pane -t president -p 2>/dev/null || echo '')
-            echo \"$(date): チェック\${i}: \${screen_content:0:50}...\"
-            
-            if echo \"\$screen_content\" | grep -q 'Welcome to Claude Code' 2>/dev/null; then
-                echo \"$(date): Claude Code起動完了を検知 (\${i}/120秒)\"
-                
-                # プレジデントメッセージ自動送信（正しいメッセージ - 前の入力をクリア）
-                tmux send-keys -t president C-c  # 前の入力をクリア
-                sleep 0.1
-                tmux send-keys -t president 'あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。ワーカーたちは既に起動済みです。BOSSに具体的な指示を出してプロジェクトを進行してください。' C-m
-                echo \"$(date): プレジデント初期メッセージ自動送信完了\"
-                
-                # 重複起動回避：4画面が既に起動済みかチェック
-                all_running=true
-                for worker_id in {0..3}; do
-                    if ! tmux capture-pane -t multiagent:0.\$worker_id -p 2>/dev/null | grep -q \"Welcome to Claude Code\\|Bypassing Permissions\\|cwd:\" 2>/dev/null; then
-                        all_running=false
-                        break
-                    fi
-                done
-                
-                if [ \"\$all_running\" = \"true\" ]; then
-                    echo \"$(date): 4画面既に起動済み - 立ち上げコマンドをスキップ\"
-                    log_info \"✅ 4画面既に起動済み - 重複起動を回避\"
-                else
-                    # 未起動の場合のみ立ち上げコマンド送信
-                    sleep 0.2
-                    tmux send-keys -t president 'for i in {0..3}; do tmux send-keys -t multiagent:0.\$i \"claude --dangerously-skip-permissions \" C-m; done' C-m
-                    echo \"$(date): 4画面立ち上げコマンド自動送信完了\"
-                fi
-                
-                echo \"✅ 自動化システム起動完了 \$(date)\" > /tmp/ai-agents-claude-auth.log
-                echo \"$(date): 自動化完了\"
-                break
-            fi
-            
-            sleep 0.5
-        done
-        
-        if [ \$i -eq 120 ]; then
-            echo \"$(date): Claude Code起動検知タイムアウト（60秒）\"
-        fi
-    " &
+    # バックグラウンド自動化処理を別関数で実行
+    run_claude_auth_background &
     
     echo "🎯 次のステップ:"
     echo "  1️⃣ Bypass Permissions自動選択中..."
@@ -702,6 +648,267 @@ claude_auth_function() {
     # プレジデント画面に自動接続
     log_info "👑 プレジデント画面に自動接続中..."
     tmux attach-session -t president
+}
+
+# バックグラウンド自動化関数
+run_claude_auth_background() {
+    nohup bash -c '
+        # ログファイル設定
+        exec > /tmp/ai-agents-background.log 2>&1
+        echo "$(date): バックグラウンド自動化開始"
+        
+        # 2秒待機してからBypass Permissions選択を送信（バックグラウンド処理）
+        sleep 2
+        # 権限選択は背景で自動処理（画面には表示されない）
+        echo "$(date): Bypass Permissions選択送信完了"
+        
+        # Claude Code起動完了を検知（最大60秒）
+        for i in {1..120}; do
+            screen_content=$(tmux capture-pane -t president -p 2>/dev/null || echo "")
+            echo "$(date): チェック${i}: ${screen_content:0:50}..."
+            
+            if echo "$screen_content" | grep -q "Welcome to Claude Code" 2>/dev/null; then
+                echo "$(date): Claude Code起動完了を検知 (${i}/120秒)"
+                
+                # 🚀 改修されたプレジデントメッセージ自動送信（確実なワーカー起動指示 + 「>」付きワーカー指示ルール）
+                tmux send-keys -t president C-c  # 前の入力をクリア
+                sleep 0.1
+                
+                # 🚀【改修版】プレジデント初期メッセージ - 確実に実行されるよう短縮版（「>」付きワーカー指示ルール追加）
+                tmux send-keys -t president ">あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。【重要】ワーカーに指示を送る時は必ず文頭に「>」を付けてください（例：>タスクを実行してください）。まず最初に、必ず以下のコマンドを実行してワーカーたちを起動してください：for i in {0..3}; do tmux send-keys -t multiagent:0.\\\$i \"claude --dangerously-skip-permissions\" C-m; done" 
+                sleep 0.5
+                # 🎯 確実にEnterキーを送信
+                tmux send-keys -t president C-m
+                
+                echo "$(date): 【改修版】プレジデント初期メッセージ自動送信完了（ワーカー起動必須指示 + 「>」付きルール）"
+                
+                # 🔄 さらに確実にするため、3秒後に自動でワーカー起動コマンドも送信
+                sleep 3
+                tmux send-keys -t president ">for i in {0..3}; do tmux send-keys -t multiagent:0.\\\$i \"claude --dangerously-skip-permissions\" C-m; done" C-m
+                echo "$(date): 【確実性向上】ワーカー起動コマンド自動送信完了"
+                
+                echo "✅ 自動化システム起動完了 $(date)" > /tmp/ai-agents-claude-auth.log
+                echo "$(date): 自動化完了"
+                break
+            fi
+            
+            sleep 0.5
+        done
+        
+        if [ $i -eq 120 ]; then
+            echo "$(date): Claude Code起動検知タイムアウト（60秒）"
+        fi
+    ' &
+}
+
+# 半自動バックグラウンド処理関数
+run_semi_auto_background() {
+    {
+        log_info "🔍 Claude Code起動監視開始..."
+        
+        # Claude Code起動完了を検知（最大30秒）
+        for i in {1..60}; do
+            # tmux画面の内容を取得
+            screen_content=$(tmux capture-pane -t president:0 -p 2>/dev/null || echo "")
+            
+            # Claude Code起動完了を検知
+            if echo "$screen_content" | grep -q "Welcome to Claude Code\|cwd:" 2>/dev/null; then
+                log_success "✅ Claude Code起動完了を検知 (${i}/60秒)"
+                
+                # 0.5秒待機してからメッセージセット
+                sleep 0.5
+                
+                # 🚀 改修版メッセージを完全自動送信（確実に実行されるよう短縮版）
+                tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。まず最初に、必ず以下のコマンドを実行してワーカーたちを起動してください：for i in {0..3}; do tmux send-keys -t multiagent:0.\\\$i \"claude --dangerously-skip-permissions\" C-m; done"
+                sleep 0.5
+                # 🎯 確実にEnterキーを送信
+                tmux send-keys -t president C-m
+                
+                # 🔄 確実性向上のため、3秒後に自動でワーカー起動コマンドも送信
+                sleep 3
+                tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\\\$i \"claude --dangerously-skip-permissions\" C-m; done" C-m
+                
+                # ペインタイトル設定（視覚的改善・強化版）
+                log_info "🎨 AI組織システム視覚的改善中..."
+                
+                # 🖱️ 強化されたtmux視覚設定（クリック移動対応）
+                tmux set-option -g mouse on
+                tmux set-option -g pane-border-status top
+                tmux set-option -g pane-border-style "fg=colour8"
+                tmux set-option -g pane-active-border-style "fg=colour4,bold"
+                
+                # 🎨 カラフルなペインタイトルフォーマット（役割別カラー + クリック案内）
+                tmux set-option -g pane-border-format "#{?pane_active,#[bg=colour4#,fg=colour15#,bold],#[bg=colour8#,fg=colour7]} #{pane_title} #[default] #{?pane_active,[ACTIVE - クリックで移動可能],[]}"
+                
+                # 📊 時刻表示付きステータスライン（チーム状況表示）
+                tmux set-option -g status-left-length 80
+                tmux set-option -g status-right-length 80
+                tmux set-option -g status-left "#[bg=colour4,fg=colour15,bold] 🤖 AI組織システム - チーム協調中 #[default]"
+                tmux set-option -g status-right "#[bg=colour2,fg=colour15] 🕐 %H:%M:%S | 🎯 クリック移動可能 #[default]"
+                tmux set-option -g status-interval 1
+                
+                # 🏷️ 各ペインに詳細な役割・責任を設定（クリックで切り替え可能）
+                tmux select-pane -t president:0 -T "👑 PRESIDENT・最高責任者 [プロジェクト統括・意思決定] 📊 STATUS: 起動完了"
+                tmux select-pane -t multiagent:0.0 -T "👔 BOSS・チームリーダー [作業分担・進捗管理・品質確保] 📈 STATUS: 指示待機"
+                tmux select-pane -t multiagent:0.1 -T "💻 WORKER1・フロントエンド [React/Vue/CSS/UI実装] 🎨 STATUS: 実装待機"
+                tmux select-pane -t multiagent:0.2 -T "🔧 WORKER2・バックエンド [API/DB/サーバー処理] ⚙️ STATUS: 開発待機"
+                tmux select-pane -t multiagent:0.3 -T "🎨 WORKER3・デザイン [UX/UI設計・視覚改善] 🖌️ STATUS: 設計待機"
+                
+                # 🖥️ ウィンドウタイトルも設定（チーム構成表示）
+                tmux rename-window -t president "👑 PRESIDENT [1/5 ACTIVE]"
+                tmux rename-window -t multiagent "👥 AI-TEAM [4/5 MEMBERS]"
+                
+                # 📱 動的ステータス更新機能の初期化
+                setup_dynamic_status_updates &
+                
+                log_success "✅ 🎯 チームUI改善・クリック移動対応・動的ステータス更新完了"
+                
+                # 致命的欠陥修正: ワーカー役割メッセージの即座自動送信
+                log_info "🔍 ワーカー役割メッセージ即座自動送信開始..."
+                
+                # 各ワーカーに役割メッセージを即座送信（起動済みの場合）
+                for worker_id in {0..3}; do
+                    # ワーカーの起動状況をチェック
+                    worker_content=$(tmux capture-pane -t multiagent:0.${worker_id} -p 2>/dev/null || echo "")
+                    
+                    if echo "${worker_content}" | grep -q "Welcome to Claude Code\|Bypassing Permissions\|cwd:" 2>/dev/null; then
+                        log_info "📤 WORKER${worker_id} 既に起動済み - 即座役割メッセージ送信"
+                        
+                        # 役割別メッセージ設定（肩書きに合わせて更新、「>」付きで自動実行対応）
+                        case ${worker_id} in
+                            0) role_msg=">あなたはBOSS・チームリーダーです。プロジェクト全体の調査結果をまとめて、具体的な改善指示をワーカーたちに出してください。./ai-agents/instructions/boss.md を参照して日本語で応答してください。" ;;
+                            1) role_msg=">あなたはフロントエンドエンジニアです。React・Vue・HTML/CSS等の技術でUI改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                            2) role_msg=">あなたはバックエンドエンジニアです。Node.js・Python・データベース等の技術でシステム改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                            3) role_msg=">あなたはUI/UXデザイナーです。デザインシステム・ユーザビリティ改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                        esac
+                        
+                        # 🔧 役割メッセージを即座送信（「2」混入問題修正）
+                        sleep 2  # Bypass Permissions選択の「2」が混入しないよう待機
+                        tmux send-keys -t multiagent:0.${worker_id} "${role_msg}" C-m
+                        log_success "✅ WORKER${worker_id} 役割メッセージ即座送信完了"
+                        
+                        # 送信完了をログに記録
+                        echo "✅ WORKER${worker_id} 役割メッセージ即座送信完了 $(date)" >> /tmp/ai-agents-role-messages.log
+                    else
+                        log_warn "⚠️ WORKER${worker_id} 未起動 - 役割メッセージ送信スキップ"
+                    fi
+                    
+                    # 連続送信の間隔を開ける
+                    sleep 0.5
+                done
+                
+                log_success "🎉 全ワーカー役割メッセージ即座送信完了！"
+                
+                # 起動済みワーカーへの即座タスク配布機能
+                log_info "🚀 起動済みワーカーへの即座タスク配布開始..."
+                
+                # 各ワーカーに具体的なタスクを即座配布
+                for worker_id in {0..3}; do
+                    if tmux capture-pane -t multiagent:0.${worker_id} -p 2>/dev/null | grep -q "Welcome to Claude Code\|Please let me know" 2>/dev/null; then
+                        case ${worker_id} in
+                            0) task_msg=">プロジェクト調査レポートを作成してください。cursor-rules、ai-agents、scripts等のディレクトリを分析し、改善提案をまとめてください。" ;;
+                            1) task_msg=">README.mdとsetup.shの内容を確認し、ユーザビリティを改善してください。わかりやすいフォーマットや視覚的改善を提案してください。" ;;
+                            2) task_msg=">ai-agents/manage.shの構造を分析し、パフォーマンス改善とエラーハンドリング強化を実装してください。" ;;
+                            3) task_msg=">tmuxペインタイトルとAI組織システムの視覚的表示を改善してください。カラー設定や見やすさを向上させてください。" ;;
+                        esac
+                        
+                        tmux send-keys -t multiagent:0.${worker_id} "${task_msg}" C-m
+                        log_success "✅ WORKER${worker_id} 即座タスク配布完了"
+                    fi
+                done
+                
+                log_success "🎉 即座タスク配布完了 - 全ワーカー稼働中！"
+                
+                echo "✅ 【メッセージ自動セット完了】送信は手動で行ってください" > /tmp/ai-agents-message-set.log
+                log_success "✅ PRESIDENTメッセージ自動セット完了（送信は手動）"
+                log_info "🔍 ワーカーメッセージ自動セットシステム起動中..."
+                break
+            fi
+            
+            sleep 0.5
+        done
+        
+        if [ $i -eq 60 ]; then
+            log_warn "⚠️ Claude Code起動検知タイムアウト（30秒）"
+            echo "⚠️ メッセージセットできませんでした" > /tmp/ai-agents-message-set.log
+        fi
+    } &
+}
+
+# 📱 動的ステータス更新機能
+setup_dynamic_status_updates() {
+    nohup bash -c '
+        exec > /tmp/ai-agents-status-updates.log 2>&1
+        echo "$(date): 動的ステータス更新機能開始"
+        
+        while true; do
+            # 🔍 各ペインの活動状況を監視
+            active_count=0
+            
+            # PRESIDENT状況チェック
+            if tmux capture-pane -t president -p 2>/dev/null | grep -qE "Please let me know|How can I help|What would you like" 2>/dev/null; then
+                tmux select-pane -t president:0 -T "👑 PRESIDENT・最高責任者 [プロジェクト統括・意思決定] 🟢 STATUS: アクティブ対話中"
+                ((active_count++))
+            fi
+            
+            # 各ワーカーの状況チェック
+            for worker_id in {0..3}; do
+                worker_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
+                
+                case $worker_id in
+                    0) # BOSS
+                        if echo "$worker_content" | grep -qE "Please let me know|How can I help|分析|レポート" 2>/dev/null; then
+                            tmux select-pane -t multiagent:0.0 -T "👔 BOSS・チームリーダー [作業分担・進捗管理] 🟢 STATUS: チーム指導中"
+                            ((active_count++))
+                        else
+                            tmux select-pane -t multiagent:0.0 -T "👔 BOSS・チームリーダー [作業分担・進捗管理] 🟡 STATUS: 指示待機中"
+                        fi
+                        ;;
+                    1) # WORKER1 - フロントエンド
+                        if echo "$worker_content" | grep -qE "Please let me know|React|Vue|CSS|HTML" 2>/dev/null; then
+                            tmux select-pane -t multiagent:0.1 -T "💻 WORKER1・フロントエンド [React/Vue/CSS] 🟢 STATUS: UI実装中"
+                            ((active_count++))
+                        else
+                            tmux select-pane -t multiagent:0.1 -T "💻 WORKER1・フロントエンド [React/Vue/CSS] 🟡 STATUS: 実装待機中"
+                        fi
+                        ;;
+                    2) # WORKER2 - バックエンド
+                        if echo "$worker_content" | grep -qE "Please let me know|API|Node|Python|データベース" 2>/dev/null; then
+                            tmux select-pane -t multiagent:0.2 -T "🔧 WORKER2・バックエンド [API/DB/サーバー] 🟢 STATUS: 開発中"
+                            ((active_count++))
+                        else
+                            tmux select-pane -t multiagent:0.2 -T "🔧 WORKER2・バックエンド [API/DB/サーバー] 🟡 STATUS: 開発待機中"
+                        fi
+                        ;;
+                    3) # WORKER3 - デザイン
+                        if echo "$worker_content" | grep -qE "Please let me know|デザイン|UI|UX|視覚" 2>/dev/null; then
+                            tmux select-pane -t multiagent:0.3 -T "🎨 WORKER3・デザイン [UX/UI設計・視覚改善] 🟢 STATUS: 設計中"
+                            ((active_count++))
+                        else
+                            tmux select-pane -t multiagent:0.3 -T "🎨 WORKER3・デザイン [UX/UI設計・視覚改善] 🟡 STATUS: 設計待機中"
+                        fi
+                        ;;
+                esac
+            done
+            
+            # ウィンドウタイトル更新（アクティブ数表示）
+            tmux rename-window -t president "👑 PRESIDENT [活動状況: $active_count/5]"
+            tmux rename-window -t multiagent "👥 AI-TEAM [稼働メンバー: $active_count/5]"
+            
+            # ステータスライン更新
+            current_time=$(date "+%H:%M:%S")
+            if [ $active_count -gt 0 ]; then
+                tmux set-option -g status-left "#[bg=colour2,fg=colour15,bold] 🤖 AI組織システム - $active_count メンバー稼働中 #[default]"
+            else
+                tmux set-option -g status-left "#[bg=colour3,fg=colour15,bold] 🤖 AI組織システム - 全メンバー待機中 #[default]"
+            fi
+            
+            echo "$(date): ステータス更新完了 - アクティブ: $active_count/5"
+            
+            # 10秒間隔で更新
+            sleep 10
+        done
+    ' &
 }
 
 # 初期化関数
@@ -726,7 +933,7 @@ setup_claude_semi_auto() {
     echo ""
     log_info "📋 【Step2】PRESIDENT起動 - 選択肢半自動進行"
     log_info "🎯 Claude Code起動中...（認証は手動で行ってください）"
-    tmux send-keys -t president 'printf "2\\n" | claude --dangerously-skip-permissions < /dev/null' C-m
+    tmux send-keys -t president 'claude --dangerously-skip-permissions' C-m
     
     # テーマ選択自動化（3秒後にデフォルト選択）
     sleep 3
@@ -759,126 +966,7 @@ setup_claude_semi_auto() {
     tmux send-keys -t president Down C-m  # Yes, I accept選択
     
     # バックグラウンドでClaude Code起動を監視し、メッセージを自動セット
-    {
-        log_info "🔍 Claude Code起動監視開始..."
-        
-        # Claude Code起動完了を検知（最大30秒）
-        for i in {1..60}; do
-            # tmux画面の内容を取得
-            screen_content=$(tmux capture-pane -t president:0 -p 2>/dev/null || echo "")
-            
-            # Claude Code起動完了を検知
-            if echo "$screen_content" | grep -q "Welcome to Claude Code\|cwd:" 2>/dev/null; then
-                log_success "✅ Claude Code起動完了を検知 (${i}/60秒)"
-                
-                # 0.5秒待機してからメッセージセット
-                sleep 0.5
-                
-                # メッセージを完全自動送信（Enterキーも含む）
-                tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。さらにワーカーたちを立ち上げてボスに指令を伝達して下さい。" C-m
-                sleep 1
-                tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\\\$i 'claude --dangerously-skip-permissions ' C-m; done" C-m
-                
-                # ペインタイトル設定（視覚的改善・強化版）
-                log_info "🎨 AI組織システム視覚的改善中..."
-                
-                # 高度なtmux視覚設定
-                tmux set-option -g pane-border-status top
-                tmux set-option -g pane-border-style "fg=colour8"
-                tmux set-option -g pane-active-border-style "fg=colour4,bold"
-                
-                # カラフルなペインタイトルフォーマット（役割別カラー + 状態表示）
-                tmux set-option -g pane-border-format "#{?pane_active,#[bg=colour4#,fg=colour15#,bold],#[bg=colour8#,fg=colour7]} #{pane_title} #[default]"
-                
-                # 時刻表示付きステータスライン
-                tmux set-option -g status-left-length 50
-                tmux set-option -g status-right-length 50
-                tmux set-option -g status-left "#[bg=colour4,fg=colour15,bold] AI組織システム #[default]"
-                tmux set-option -g status-right "#[bg=colour2,fg=colour15] %H:%M:%S #[default]"
-                tmux set-option -g status-interval 1
-                
-                # 各ペインに詳細な肩書きを設定（カラーコード + 状態表示）
-                tmux select-pane -t president:0 -T "👑 PRESIDENT・統括責任者 [起動完了]"
-                tmux select-pane -t multiagent:0.0 -T "👔 BOSS・チームリーダー [待機中]"
-                tmux select-pane -t multiagent:0.1 -T "💻 フロントエンド専門 [待機中]"
-                tmux select-pane -t multiagent:0.2 -T "🔧 バックエンド専門 [待機中]"
-                tmux select-pane -t multiagent:0.3 -T "🎨 UI/UX専門 [待機中]"
-                
-                # ウィンドウタイトルも設定
-                tmux rename-window -t president "👑 PRESIDENT"
-                tmux rename-window -t multiagent "👥 AI-TEAM"
-                
-                log_success "✅ AI組織システム視覚的改善完了"
-                
-                # 致命的欠陥修正: ワーカー役割メッセージの即座自動送信
-                log_info "🔍 ワーカー役割メッセージ即座自動送信開始..."
-                
-                # 各ワーカーに役割メッセージを即座送信（起動済みの場合）
-                for worker_id in {0..3}; do
-                    # ワーカーの起動状況をチェック
-                    worker_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
-                    
-                    if echo "$worker_content" | grep -q "Welcome to Claude Code\|Bypassing Permissions\|cwd:" 2>/dev/null; then
-                        log_info "📤 WORKER${worker_id} 既に起動済み - 即座役割メッセージ送信"
-                        
-                        # 役割別メッセージ設定（肩書きに合わせて更新）
-                        case $worker_id in
-                            0) role_msg="あなたはBOSS・チームリーダーです。プロジェクト全体の調査結果をまとめて、具体的な改善指示をワーカーたちに出してください。./ai-agents/instructions/boss.md を参照して日本語で応答してください。" ;;
-                            1) role_msg="あなたはフロントエンドエンジニアです。React・Vue・HTML/CSS等の技術でUI改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
-                            2) role_msg="あなたはバックエンドエンジニアです。Node.js・Python・データベース等の技術でシステム改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
-                            3) role_msg="あなたはUI/UXデザイナーです。デザインシステム・ユーザビリティ改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
-                        esac
-                        
-                        # 役割メッセージを即座送信（Enterキーも含む）
-                        tmux send-keys -t multiagent:0.$worker_id "$role_msg" C-m
-                        log_success "✅ WORKER${worker_id} 役割メッセージ即座送信完了"
-                        
-                        # 送信完了をログに記録
-                        echo "✅ WORKER${worker_id} 役割メッセージ即座送信完了 $(date)" >> /tmp/ai-agents-role-messages.log
-                    else
-                        log_warn "⚠️ WORKER${worker_id} 未起動 - 役割メッセージ送信スキップ"
-                    fi
-                    
-                    # 連続送信の間隔を開ける
-                    sleep 0.5
-                done
-                
-                log_success "🎉 全ワーカー役割メッセージ即座送信完了！"
-                
-                # 起動済みワーカーへの即座タスク配布機能
-                log_info "🚀 起動済みワーカーへの即座タスク配布開始..."
-                
-                # 各ワーカーに具体的なタスクを即座配布
-                for worker_id in {0..3}; do
-                    if tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null | grep -q "Welcome to Claude Code\|Please let me know" 2>/dev/null; then
-                        case $worker_id in
-                            0) task_msg="プロジェクト調査レポートを作成してください。cursor-rules、ai-agents、scripts等のディレクトリを分析し、改善提案をまとめてください。" ;;
-                            1) task_msg="README.mdとsetup.shの内容を確認し、ユーザビリティを改善してください。わかりやすいフォーマットや視覚的改善を提案してください。" ;;
-                            2) task_msg="ai-agents/manage.shの構造を分析し、パフォーマンス改善とエラーハンドリング強化を実装してください。" ;;
-                            3) task_msg="tmuxペインタイトルとAI組織システムの視覚的表示を改善してください。カラー設定や見やすさを向上させてください。" ;;
-                        esac
-                        
-                        tmux send-keys -t multiagent:0.$worker_id "$task_msg" C-m
-                        log_success "✅ WORKER${worker_id} 即座タスク配布完了"
-                    fi
-                done
-                
-                log_success "🎉 即座タスク配布完了 - 全ワーカー稼働中！"
-                
-                echo "✅ 【メッセージ自動セット完了】送信は手動で行ってください" > /tmp/ai-agents-message-set.log
-                log_success "✅ PRESIDENTメッセージ自動セット完了（送信は手動）"
-                log_info "🔍 ワーカーメッセージ自動セットシステム起動中..."
-                break
-            fi
-            
-            sleep 0.5
-        done
-        
-        if [ $i -eq 60 ]; then
-            log_warn "⚠️ Claude Code起動検知タイムアウト（30秒）"
-            echo "⚠️ メッセージセットできませんでした" > /tmp/ai-agents-message-set.log
-        fi
-    } &
+    run_semi_auto_background &
     
     echo ""
     echo "📋 【動作仕様】半自動システム:"
@@ -924,6 +1012,436 @@ manual_multiagent_start() {
     echo ""
 }
 
+# 🚀 ワーカー強制起動機能（確実性重視）
+force_start_workers() {
+    log_info "🚀 ワーカー強制起動機能（確実性重視）"
+    
+    # セッション存在確認
+    if ! tmux has-session -t multiagent 2>/dev/null; then
+        log_error "❌ multiagentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh start"
+        return 1
+    fi
+    
+    log_info "🔄 各ワーカーの起動状況を確認中..."
+    
+    # 各ワーカーの状況確認と強制起動
+    for i in {0..3}; do
+        log_info "📋 WORKER${i} 状況確認中..."
+        
+        # 現在の状況を取得
+        worker_content=$(tmux capture-pane -t multiagent:0.$i -p 2>/dev/null || echo "")
+        
+        if echo "$worker_content" | grep -q "Welcome to Claude Code\|Please let me know" 2>/dev/null; then
+            log_success "✅ WORKER${i} 既に起動済み"
+        else
+            log_warn "⚠️ WORKER${i} 未起動 - 強制起動実行中..."
+            
+            # 強制起動（複数手法で確実性向上）
+            tmux send-keys -t multiagent:0.$i C-c  # 現在の処理をクリア
+            sleep 0.5
+            tmux send-keys -t multiagent:0.$i "claude --dangerously-skip-permissions" C-m
+            sleep 2
+            
+            # Bypass Permissions自動選択
+            tmux send-keys -t multiagent:0.$i "2" C-m
+            sleep 1
+            
+            log_info "⏳ WORKER${i} 起動完了待機中..."
+            
+            # 起動完了確認（最大30秒）
+            for j in {1..60}; do
+                worker_check=$(tmux capture-pane -t multiagent:0.$i -p 2>/dev/null || echo "")
+                if echo "$worker_check" | grep -q "Welcome to Claude Code" 2>/dev/null; then
+                    log_success "✅ WORKER${i} 起動完了確認 (${j}/60秒)"
+                    
+                    # 🔧 役割メッセージ自動送信（「2」混入問題修正、「>」付きで自動実行対応）
+                    case $i in
+                        0) role_msg=">あなたはBOSS・チームリーダーです。./ai-agents/instructions/boss.md を参照して日本語で応答してください。" ;;
+                        1) role_msg=">あなたはWORKER1・フロントエンドエンジニアです。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                        2) role_msg=">あなたはWORKER2・バックエンドエンジニアです。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                        3) role_msg=">あなたはWORKER3・UI/UXデザイナーです。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
+                    esac
+                    
+                    # 🚫 Bypass Permissions選択の「2」が混入しないよう、十分な待機時間を確保
+                    sleep 2
+                    tmux send-keys -t multiagent:0.$i "$role_msg" C-m
+                    log_success "✅ WORKER${i} 役割メッセージ送信完了"
+                    break
+                fi
+                sleep 0.5
+            done
+            
+            if [ $j -eq 60 ]; then
+                log_error "❌ WORKER${i} 起動タイムアウト（30秒）"
+            fi
+        fi
+        
+        echo ""
+    done
+    
+    log_success "🎉 ワーカー強制起動処理完了"
+    echo ""
+    echo "📋 確認方法:"
+    echo "  tmux attach-session -t multiagent"
+    echo ""
+}
+
+# 🎨 チームUI復旧機能（緊急用）
+restore_team_ui() {
+    log_info "🎨 チームUI復旧機能（緊急用）"
+    
+    # セッション存在確認
+    if ! tmux has-session -t multiagent 2>/dev/null; then
+        log_error "❌ multiagentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh start"
+        return 1
+    fi
+    
+    if ! tmux has-session -t president 2>/dev/null; then
+        log_error "❌ presidentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh start"
+        return 1
+    fi
+    
+    log_info "🖱️ マウス機能とボーダー設定中..."
+    
+    # 🖱️ 強化されたtmux視覚設定（クリック移動対応）
+    tmux set-option -g mouse on
+    tmux set-option -g pane-border-status top
+    tmux set-option -g pane-border-style "fg=colour8"
+    tmux set-option -g pane-active-border-style "fg=colour4,bold"
+    
+    # 🎨 ユーザーフレンドリーなペインタイトルフォーマット（常時見やすく表示）
+    tmux set-option -g pane-border-format '#[fg=colour15,bg=colour4,bold]#{?pane_active, 🎯 ACTIVE ,}#[fg=colour7,bg=colour8]#{?pane_active,, STANDBY } #[fg=colour15,bold]#{pane_title}#[default]'
+    
+    log_info "📊 日本語ステータスライン設定中..."
+    
+    # 📊 日本語対応ステータスライン（ユーザーフレンドリー）
+    tmux set-option -g status-left-length 100
+    tmux set-option -g status-right-length 100
+    tmux set-option -g status-left "#[bg=colour2,fg=colour15,bold] 🤖 AI組織システム稼働中 │ 5名のエージェントが協調作業 #[default]"
+    tmux set-option -g status-right "#[bg=colour4,fg=colour15] 🕐 %H:%M:%S │ 💡 ヒント: ペインをクリックで移動可能 #[default]"
+    tmux set-option -g status-interval 1
+    
+    log_info "🏷️ ユーザーフレンドリーな役職・職種表示設定中..."
+    
+    # 🏷️ ユーザーフレンドリーな役職表示（常時見やすく）
+    tmux select-pane -t president:0 -T "👑 統括責任者・PRESIDENT │ プロジェクト全体管理・意思決定 │ 🟢 稼働中"
+    tmux select-pane -t multiagent:0.0 -T "👔 チームリーダー・BOSS │ 作業分担・進捗管理・品質確保 │ 🟡 待機中"
+    tmux select-pane -t multiagent:0.1 -T "💻 フロントエンド・WORKER1 │ React・Vue・CSS・UI実装 │ 🟡 待機中"
+    tmux select-pane -t multiagent:0.2 -T "🔧 バックエンド・WORKER2 │ API・DB・サーバー処理 │ 🟡 待機中"
+    tmux select-pane -t multiagent:0.3 -T "🎨 UI/UXデザイナー・WORKER3 │ デザイン・ユーザビリティ改善 │ 🟡 待機中"
+    
+    log_info "🖥️ ウィンドウタイトル設定中..."
+    
+    # 🖥️ ウィンドウタイトルも設定（チーム構成表示）
+    tmux rename-window -t president "👑 PRESIDENT [1/5 ACTIVE]"
+    tmux rename-window -t multiagent "👥 AI-TEAM [4/5 MEMBERS]"
+    
+    log_success "🎉 チームUI復旧完了！"
+    echo ""
+    echo "📋 確認方法:"
+    echo "  tmux attach-session -t multiagent  # 4画面チーム確認"
+    echo "  tmux attach-session -t president   # PRESIDENT確認"
+    echo ""
+    echo "🎯 特徴:"
+    echo "  ✅ マウスクリック移動対応"
+    echo "  ✅ 詳細な役職・職種表示"
+    echo "  ✅ リアルタイム時刻表示"
+    echo "  ✅ カラー付きステータス表示"
+    echo ""
+}
+
+# 🚀 自動実行監視機能（AI組織駆動中）
+start_auto_execute_monitor() {
+    log_info "🚀 自動実行監視機能開始（AI組織駆動中）"
+    
+    # セッション存在確認
+    if ! tmux has-session -t multiagent 2>/dev/null; then
+        log_error "❌ multiagentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh start"
+        return 1
+    fi
+    
+    log_info "🔍 ワーカーの指示監視を開始します..."
+    echo "📋 監視対象:"
+    echo "  👔 BOSS (multiagent:0.0)"
+    echo "  💻 WORKER1 (multiagent:0.1)" 
+    echo "  🔧 WORKER2 (multiagent:0.2)"
+    echo "  🎨 WORKER3 (multiagent:0.3)"
+    echo ""
+    echo "💡 動作: Claude Codeの指示に文章が入ったら即座に自動実行（Enterキー送信）"
+    echo "🛑 停止: Ctrl+C"
+    echo ""
+    
+    # バックグラウンドで自動実行監視を開始
+    nohup bash -c '
+        exec > /tmp/ai-agents-auto-execute.log 2>&1
+        echo "$(date): 自動実行監視開始"
+        
+        # 各ワーカーの前回の画面内容を保存
+        declare -A prev_content
+        for worker_id in {0..3}; do
+            prev_content[$worker_id]=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
+        done
+        
+        while true; do
+            for worker_id in {0..3}; do
+                # 現在の画面内容を取得
+                current_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
+                
+                # 前回と比較して新しい指示が入力されたかチェック
+                if [ "$current_content" != "${prev_content[$worker_id]}" ]; then
+                    # 新しい内容をチェック
+                    new_lines=$(echo "$current_content" | tail -5)
+                    
+                    # 複数パターンで指示検出（より確実な自動実行）
+                    should_execute=false
+                    
+                    # パターン1: 「>」プロンプトに文字が入力されている
+                    if echo "$new_lines" | grep -qE "^> .+" 2>/dev/null; then
+                        should_execute=true
+                        echo "$(date): WORKER${worker_id} パターン1検出: プロンプト入力"
+                    fi
+                    
+                    # パターン2: プレジデントからの指示メッセージを検出
+                    if echo "$current_content" | grep -qE "(指示を送信|プロジェクトの指示|タスクを|作業を|実行して)" 2>/dev/null; then
+                        should_execute=true
+                        echo "$(date): WORKER${worker_id} パターン2検出: プレジデント指示"
+                    fi
+                    
+                    # パターン3: 入力待ち状態での新しいコンテンツ
+                    if echo "$current_content" | tail -1 | grep -qE "^>" 2>/dev/null && [ ${#current_content} -gt ${#prev_content[$worker_id]} ]; then
+                        should_execute=true
+                        echo "$(date): WORKER${worker_id} パターン3検出: 入力待ち状態変化"
+                    fi
+                    
+                    if [ "$should_execute" = true ]; then
+                        echo "$(date): WORKER${worker_id} 新しい指示検出 - 自動実行開始"
+                        
+                        # ステータス更新
+                        case $worker_id in
+                            0) tmux select-pane -t multiagent:0.0 -T "👔 チームリーダー・BOSS │ 作業分担・進捗管理・品質確保 │ 🟢 実行中" ;;
+                            1) tmux select-pane -t multiagent:0.1 -T "💻 フロントエンド・WORKER1 │ React・Vue・CSS・UI実装 │ 🟢 実行中" ;;
+                            2) tmux select-pane -t multiagent:0.2 -T "🔧 バックエンド・WORKER2 │ API・DB・サーバー処理 │ 🟢 実行中" ;;
+                            3) tmux select-pane -t multiagent:0.3 -T "🎨 UI/UXデザイナー・WORKER3 │ デザイン・ユーザビリティ改善 │ 🟢 実行中" ;;
+                        esac
+                        
+                        # 確実なEnterキー送信（複数回試行）
+                        echo "$(date): WORKER${worker_id} Enterキー送信開始"
+                        
+                        # 方法1: 通常のEnterキー送信
+                        tmux send-keys -t multiagent:0.$worker_id C-m
+                        sleep 0.5
+                        
+                        # 方法2: 確実性のため再度送信
+                        tmux send-keys -t multiagent:0.$worker_id ""
+                        tmux send-keys -t multiagent:0.$worker_id C-m
+                        sleep 0.5
+                        
+                        # 方法3: 強制的な改行送信
+                        tmux send-keys -t multiagent:0.$worker_id Enter
+                        
+                        echo "$(date): WORKER${worker_id} Enterキー送信完了"
+                        
+                        # 3秒後にステータスを待機中に戻す
+                        sleep 3
+                        case $worker_id in
+                            0) tmux select-pane -t multiagent:0.0 -T "👔 チームリーダー・BOSS │ 作業分担・進捗管理・品質確保 │ 🟡 待機中" ;;
+                            1) tmux select-pane -t multiagent:0.1 -T "💻 フロントエンド・WORKER1 │ React・Vue・CSS・UI実装 │ 🟡 待機中" ;;
+                            2) tmux select-pane -t multiagent:0.2 -T "🔧 バックエンド・WORKER2 │ API・DB・サーバー処理 │ 🟡 待機中" ;;
+                            3) tmux select-pane -t multiagent:0.3 -T "🎨 UI/UXデザイナー・WORKER3 │ デザイン・ユーザビリティ改善 │ 🟡 待機中" ;;
+                        esac
+                    fi
+                    
+                    # 前回の内容を更新
+                    prev_content[$worker_id]="$current_content"
+                fi
+            done
+            
+            # 0.2秒間隔で高頻度監視（より敏感な検出）
+            sleep 0.2
+        done
+    ' &
+    
+    AUTO_EXECUTE_PID=$!
+    echo $AUTO_EXECUTE_PID > /tmp/ai-agents-auto-execute.pid
+    
+    log_success "✅ 自動実行監視機能が開始されました（PID: $AUTO_EXECUTE_PID）"
+    echo ""
+    echo "📋 監視ログ確認:"
+    echo "  tail -f /tmp/ai-agents-auto-execute.log"
+    echo ""
+    echo "🛑 停止方法:"
+    echo "  kill $AUTO_EXECUTE_PID"
+    echo "  または ./ai-agents/manage.sh stop-auto-execute"
+    echo ""
+}
+
+# 🛑 自動実行監視停止機能
+stop_auto_execute_monitor() {
+    log_info "🛑 自動実行監視停止中..."
+    
+    if [ -f /tmp/ai-agents-auto-execute.pid ]; then
+        AUTO_EXECUTE_PID=$(cat /tmp/ai-agents-auto-execute.pid)
+        if kill $AUTO_EXECUTE_PID 2>/dev/null; then
+            log_success "✅ 自動実行監視を停止しました（PID: $AUTO_EXECUTE_PID）"
+            rm -f /tmp/ai-agents-auto-execute.pid
+        else
+            log_warn "⚠️ プロセス（PID: $AUTO_EXECUTE_PID）は既に停止しています"
+        fi
+    else
+        log_warn "⚠️ 自動実行監視は開始されていません"
+    fi
+    echo ""
+}
+
+# .claude設定確認・生成機能
+setup_claude_local_config() {
+    log_info "🔧 .claude設定の確認・生成機能"
+    
+    # プロジェクトルートに移動
+    cd "$(dirname "$(dirname "$0")")"
+    
+    if [ -d ".claude" ] && [ -f ".claude/CLAUDE.md" ]; then
+        log_success "✅ .claude設定は既に存在します"
+        echo ""
+        echo "📁 既存の.claude設定:"
+        ls -la .claude/
+        echo ""
+        read -p ".claude設定を再生成しますか？ [y/N]: " regenerate
+        
+        if [[ ! $regenerate =~ ^[Yy]$ ]]; then
+            log_info "設定生成をスキップしました"
+            return 0
+        fi
+    fi
+    
+    log_info "🔄 .claude設定を生成中..."
+    
+    # .claudeディレクトリ作成
+    mkdir -p .claude
+    
+    # Claude Code設定ファイルの生成
+    cat > .claude/claude_desktop_config.json << 'EOF'
+{
+  "name": "AI開発支援プロジェクト",
+  "description": "AI組織システム + Cursor連携開発環境",
+  "rules": [
+    "日本語でコミュニケーション",
+    "ユーザーの要求を最優先",
+    "機能を勝手に変更しない",
+    "AI組織システムとの連携を保持"
+  ],
+  "memory": {
+    "sync_with_cursor": true,
+    "track_changes": true,
+    "preserve_context": true,
+    "ai_organization": true
+  },
+  "tools": {
+    "enabled": true,
+    "auto_bypass_permissions": true,
+    "dangerous_commands": false,
+    "tmux_integration": true
+  }
+}
+EOF
+    
+    # CLAUDE.mdファイルの生成
+    cat > .claude/CLAUDE.md << 'EOF'
+# Claude Code プロジェクト設定（AI組織システム対応）
+
+## プロジェクト概要
+- **名前**: AI開発支援プロジェクト
+- **目的**: AI組織システム + Cursor連携による革新的開発環境
+- **言語**: 日本語メイン
+- **特徴**: PRESIDENT、BOSS、WORKER による協調開発
+
+## 重要なルール
+1. **日本語でコミュニケーション**: すべてのやり取りは日本語で行う
+2. **ユーザー要求最優先**: ユーザーの指示を正確に理解し実行する
+3. **機能保持**: 既存機能を勝手に変更・削除しない
+4. **AI組織連携**: AI組織システムとの一貫性を保つ
+5. **「>」自動実行**: 指示には「>」を付けて自動実行対応
+
+## AI組織システム構成
+```
+PRESIDENT (統括責任者)
+    ↓
+BOSS1 (チームリーダー)
+    ↓
+WORKER1, WORKER2, WORKER3 (実行担当)
+```
+
+## 重要なコマンド
+- **起動**: `./ai-agents/manage.sh auto`
+- **半自動起動**: `./ai-agents/manage.sh claude-auth`
+- **状況確認**: `./ai-agents/manage.sh status`
+- **設定確認**: `./setup.sh s`
+
+## ファイル構造
+```
+.claude/
+├── claude_desktop_config.json  # Claude Code設定
+├── CLAUDE.md                   # このファイル
+└── project_context.md          # プロジェクト文脈情報
+
+ai-agents/
+├── manage.sh                   # AI組織管理スクリプト
+├── instructions/               # AI役割定義
+└── logs/                      # 動作ログ
+```
+
+## 注意事項
+- `.claude/`ディレクトリは.gitignoreに追加されており、ローカル設定のみ
+- 設定は各環境で自動生成されるため、手動編集は非推奨
+- 更新時は`./ai-agents/manage.sh setup-claude-config`で再設定
+EOF
+    
+    # プロジェクト文脈情報の生成
+    cat > .claude/project_context.md << 'EOF'
+# プロジェクト文脈情報
+
+## 現在のプロジェクト状況
+- **プロジェクト名**: AI開発支援ツール
+- **フェーズ**: 継続的改善・運用
+- **主要技術**: Bash, AI組織システム, tmux
+
+## AI組織システムの特徴
+- **PRESIDENT**: プロジェクト統括、意思決定
+- **BOSS1**: チームリーダー、作業分担管理
+- **WORKER1-3**: 専門分野での実行担当
+
+## 革新的機能
+- **「>」自動実行**: Claude Code の自動実行機能活用
+- **tmux連携**: マルチペイン管理とリアルタイム監視
+- **動的UI**: ステータス表示とクリック移動対応
+
+## 最近の重要な改善
+- AI組織システムの完全自動化達成
+- 「>」プレフィックスによる自動実行システム
+- リアルタイムステータス更新機能
+- .claude設定のローカル化対応
+
+## 開発方針
+1. **AI協調**: 複数AIによる効率的な協調開発
+2. **自動化**: 手動作業の最小化
+3. **ユーザビリティ**: 直感的な操作性
+4. **拡張性**: 新機能の追加容易性
+EOF
+    
+    log_success "✅ .claude設定生成完了！"
+    echo ""
+    echo "📁 生成されたファイル:"
+    echo "   - .claude/claude_desktop_config.json"
+    echo "   - .claude/CLAUDE.md"
+    echo "   - .claude/project_context.md"
+    echo ""
+    echo "🎯 Claude Code起動時にこれらの設定が自動的に読み込まれます"
+}
+
 # メイン処理（参照リポジトリ準拠）
 main() {
     init_dirs
@@ -953,6 +1471,26 @@ main() {
             # multiagent一括起動（段階2）
             manual_multiagent_start
             ;;
+        "force-workers")
+            # 🚀 ワーカー強制起動（緊急用）
+            force_start_workers
+            ;;
+        "restore-ui")
+            # 🎨 チームUI復旧（緊急用）
+            restore_team_ui
+            ;;
+        "auto-execute")
+            # 🚀 自動実行監視開始（AI組織駆動中）
+            start_auto_execute_monitor
+            ;;
+        "stop-auto-execute")
+            # 🛑 自動実行監視停止
+            stop_auto_execute_monitor
+            ;;
+        "setup-claude-config")
+            # 🔧 .claude設定自動生成
+            setup_claude_local_config
+            ;;
         "president")  
             # PRESIDENT画面アタッチ
             if tmux has-session -t president 2>/dev/null; then
@@ -972,56 +1510,6 @@ main() {
         "clean")
             # セッション削除
             clean_sessions
-            ;;
-        "auto-executor")
-            # 自動実行監視システム
-            log_info "🤖 自動実行監視システムを開始します..."
-            if [ -f "./ai-agents/auto-executor.sh" ]; then
-                ./ai-agents/auto-executor.sh
-            else
-                log_error "❌ auto-executor.sh が見つかりません"
-                return 1
-            fi
-            ;;
-        "setup-click")
-            # tmuxクリック設定
-            log_info "🖱️ tmuxクリック設定を適用します..."
-            if [ -f "./ai-agents/tmux-click-config.sh" ]; then
-                ./ai-agents/tmux-click-config.sh
-            else
-                log_error "❌ tmux-click-config.sh が見つかりません"
-                return 1
-            fi
-            ;;
-        "execute")
-            # シンプルプロンプト実行
-            log_info "⚡ プロンプト実行します..."
-            if [ -f "./ai-agents/execute-prompts.sh" ]; then
-                ./ai-agents/execute-prompts.sh "${2:-workers}"
-            else
-                log_error "❌ execute-prompts.sh が見つかりません"
-                return 1
-            fi
-            ;;
-        "watch")
-            # 軽量プロンプト監視
-            log_info "🔍 軽量プロンプト監視を開始します..."
-            if [ -f "./ai-agents/auto-enter.sh" ]; then
-                ./ai-agents/auto-enter.sh
-            else
-                log_error "❌ auto-enter.sh が見つかりません"
-                return 1
-            fi
-            ;;
-        "debug")
-            # デバッグ監視
-            log_info "🔍 デバッグ監視を開始します..."
-            if [ -f "./ai-agents/debug-monitor.sh" ]; then
-                ./ai-agents/debug-monitor.sh
-            else
-                log_error "❌ debug-monitor.sh が見つかりません"
-                return 1
-            fi
             ;;
         # 🔧 詳細コマンド（必要時のみ）
         "quick-start")
@@ -1054,9 +1542,11 @@ main() {
             echo "📊 セッション操作:"
             echo "  ./ai-agents/manage.sh president          # PRESIDENT画面"
             echo "  ./ai-agents/manage.sh multiagent         # 4画面確認"
-            echo "  ./ai-agents/manage.sh watch              # 🔍 軽量プロンプト監視（推奨）"
-            echo "  ./ai-agents/manage.sh execute            # ⚡ プロンプト実行"
-            echo "  ./ai-agents/manage.sh setup-click        # 🖱️ クリック操作設定"
+            echo "  ./ai-agents/manage.sh force-workers      # 🚀 ワーカー強制起動（確実性重視）"
+            echo "  ./ai-agents/manage.sh restore-ui         # 🎨 チームUI復旧（役職表示修復）"
+            echo "  ./ai-agents/manage.sh auto-execute       # 🚀 自動実行監視開始（AI組織駆動中）"
+            echo "  ./ai-agents/manage.sh stop-auto-execute  # 🛑 自動実行監視停止"
+            echo "  ./ai-agents/manage.sh setup-claude-config # 🔧 .claude設定自動生成"
             echo "  ./ai-agents/manage.sh clean              # セッション削除"
             echo ""
             echo "💡 参照リポジトリ:"

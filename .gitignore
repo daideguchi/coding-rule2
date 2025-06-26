@@ -8,3 +8,4 @@ tmp/
 scripts/*.log
 project-improvement-report.md
 reports/
+.claude/
