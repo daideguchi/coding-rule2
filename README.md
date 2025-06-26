@@ -121,8 +121,8 @@ chmod +x setup.sh
 # 設定確認
 ls -la .cursor/
 
-# Claude Code 設定確認（パターン 2・3）
-cat .claude-project
+# Claude Code 起動確認（パターン 2・3）
+claude --dangerously-skip-permissions
 
 # AI 組織システム確認（パターン 3）
 ls -la ai-agents/
@@ -143,9 +143,9 @@ ls -la ai-agents/
 ### パターン 2: 開発環境設定
 
 ```
-.claude-project               # Claude Code 設定
 scripts/claude-cursor-sync.sh         # 同期スクリプト
 ai-agents/docs/CLAUDE.md      # プロジェクト情報
+# Claude Code起動: claude --dangerously-skip-permissions
 ```
 
 ### パターン 3: 完全設定
@@ -181,6 +181,15 @@ cat STATUS.md
 設定後、Cursor を再起動すると AI 支援機能が有効になります。
 
 ### Claude Code 連携（パターン 2・3）
+
+**⚠️ 重要: Claude Code の起動コマンド**
+
+```bash
+# Claude Code 起動（必須オプション）
+claude --dangerously-skip-permissions
+```
+
+**同期機能**
 
 ```bash
 # 作業状況を記録
@@ -227,6 +236,7 @@ cat STATUS.md
 ./ai-agents/manage.sh claude-setup
 
 # Claude Codeが各セッションで自動起動
+# 起動コマンド: claude --dangerously-skip-permissions
 # PRESIDENTで指示開始: "指示書に従って"
 ```
 
@@ -295,7 +305,7 @@ tmux attach-session -t multiagent   # 4ペイン画面
 
 ```bash
 # 完全リセット
-rm -rf .cursor/ .claude-project ai-agents/ scripts/claude-cursor-sync.sh
+rm -rf .cursor/ ai-agents/ scripts/claude-cursor-sync.sh
 
 # 再セットアップ
 ./setup.sh
@@ -311,8 +321,11 @@ rm -rf .cursor/ .claude-project ai-agents/ scripts/claude-cursor-sync.sh
 
 ```bash
 # 設定リセット
-rm -rf .cursor/ .claude-project ai-agents/
+rm -rf .cursor/ ai-agents/
 ./setup.sh
+
+# Claude Code 正しい起動
+claude --dangerously-skip-permissions
 
 # ログ確認
 tail -f logs/system/current.log
@@ -336,12 +349,15 @@ cat .cursor/rules.md
 **Q: Claude Code で連携できない**
 
 ```bash
+# 正しい起動コマンドで起動
+claude --dangerously-skip-permissions
+
 # 同期実行
 ./scripts/claude-cursor-sync.sh record
 ./scripts/claude-cursor-sync.sh share
 
 # 設定確認
-cat .claude-project
+cat .cursor-claude-sync.json
 ```
 
 **Q: AI 組織システムが動作しない**

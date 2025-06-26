@@ -143,6 +143,11 @@ alwaysApply: true
   - .claude-projectファイル削除（2025年版では不要）
   - scripts/claude-cursor-sync.sh正常動作確認
   - リアルタイム同期システム最適化完了
+- [x] 🔴 Claude Code起動コマンド重要情報追加
+  - README.mdに「claude --dangerously-skip-permissions」起動コマンドを明記
+  - 複数箇所（基本操作・トラブルシューティング・AI組織システム）に記載
+  - 重要性を強調表示で明確化
+  - ユーザーが見落とさない形で情報提供完了
 
 ### 今後のタスク
 - [ ] 🟢 セットアップスクリプトの実際の動作テスト
