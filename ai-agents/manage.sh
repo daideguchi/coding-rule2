@@ -177,31 +177,104 @@ show_status() {
     echo ""
 }
 
-# 4画面起動システム
+# 4画面起動システム（Cursor内ターミナル + tmux対応）
 launch_four_screens() {
     log_info "🚀 4画面AI組織システムを起動中..."
     
+    # tmuxが利用可能かチェック
+    if command -v tmux &> /dev/null; then
+        launch_tmux_sessions
+    else
+        launch_cursor_terminals
+    fi
+}
+
+# tmux環境での起動（推奨）
+launch_tmux_sessions() {
+    log_info "📊 tmux環境でAI組織システムを起動中..."
+    
+    # 既存セッションの削除
+    tmux kill-session -t president 2>/dev/null || true
+    tmux kill-session -t multiagent 2>/dev/null || true
+    
+    # PRESIDENTセッション作成
+    tmux new-session -d -s president -c "$(pwd)" \
+        "echo '🎯 PRESIDENT セッション' && ./ai-agents/manage.sh president"
+    
+    # multiagentセッション作成（4ペイン）
+    tmux new-session -d -s multiagent -c "$(pwd)" \
+        "echo '👔 BOSS1 ペイン' && ./ai-agents/manage.sh boss"
+    
+    # 追加ペイン作成
+    tmux split-window -t multiagent -h -c "$(pwd)" \
+        "echo '👷 WORKER1 ペイン' && ./ai-agents/manage.sh worker"
+    
+    tmux split-window -t multiagent -v -c "$(pwd)" \
+        "echo '👷 WORKER2 ペイン' && ./ai-agents/manage.sh worker"
+    
+    tmux select-pane -t multiagent:0.0
+    tmux split-window -t multiagent -v -c "$(pwd)" \
+        "echo '👷 WORKER3 ペイン' && ./ai-agents/manage.sh worker"
+    
+    log_success "✅ tmuxセッションを作成しました"
+    echo ""
+    echo "📋 セッション確認:"
+    echo "  tmux attach-session -t president    # PRESIDENT画面"
+    echo "  tmux attach-session -t multiagent   # 4ペイン画面"
+    echo ""
+    echo "🚀 Claude Code一括起動:"
+    echo "  ./ai-agents/manage.sh claude-setup  # 全セッションでClaude起動"
+}
+
+# Cursor内ターミナルでの起動
+launch_cursor_terminals() {
+    log_info "💻 Cursor内ターミナルでAI組織システムを起動中..."
+    
     # macOSの場合
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # Terminal.appで新しいタブを開く
+        # Cursorアプリケーション向けのターミナル起動
         osascript << EOF
-tell application "Terminal"
+tell application "Cursor"
     activate
-    
-    -- プレジデント画面
-    do script "cd $(pwd) && echo '🎯 PRESIDENT画面' && ./ai-agents/manage.sh president"
-    
-    -- ボス画面
-    do script "cd $(pwd) && echo '👔 BOSS画面' && ./ai-agents/manage.sh boss"
-    
-    -- ワーカー1画面
-    do script "cd $(pwd) && echo '👷 WORKER1画面' && ./ai-agents/manage.sh worker"
-    
-    -- ワーカー2画面
-    do script "cd $(pwd) && echo '👷 WORKER2画面' && ./ai-agents/manage.sh worker"
+end tell
+
+tell application "System Events"
+    tell process "Cursor"
+        -- 新しいターミナルを開く（Cmd+Shift+\`）
+        keystroke "\`" using {command down, shift down}
+        delay 0.5
+        
+        -- PRESIDENT起動
+        keystroke "echo '🎯 PRESIDENT画面' && ./ai-agents/manage.sh president"
+        key code 36
+        
+        delay 1
+        
+        -- 新しいターミナル（BOSS）
+        keystroke "\`" using {command down, shift down}
+        delay 0.5
+        keystroke "echo '👔 BOSS画面' && ./ai-agents/manage.sh boss"
+        key code 36
+        
+        delay 1
+        
+        -- 新しいターミナル（WORKER1）
+        keystroke "\`" using {command down, shift down}
+        delay 0.5
+        keystroke "echo '👷 WORKER1画面' && ./ai-agents/manage.sh worker"
+        key code 36
+        
+        delay 1
+        
+        -- 新しいターミナル（WORKER2）
+        keystroke "\`" using {command down, shift down}
+        delay 0.5
+        keystroke "echo '👷 WORKER2画面' && ./ai-agents/manage.sh worker"
+        key code 36
+    end tell
 end tell
 EOF
-        log_success "✅ 4画面を起動しました（macOS Terminal）"
+        log_success "✅ Cursor内ターミナルを起動しました"
         
     # Linuxの場合
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -279,6 +352,34 @@ system_status() {
     fi
 }
 
+# Claude Code一括起動
+setup_claude_code() {
+    log_info "🚀 Claude Code一括起動システム..."
+    
+    # agent-send.shを使用
+    if [ -f "./ai-agents/agent-send.sh" ]; then
+        chmod +x "./ai-agents/agent-send.sh"
+        "./ai-agents/agent-send.sh" --claude-setup
+    else
+        log_error "❌ agent-send.shが見つかりません"
+        return 1
+    fi
+}
+
+# デモ実行
+run_demo() {
+    log_info "🎬 Hello World デモ実行..."
+    
+    # agent-send.shを使用
+    if [ -f "./ai-agents/agent-send.sh" ]; then
+        chmod +x "./ai-agents/agent-send.sh"
+        "./ai-agents/agent-send.sh" --demo
+    else
+        log_error "❌ agent-send.shが見つかりません"
+        return 1
+    fi
+}
+
 # メイン処理
 main() {
     case "${1:-help}" in
@@ -291,6 +392,12 @@ main() {
             init_directories
             launch_four_screens
             ;;
+        "claude-setup")
+            setup_claude_code
+            ;;
+        "demo")
+            run_demo
+            ;;
         "status")
             system_status
             ;;
@@ -298,7 +405,7 @@ main() {
             init_directories
             log_success "🎉 AI組織システムを初期化しました"
             ;;
-        "clean")
+        "clean"|"clear")
             rm -rf "$SESSIONS_DIR"/*.json 2>/dev/null || true
             rm -rf "$LOGS_DIR"/*.log 2>/dev/null || true
             log_success "🧹 セッションとログをクリアしました"
@@ -311,19 +418,23 @@ main() {
             echo "  ./ai-agents/manage.sh [コマンド]"
             echo ""
             echo "コマンド:"
-            echo "  president    プレジデント対話モード開始"
-            echo "  boss         ボス対話モード開始"
-            echo "  worker       ワーカー対話モード開始"
-            echo "  start        4画面AI組織システム起動"
-            echo "  launch       4画面AI組織システム起動（startと同じ）"
-            echo "  status       システム状況確認"
-            echo "  init         システム初期化"
-            echo "  clean        セッション・ログクリア"
-            echo "  help         このヘルプを表示"
+            echo "  president      プレジデント対話モード開始"
+            echo "  boss           ボス対話モード開始"
+            echo "  worker         ワーカー対話モード開始"
+            echo "  start          4画面AI組織システム起動"
+            echo "  launch         4画面AI組織システム起動（startと同じ）"
+            echo "  claude-setup   Claude Code一括起動"
+            echo "  demo           Hello Worldデモ実行"
+            echo "  status         システム状況確認"
+            echo "  init           システム初期化"
+            echo "  clean          セッション・ログクリア"
+            echo "  clear          セッション・ログクリア（cleanと同じ）"
+            echo "  help           このヘルプを表示"
             echo ""
             echo "🚀 推奨使用方法:"
-            echo "  1. ./ai-agents/manage.sh start   # 4画面起動"
-            echo "  2. 各画面で役割に応じた対話を実行"
+            echo "  1. ./ai-agents/manage.sh start        # 4画面起動"
+            echo "  2. ./ai-agents/manage.sh claude-setup # Claude一括起動"
+            echo "  3. ./ai-agents/manage.sh demo         # デモ実行"
             echo ""
             ;;
     esac

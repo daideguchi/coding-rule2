@@ -3,3 +3,6 @@
 STATUS.md
 ai-agents/
 .cursor/
+logs/
+tmp/
+scripts/*.log

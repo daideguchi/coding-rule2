@@ -97,8 +97,8 @@ EOF
     log_success "🎉 基本設定完了！"
     
     # 設定状況を更新
-    if [ -f "status-checker.sh" ]; then
-        ./status-checker.sh check > /dev/null 2>&1
+    if [ -f "scripts/status-checker.sh" ]; then
+        ./scripts/status-checker.sh check > /dev/null 2>&1
         log_info "📊 設定状況を更新しました (STATUS.md)"
     fi
     
@@ -132,7 +132,7 @@ setup_development() {
 EOF
     
     # Cursor-Claude同期スクリプト
-    cat > claude-cursor-sync.sh << 'EOF'
+    cat > scripts/claude-cursor-sync.sh << 'EOF'
 #!/bin/bash
 # Cursor ↔ Claude Code 同期スクリプト
 
@@ -165,20 +165,20 @@ JSON
 esac
 EOF
     
-    chmod +x claude-cursor-sync.sh
+    chmod +x scripts/claude-cursor-sync.sh
     
     log_success "🎉 開発環境設定完了！"
     
     # 設定状況を更新
-    if [ -f "status-checker.sh" ]; then
-        ./status-checker.sh check > /dev/null 2>&1
+    if [ -f "scripts/status-checker.sh" ]; then
+        ./scripts/status-checker.sh check > /dev/null 2>&1
         log_info "📊 設定状況を更新しました (STATUS.md)"
     fi
     
     echo "次のステップ:"
     echo "  1. Cursorを再起動してRulesを反映"
     echo "  2. Claude Codeで作業開始"
-    echo "  3. Cursor連携: ./claude-cursor-sync.sh record"
+    echo "  3. Cursor連携: ./scripts/claude-cursor-sync.sh record"
 }
 
 # パターン3: 完全設定
@@ -270,8 +270,8 @@ EOF
     log_success "🎉 完全設定完了！"
     
     # 設定状況を更新
-    if [ -f "status-checker.sh" ]; then
-        ./status-checker.sh check > /dev/null 2>&1
+    if [ -f "scripts/status-checker.sh" ]; then
+        ./scripts/status-checker.sh check > /dev/null 2>&1
         log_info "📊 設定状況を更新しました (STATUS.md)"
     fi
     
@@ -279,7 +279,7 @@ EOF
     echo "  1. Cursorを再起動してRulesを反映"
     echo "  2. Claude Codeで作業開始"
     echo "  3. AI組織開始: ./ai-agents/manage.sh start"
-    echo "  4. Cursor連携: ./claude-cursor-sync.sh record"
+    echo "  4. Cursor連携: ./scripts/claude-cursor-sync.sh record"
 }
 
 # メイン処理
@@ -303,16 +303,16 @@ main() {
                 break
                 ;;
             s|S)
-                if [ -f "status-checker.sh" ]; then
+                if [ -f "scripts/status-checker.sh" ]; then
                     clear
                     log_info "🔍 現在の設定状況を確認中..."
-                    ./status-checker.sh check
+                    ./scripts/status-checker.sh check
                     echo ""
                     echo "📄 詳細は STATUS.md ファイルをご確認ください"
                     echo -n "Enterキーで続行..."
                     read
                 else
-                    log_error "status-checker.sh が見つかりません"
+                    log_error "scripts/status-checker.sh が見つかりません"
                     echo -n "Enterキーで続行..."
                     read
                 fi

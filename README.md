@@ -1,5 +1,52 @@
 # 🚀 AI 開発支援ツール「CodingRule2」
 
+## ⚡ 3 分クイックスタート
+
+### 1️⃣ 初期設定（1 分）
+
+```bash
+./setup.sh
+```
+
+**3 つから選ぶだけ！**
+
+- `1` → 基本版（Cursor 強化のみ）
+- `2` → 開発版（+ Claude 連携）
+- `3` → 完全版（+ AI 組織 4 画面）
+
+### 2️⃣ 使い始める（1 分）
+
+**基本版を選んだ場合**
+
+```bash
+# Cursorを再起動 → 完了！
+```
+
+**開発版を選んだ場合**
+
+```bash
+# Cursorを再起動
+# Claude Codeを開く → 完了！
+```
+
+**完全版を選んだ場合**
+
+```bash
+# AI組織システム起動
+./ai-agents/manage.sh start
+
+# 完了！4画面でAI組織と対話開始
+```
+
+### 3️⃣ 確認（30 秒）
+
+```bash
+# 現在の設定確認
+cat STATUS.md
+```
+
+---
+
 ## 🌟 概要
 
 **CodingRule2** は、AI 開発環境を簡単にセットアップできるツールです。  
@@ -40,7 +87,7 @@ coding-rule2/
 │   ├── todo.mdc              # タスク管理
 │   └── uiux.mdc              # UI/UX ガイド
 ├── setup.sh                  # セットアップスクリプト
-├── status-checker.sh         # 設定状況確認スクリプト
+├── scripts/status-checker.sh         # 設定状況確認スクリプト
 
 ├── STATUS.md                 # 現在の設定状況（自動生成）
 └── README.md                 # このファイル
@@ -97,7 +144,7 @@ ls -la ai-agents/
 
 ```
 .claude-project               # Claude Code 設定
-claude-cursor-sync.sh         # 同期スクリプト
+scripts/claude-cursor-sync.sh         # 同期スクリプト
 CLAUDE.md                     # プロジェクト情報
 ```
 
@@ -119,7 +166,7 @@ ai-agents/
 
 ```bash
 # 現在の設定状況をチェック
-./status-checker.sh check
+./scripts/status-checker.sh check
 
 # 設定状況を表示
 cat STATUS.md
@@ -137,35 +184,101 @@ cat STATUS.md
 
 ```bash
 # 作業状況を記録
-./claude-cursor-sync.sh record
+./scripts/claude-cursor-sync.sh record
 
 # Claude Code で共有
-./claude-cursor-sync.sh share
+./scripts/claude-cursor-sync.sh share
 ```
 
 ### AI 組織システム（パターン 3）
 
-```bash
-# 🚀 4画面AI組織システム起動（推奨）
-./ai-agents/manage.sh start
+**tmux 環境**での階層型マルチエージェント対話システム：
 
-# 📊 システム状況確認
-./ai-agents/manage.sh status
+#### 🎯 エージェント構成
 
-# 🤖 個別AI対話（手動起動の場合）
-./ai-agents/manage.sh president # プレジデント対話
-./ai-agents/manage.sh boss      # ボス対話
-./ai-agents/manage.sh worker    # ワーカー対話
+```
+📊 PRESIDENT セッション (1ペイン)
+└── PRESIDENT: プロジェクト統括責任者
 
-# 🧹 システムクリア
-./ai-agents/manage.sh clean     # セッション・ログクリア
+📊 multiagent セッション (4ペイン)
+├── boss1: チームリーダー
+├── worker1: 実行担当者A
+├── worker2: 実行担当者B
+└── worker3: 実行担当者C
 ```
 
-**4 画面システムの使い方:**
+#### 🚀 超簡単！1 コマンド起動
 
-1. `./ai-agents/manage.sh start` で 4 つのターミナルタブが自動起動
-2. 各タブで役割別 AI（プレジデント/ボス/ワーカー ×2）と対話
-3. 対話中のコマンド: `help`, `status`, `clear`, `exit`
+```bash
+# AI組織システム起動
+./ai-agents/manage.sh start
+
+# 完了！4画面でAI組織と対話開始
+```
+
+#### 🔧 詳細設定・高度な使い方
+
+**基本的な使い方は [QUICKSTART.md](QUICKSTART.md) を参照**
+
+##### Claude Code 認証・一括起動
+
+```bash
+# 全セッションでClaude Code起動
+./ai-agents/manage.sh claude-setup
+
+# 各セッションで認証プロンプトに従って許可
+# PRESIDENTで指示開始: "指示書に従って"
+```
+
+##### Hello World デモ実行
+
+```bash
+# デモ実行（推奨フロー体験）
+./ai-agents/manage.sh demo
+
+# 期待される動作フロー確認
+./ai-agents/agent-send.sh --logs
+```
+
+#### 📋 セッション確認・操作
+
+```bash
+# セッション確認
+tmux attach-session -t president    # PRESIDENT画面
+tmux attach-session -t multiagent   # 4ペイン画面
+
+# システム状況確認
+./ai-agents/manage.sh status
+
+# セッションクリア
+./ai-agents/manage.sh clean
+```
+
+#### 🤖 エージェント通信
+
+```bash
+# 直接メッセージ送信
+./ai-agents/agent-send.sh boss1 "Hello World プロジェクト開始"
+./ai-agents/agent-send.sh worker1 "作業完了しました"
+./ai-agents/agent-send.sh president "最終報告です"
+
+# システム状況・ログ確認
+./ai-agents/agent-send.sh --status
+./ai-agents/agent-send.sh --logs
+
+# エージェント一覧
+./ai-agents/agent-send.sh --list
+```
+
+#### 📊 期待される動作フロー
+
+```
+1. PRESIDENT → boss1: "Hello World プロジェクト開始指示"
+2. boss1 → workers: "作業開始指示"
+3. workers → 作業実行・完了ファイル作成
+4. 最後のworker → boss1: "完了報告"
+5. boss1 → PRESIDENT: "全員完了報告"
+```
 
 ---
 
@@ -175,17 +288,34 @@ cat STATUS.md
 
 ```bash
 # 設定状況を定期的にチェック
-./status-checker.sh check
+./scripts/status-checker.sh check
 ```
 
 ### 設定リセット
 
 ```bash
 # 完全リセット
-rm -rf .cursor/ .claude-project ai-agents/ claude-cursor-sync.sh CLAUDE.md
+rm -rf .cursor/ .claude-project ai-agents/ scripts/claude-cursor-sync.sh CLAUDE.md
 
 # 再セットアップ
 ./setup.sh
+```
+
+---
+
+---
+
+---
+
+## 🔧 困ったときは
+
+```bash
+# 設定リセット
+rm -rf .cursor/ .claude-project ai-agents/
+./setup.sh
+
+# ログ確認
+tail -f logs/system/current.log
 ```
 
 ---
@@ -207,8 +337,8 @@ cat .cursor/rules.md
 
 ```bash
 # 同期実行
-./claude-cursor-sync.sh record
-./claude-cursor-sync.sh share
+./scripts/claude-cursor-sync.sh record
+./scripts/claude-cursor-sync.sh share
 
 # 設定確認
 cat .claude-project
@@ -221,7 +351,7 @@ cat .claude-project
 ls -la ai-agents/manage.sh
 
 # ログ確認
-tail -f ai-agents/logs/system.log
+tail -f logs/ai-agents/system.log
 ```
 
 **Q: 権限エラーが出る**
@@ -230,13 +360,6 @@ tail -f ai-agents/logs/system.log
 chmod +x *.sh
 chmod +x ai-agents/*.sh
 ```
-
----
-
-## 📞 サポート
-
-- **GitHub Issues**: [バグ報告・質問](https://github.com/your-org/coding-rule2/issues)
-- **Discord**: [リアルタイムサポート](https://discord.gg/coding-rule2)
 
 ---
 
