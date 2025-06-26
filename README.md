@@ -87,8 +87,7 @@ coding-rule2/
 │   ├── todo.mdc              # タスク管理
 │   └── uiux.mdc              # UI/UX ガイド
 ├── setup.sh                  # セットアップスクリプト
-├── scripts/status-checker.sh         # 設定状況確認スクリプト
-
+├── scripts/                   # 管理スクリプト
 ├── STATUS.md                 # 現在の設定状況（自動生成）
 └── README.md                 # このファイル
 ```
@@ -144,7 +143,6 @@ ls -la ai-agents/
 ### パターン 2: 開発環境設定
 
 ```
-scripts/claude-cursor-sync.sh         # 同期状況確認スクリプト
 ai-agents/docs/CLAUDE.md      # プロジェクト情報
 # Claude Code起動: claude（通常）
 # 自動連携: CursorとClaude Codeがリアルタイム同期
@@ -195,17 +193,9 @@ claude
 claude --dangerously-skip-permissions
 ```
 
-**同期機能**
+**自動連携機能**
 
-Claude Code と Cursor は自動的に連携されており、リアルタイムでファイル変更と Git 状況を共有します。
-
-```bash
-# 手動で同期状況を確認したい場合
-./scripts/claude-cursor-sync.sh share
-
-# 手動で現在状況を記録したい場合
-./scripts/claude-cursor-sync.sh record
-```
+Claude Code と Cursor は自動的に連携されており、リアルタイムでファイル変更と Git 状況を共有します。手動での操作は不要です。
 
 ### AI 組織システム（パターン 3）
 
@@ -313,7 +303,7 @@ tmux attach-session -t multiagent   # 4ペイン画面
 
 ```bash
 # 完全リセット
-rm -rf .cursor/ ai-agents/ scripts/claude-cursor-sync.sh
+rm -rf .cursor/ ai-agents/
 
 # 再セットアップ
 ./setup.sh
@@ -362,11 +352,9 @@ cat .cursor/rules.md
 # パターン2: claude
 # パターン3: claude --dangerously-skip-permissions
 
-# 同期状況確認（自動連携済み）
-./scripts/claude-cursor-sync.sh share
+# 自動連携済み（手動操作不要）
 
-# 設定確認
-cat .cursor-claude-sync.json
+# 自動連携確認（ファイル変更が即座に反映される）
 ```
 
 **Q: AI 組織システムが動作しない**
