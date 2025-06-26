@@ -117,15 +117,15 @@ show_stats() {
     echo ""
 }
 
-# Git自動コミット（オプション）
+# Git自動コミット（オプション） - cursor-rulesのみ対象
 auto_commit() {
     if [ "$1" = "--commit" ]; then
         log_info "Git自動コミット実行中..."
-        git add .cursor/rules/
+        git add cursor-rules/
         if git diff --staged --quiet; then
             log_info "変更がないため、コミットはスキップされます"
         else
-            git commit -m "🔄 Auto sync cursor-rules to .cursor/rules - $(date +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "🔄 Update cursor-rules template - $(date +'%Y-%m-%d %H:%M:%S')"
             log_success "Git自動コミット完了"
         fi
     fi

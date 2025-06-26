@@ -2,9 +2,7 @@
 .Claude-Code-Communication-backup/
 STATUS.md
 ai-agents/
-# .cursor/ ← 同期システムのため追跡対象に変更
-.cursor/environment.json
-.cursor/rules-backup/
+.cursor/
 logs/
 tmp/
 scripts/*.log
