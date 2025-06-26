@@ -1,109 +1,236 @@
-# AI 開発支援ツール セットアップ
+# 🚀 AI 開発支援ツール「CodingRule2」
 
-AI 開発をサポートするシンプルなセットアップツールです。Cursor、Claude Code、AI 組織システムの 3 パターンから選択できます。
+## 🌟 概要
 
-## 📂 ディレクトリ構成
+**CodingRule2** は、AI 開発環境を簡単にセットアップできるツールです。  
+Cursor、Claude Code、AI 組織システムを 3 パターンから選択して導入できます。
+
+---
+
+## 🎛️ 選べる 3 パターン
+
+### 🟢 パターン 1: 基本設定
+
+- **内容**: Cursor Rules のみ
+- **対象**: 個人開発・初心者
+- **時間**: 1 分
+
+### 🟡 パターン 2: 開発環境設定
+
+- **内容**: Cursor Rules + Claude Code 連携
+- **対象**: チーム開発・実務
+- **時間**: 2 分
+
+### 🔴 パターン 3: 完全設定
+
+- **内容**: 全機能 + AI 組織システム
+- **対象**: 高度な開発・研究
+- **時間**: 3 分
+
+---
+
+## 📦 ファイル構成
 
 ```
 coding-rule2/
-├── cursor-rules/           # 技術用ファイル
-│   ├── dev-rules/         # 開発関連ルール
-│   ├── globals.mdc        # グローバルルール
-│   ├── rules.mdc          # プロジェクトルール
-│   ├── todo.mdc           # タスク管理
-│   └── uiux.mdc           # UI/UX関連
-├── setup.sh               # セットアップスクリプト
-├── README.md              # 説明書（このファイル）
-└── .spellright.json       # mdスペルチェック無効化
+├── cursor-rules/              # AI 開発ルール集
+│   ├── dev-rules/            # 開発ガイドライン
+│   ├── globals.mdc           # 基本設定
+│   ├── rules.mdc             # プロジェクトルール
+│   ├── todo.mdc              # タスク管理
+│   └── uiux.mdc              # UI/UX ガイド
+├── setup.sh                  # セットアップスクリプト
+├── status-checker.sh         # 設定状況確認スクリプト
+
+├── STATUS.md                 # 現在の設定状況（自動生成）
+└── README.md                 # このファイル
 ```
+
+---
 
 ## 🚀 使用方法
 
-### 1. セットアップスクリプト実行
+### 1. セットアップ実行
 
 ```bash
+chmod +x setup.sh
 ./setup.sh
 ```
 
 ### 2. パターン選択
 
-スクリプト実行後、以下の 3 パターンから選択できます：
+```
+選択してください:
+1) 基本設定 (Cursor Rules のみ)
+2) 開発環境設定 (Cursor + Claude Code)
+3) 完全設定 (全機能 + AI 組織システム)
 
-#### パターン 1: 基本設定
-
-- Cursor Rules 設定のみ
-- 軽量で最小限の構成
-- 初心者や軽量使用に適している
-
-#### パターン 2: 開発環境設定
-
-- Cursor Rules + Claude Code 設定
-- 開発作業に必要な基本環境
-- 通常の開発作業に最適
-
-#### パターン 3: 完全設定
-
-- 全機能 + AI 組織システム
-- 高度な開発・分析環境
-- 高度な開発やチーム作業に適している
-
-## 📋 各パターンの詳細
-
-### パターン 1 で設定されるもの
-
-- `.cursor/rules/` - Cursor 用ルールファイル
-- `.cursor/rules.md` - メインルールファイル
-
-### パターン 2 で追加されるもの
-
-- `.claude-project` - Claude Code 設定
-- `claude-cursor-sync.sh` - Cursor-Claude 同期スクリプト
-
-### パターン 3 で追加されるもの
-
-- `ai-agents/` - AI 組織システム
-- `ai-agents/instructions/` - 各 AI 役割の指示書
-- `ai-agents/manage.sh` - AI 組織管理スクリプト
-
-## 🔧 セットアップ後の操作
-
-### 基本設定後
-
-```bash
-# Cursorを再起動してRulesを反映
+番号を入力してください (1-3):
 ```
 
-### 開発環境設定後
+### 3. 完了後の確認
 
 ```bash
-# Cursor作業状況を記録
-./claude-cursor-sync.sh record
+# 設定確認
+ls -la .cursor/
 
-# 記録した状況をClaude Codeで確認
-./claude-cursor-sync.sh share
+# Claude Code 設定確認（パターン 2・3）
+cat .claude-project
+
+# AI 組織システム確認（パターン 3）
+ls -la ai-agents/
 ```
-
-### 完全設定後
-
-```bash
-# AI組織システム開始
-./ai-agents/manage.sh start
-
-# AI組織システム状況確認
-./ai-agents/manage.sh status
-```
-
-## 🎯 重要事項
-
-- **機能の勝手な変更禁止**: 明示的に指示されていない変更は行いません
-- **日本語コミュニケーション**: 全て日本語で対応します
-- **ユーザー最優先**: ユーザーの要求を最優先に処理します
-- **シンプル構成**: 必要最小限のファイル構成を維持します
-
-## 📞 サポート
-
-設定や使用方法で不明な点がある場合は、セットアップスクリプトの選択メニューから適切なパターンを選択し直してください。
 
 ---
 
-_Last updated: 2025-01-22_
+## 📋 各パターンで作成されるファイル
+
+### パターン 1: 基本設定
+
+```
+.cursor/
+├── rules/                    # ルールファイル
+└── rules.md                  # メイン設定
+```
+
+### パターン 2: 開発環境設定
+
+```
+.claude-project               # Claude Code 設定
+claude-cursor-sync.sh         # 同期スクリプト
+CLAUDE.md                     # プロジェクト情報
+```
+
+### パターン 3: 完全設定
+
+```
+ai-agents/
+├── instructions/             # AI 役割設定
+├── logs/                     # ログファイル
+├── sessions/                 # セッション管理
+└── manage.sh                 # 管理スクリプト
+```
+
+---
+
+## 🔧 基本操作
+
+### 設定状況の確認
+
+```bash
+# 現在の設定状況をチェック
+./status-checker.sh check
+
+# 設定状況を表示
+cat STATUS.md
+
+# setup.sh メニューから確認
+./setup.sh
+# → 's' を選択して設定状況確認
+```
+
+### Cursor Rules （全パターン）
+
+設定後、Cursor を再起動すると AI 支援機能が有効になります。
+
+### Claude Code 連携（パターン 2・3）
+
+```bash
+# 作業状況を記録
+./claude-cursor-sync.sh record
+
+# Claude Code で共有
+./claude-cursor-sync.sh share
+```
+
+### AI 組織システム（パターン 3）
+
+```bash
+# システム開始
+./ai-agents/manage.sh start
+
+# 状況確認
+./ai-agents/manage.sh status
+
+# AI との対話
+./ai-agents/manage.sh boss      # 管理者
+./ai-agents/manage.sh president # 統括
+./ai-agents/manage.sh worker    # 作業者
+```
+
+---
+
+## 🔄 更新・メンテナンス
+
+### 設定状況の定期確認
+
+```bash
+# 設定状況を定期的にチェック
+./status-checker.sh check
+```
+
+### 設定リセット
+
+```bash
+# 完全リセット
+rm -rf .cursor/ .claude-project ai-agents/ claude-cursor-sync.sh CLAUDE.md
+
+# 再セットアップ
+./setup.sh
+```
+
+---
+
+## 🛠️ トラブルシューティング
+
+### よくある問題
+
+**Q: Cursor がルールを認識しない**
+
+```bash
+# 設定確認
+cat .cursor/rules.md
+
+# Cursor を完全再起動
+```
+
+**Q: Claude Code で連携できない**
+
+```bash
+# 同期実行
+./claude-cursor-sync.sh record
+./claude-cursor-sync.sh share
+
+# 設定確認
+cat .claude-project
+```
+
+**Q: AI 組織システムが動作しない**
+
+```bash
+# 権限確認
+ls -la ai-agents/manage.sh
+
+# ログ確認
+tail -f ai-agents/logs/system.log
+```
+
+**Q: 権限エラーが出る**
+
+```bash
+chmod +x *.sh
+chmod +x ai-agents/*.sh
+```
+
+---
+
+## 📞 サポート
+
+- **GitHub Issues**: [バグ報告・質問](https://github.com/your-org/coding-rule2/issues)
+- **Discord**: [リアルタイムサポート](https://discord.gg/coding-rule2)
+
+---
+
+**🎯 シンプルなセットアップで、強力な AI 開発環境を構築しましょう！**
+
+_Last updated: $(date +'%Y-%m-%d %H:%M')_

@@ -42,6 +42,9 @@ show_menu() {
     echo "   - 全機能 + AI組織システム"
     echo "   - 高度な開発・分析環境"
     echo ""
+    echo "s) 設定状況確認"
+    echo "   - 現在のセットアップ状況をチェック"
+    echo ""
     echo "q) 終了"
     echo ""
 }
@@ -92,6 +95,13 @@ setup_basic() {
 EOF
     
     log_success "🎉 基本設定完了！"
+    
+    # 設定状況を更新
+    if [ -f "status-checker.sh" ]; then
+        ./status-checker.sh check > /dev/null 2>&1
+        log_info "📊 設定状況を更新しました (STATUS.md)"
+    fi
+    
     echo "次のステップ: Cursorを再起動してRulesを反映してください"
 }
 
@@ -158,6 +168,13 @@ EOF
     chmod +x claude-cursor-sync.sh
     
     log_success "🎉 開発環境設定完了！"
+    
+    # 設定状況を更新
+    if [ -f "status-checker.sh" ]; then
+        ./status-checker.sh check > /dev/null 2>&1
+        log_info "📊 設定状況を更新しました (STATUS.md)"
+    fi
+    
     echo "次のステップ:"
     echo "  1. Cursorを再起動してRulesを反映"
     echo "  2. Claude Codeで作業開始"
@@ -251,6 +268,13 @@ EOF
     chmod +x ai-agents/manage.sh
     
     log_success "🎉 完全設定完了！"
+    
+    # 設定状況を更新
+    if [ -f "status-checker.sh" ]; then
+        ./status-checker.sh check > /dev/null 2>&1
+        log_info "📊 設定状況を更新しました (STATUS.md)"
+    fi
+    
     echo "次のステップ:"
     echo "  1. Cursorを再起動してRulesを反映"
     echo "  2. Claude Codeで作業開始"
@@ -278,12 +302,27 @@ main() {
                 setup_complete
                 break
                 ;;
+            s|S)
+                if [ -f "status-checker.sh" ]; then
+                    clear
+                    log_info "🔍 現在の設定状況を確認中..."
+                    ./status-checker.sh check
+                    echo ""
+                    echo "📄 詳細は STATUS.md ファイルをご確認ください"
+                    echo -n "Enterキーで続行..."
+                    read
+                else
+                    log_error "status-checker.sh が見つかりません"
+                    echo -n "Enterキーで続行..."
+                    read
+                fi
+                ;;
             q|Q)
                 echo "セットアップを終了します。"
                 exit 0
                 ;;
             *)
-                echo "無効な選択です。1-3またはqを入力してください。"
+                echo "無効な選択です。1-3, s またはqを入力してください。"
                 echo -n "Enterキーで続行..."
                 read
                 ;;

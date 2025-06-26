@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-06-26T18:07:03+09:00",
+  "current_files": [
+  "./.cursor/rules.md",
+  "./ai-agents/instructions/worker.md",
+  "./ai-agents/instructions/boss.md",
+  "./ai-agents/instructions/president.md",
+  "./STATUS.md",
+  "./.specstory/.what-is-this.md",
+  "./.specstory/history/2025-06-25_03-22-aiツールの設定と連携について.md",
+  "./.specstory/history/2025-06-24_06-01-バックグラウンドターミナルの準備問題.md",
+  "./.specstory/history/2025-06-26_06-52-ディレクトリの整理と解説.md",
+  "./.specstory/history/2025-06-26_08-11-ディレクトリの設定とスクリプト構成.md",
+  "./.specstory/history/2025-06-26_17-37-auto-update-check.md",
+  "./.specstory/history/2025-06-26_05-47-automate-cursor-work-status-updates.md",
+  "./.specstory/history/2025-06-24_06-39-画面分割の問題について.md",
+  "./.specstory/history/2025-06-26_17-35-comprehensive-check-and-automation.md",
+  "./.specstory/history/2025-06-24_08-41-discussing-claude-code-communication.md",
+  "./.Claude-Code-Communication-backup/instructions/worker.md",
+  "./.Claude-Code-Communication-backup/instructions/boss.md",
+  "./.Claude-Code-Communication-backup/instructions/president.md",
+  "./.Claude-Code-Communication-backup/ai-agents/docs/README.md",
+  "./.Claude-Code-Communication-backup/ai-agents/docs/agent-communication-doc.md"
+],
+  "git_status": " M .gitignore
+ M README.md
+ D auto-update-checker.sh
+ M cursor-rules/todo.mdc
+ M setup.sh
+?? .cursor-claude-sync.json
+?? status-checker.sh"
+}
