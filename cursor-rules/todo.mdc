@@ -138,6 +138,11 @@ alwaysApply: true
   - 不要なdocs-guide.md削除、冗長性排除
   - 新規ファイル作成抑制ルールをglobals.mdcに追加
   - シンプルで分かりやすい単一README構成実現
+- [x] 🔴 Claude Code連携確認・最適化
+  - Claude CodeとCursor間の同期機能動作確認完了
+  - .claude-projectファイル削除（2025年版では不要）
+  - scripts/claude-cursor-sync.sh正常動作確認
+  - リアルタイム同期システム最適化完了
 
 ### 今後のタスク
 - [ ] 🟢 セットアップスクリプトの実際の動作テスト

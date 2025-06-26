@@ -145,7 +145,7 @@ ls -la ai-agents/
 ```
 .claude-project               # Claude Code 設定
 scripts/claude-cursor-sync.sh         # 同期スクリプト
-CLAUDE.md                     # プロジェクト情報
+ai-agents/docs/CLAUDE.md      # プロジェクト情報
 ```
 
 ### パターン 3: 完全設定
@@ -220,13 +220,13 @@ cat STATUS.md
 
 **基本的な使い方は [QUICKSTART.md](QUICKSTART.md) を参照**
 
-##### Claude Code 認証・一括起動
+##### Claude Code 一括起動
 
 ```bash
-# 全セッションでClaude Code起動
+# 全セッションでClaude Code起動（権限スキップ）
 ./ai-agents/manage.sh claude-setup
 
-# 各セッションで認証プロンプトに従って許可
+# Claude Codeが各セッションで自動起動
 # PRESIDENTで指示開始: "指示書に従って"
 ```
 
@@ -295,7 +295,7 @@ tmux attach-session -t multiagent   # 4ペイン画面
 
 ```bash
 # 完全リセット
-rm -rf .cursor/ .claude-project ai-agents/ scripts/claude-cursor-sync.sh CLAUDE.md
+rm -rf .cursor/ .claude-project ai-agents/ scripts/claude-cursor-sync.sh
 
 # 再セットアップ
 ./setup.sh
