@@ -110,69 +110,66 @@ alwaysApply: true
 - [x] 🟢 .specstory復活問題の根本解決
   - .gitignoreに.specstoryを追加
   - 恒久的な除外設定完了
+- [x] 🔴 AI組織システムのtmux問題修正完了
+  - tmuxセッション作成の永続化問題解決
+  - quick-startコマンド追加（自動4画面対話開始）
+  - プレジデント対話画面 + ワーカー4画面の2ターミナル構成実現
+  - セッション永続化とAI対話自動開始を実装
+- [x] 🔴 本物のClaude Code AI組織システム実装完了
+  - ダミーのAI応答システムを完全廃止
+  - 実際のClaude Code AIが各tmuxセッションで動作
+  - 指示書を実際のtmuxコマンド対応に更新
+  - エージェント間通信システム（tmux send-keys）実装
+  - Hello Worldデモで本物のAI組織動作を実現
+- [x] 🔴 参照リポジトリ準拠の自動起動機能実装
+  - attach-multiagent機能追加（4ワーカー自動Claude Code起動）
+  - attach-president機能追加（PRESIDENT自動Claude Code起動）
+  - 参照リポジトリ: https://github.com/daideguchi/Claude-Code-Company-v2
+  - 完全自動化対応: ./ai-agents/manage.sh attach-multiagent
+- [x] 🔴 正確な起動手順への完全修正
+  - PRESIDENTを先に「presidentとして」活動開始させる必要性発見
+  - 手順1: tmuxセッション作成
+  - 手順2: PRESIDENT起動 (claude --dangerously-skip-permissions)
+  - 手順3: 「あなたはpresidentです。指示書に従って」入力
+  - 手順4: 4画面立ち上げコマンド送信
+  - 参照リポジトリ: https://github.com/Akira-Papa/Claude-Code-Communication
 
-- [x] 🔴 設定状況管理システム実装
-  - STATUS.mdテンプレートファイル作成
-  - status-checker.sh設定状況確認スクリプト作成
-  - setup.shに自動ステータス更新機能追加
-  - ユーザー環境別設定状況管理システム完成
-- [x] 🔴 AI組織システム完全実装
-  - 4画面対応AI組織システム（プレジデント/ボス/ワーカー×2）
-  - 役割別対話機能・セッション管理・ログ機能
-  - macOS/Linux対応の自動画面起動システム
-  - 完全な対話型AI組織運用システム完成
-- [x] 🔴 Claude Code Company v2.0完全対応実装
-  - Cursor内ターミナル起動対応（tmux環境推奨）
-  - agent-send.sh通信スクリプト完全実装
-  - tmuxセッション間エージェント通信システム
-  - Claude Code一括起動・デモ実行機能
-  - GitHub参照リポジトリとの機能網羅性確認完了
-- [x] 🔴 スクリプト整理・ログ管理統合・使用方法改善
-  - scriptsディレクトリ作成、スクリプト乱立問題解決
-  - 統合ログ管理システム実装（logs/構造）
-  - QUICKSTART.md作成、超簡単スタートガイド実装
-  - パス参照一括更新、.gitignore整理
-  - 使用方法の大幅簡素化（分かりやすさ重視）
-- [x] 🔴 ドキュメント統合・シンプル化
-  - QUICKSTART.mdをREADME.mdに統合、単一ドキュメント化
-  - 不要なdocs-guide.md削除、冗長性排除
-  - 新規ファイル作成抑制ルールをglobals.mdcに追加
-  - シンプルで分かりやすい単一README構成実現
-- [x] 🔴 Claude Code連携確認・最適化
-  - Claude CodeとCursor間の同期機能動作確認完了
-  - .claude-projectファイル削除（2025年版では不要）
-  - scripts/claude-cursor-sync.sh正常動作確認
-  - リアルタイム同期システム最適化完了
-- [x] 🔴 Claude Code起動コマンド重要情報追加
-  - README.mdに「claude --dangerously-skip-permissions」起動コマンドを明記
-  - 複数箇所（基本操作・トラブルシューティング・AI組織システム）に記載
-  - 重要性を強調表示で明確化
-  - ユーザーが見落とさない形で情報提供完了
-- [x] 🔴 Claude Code起動コマンドパターン別明確化
-  - パターン2（開発環境設定）：claude（通常起動）
-  - パターン3（完全設定）：claude --dangerously-skip-permissions（必須）
-  - README.md全体でパターン別起動方法を統一
-  - AI組織システムでは権限スキップが必須であることを明記
-- [x] 🔴 同期機能説明の修正
-  - Claude CodeとCursorの自動連携であることを明確化
-  - 手動スクリプトではなくリアルタイム同期機能であることを説明
-  - README.mdで誤解を招く表現を修正
-  - ユーザーが自動機能であることを理解できるよう改善
-- [x] 🔴 不要な同期スクリプト完全削除
-  - scripts/claude-cursor-sync.sh削除（自動連携のため不要）
-  - .cursor-claude-sync.json削除（手動同期ファイル不要）
-  - README.mdから手動同期関連の記述を全て削除
-  - 自動連携機能のみのクリーンな構成に変更
+- [x] 🔴 PRESIDENT自動起動の完全自動化実装
+  - claude-auth機能の不具合修正（プレジデントが起動していなかった問題）
+  - 「あなたはpresidentです。指示書に従って」の自動入力実装
+  - 4画面自動起動コマンドの自動送信実装
+  - 指示書の場所明示: ./ai-agents/instructions/president.md
+  - 完全ワンコマンドでAI組織システム起動を実現
+- [x] 🔴 Cursor内新ターミナル4画面自動起動実装
+  - 4画面をCursor内の別ターミナルで自動起動対応
+  - attach-multiagent機能にmacOS osascript新ターミナル開く機能追加
+  - 背景プロセスでの4画面起動システム実装
+  - プレジデントから自動で新ターミナル + 4画面立ち上げを実現
+- [x] 🔴 基本操作3ステップ化とREADME整理完了
+  - 基本操作を3ステップに簡素化: auto → コマンド送信 → multiagentアタッチ
+  - README.mdを分かりやすく整理（複雑な説明を削除）
+  - エージェント日本語対応強化（全指示書に日本語応答必須を明記）
+  - ユーザーが迷わない明確な手順説明を実現
 
 ### 今後のタスク
 - [ ] 🟢 セットアップスクリプトの実際の動作テスト
   - パターン2,3の本番環境での動作確認
-  - .claude-projectファイル生成の実証
 - [ ] ⚪ ドキュメントの継続改善
   - ユーザーフィードバックに基づく調整
-- [ ] 🟢 設定状況管理システムの改善
-  - より詳細な診断機能追加
-  - 自動修復機能の検討
+
+### 2025年1月完了分
+- [x] 🔴 AI組織システムのデモ機能削除・立ち上げ手順明確化
+  - --demoコマンドを削除
+  - 実際の立ち上げ手順を明確化
+  - 【ターミナル1】tmux attach-session -t president
+  - 【ターミナル2】tmux attach-session -t multiagent
+  - 使用方法を分かりやすく説明
+- [x] 🔴 プロダクト仕様書作成・要件定義整理
+  - PRODUCT_SPECIFICATION.md をルートに配置
+  - プロダクト概要・解決課題・ターゲットユーザーを明確化
+  - 4つの主要機能仕様と必要性を詳細記載
+  - 技術仕様・ユースケース・実装優先度を整理
+  - CursorとClaude Code両方のAIが認識可能な形式
 
 ## 重要事項
 

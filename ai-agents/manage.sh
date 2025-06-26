@@ -26,6 +26,7 @@ AGENTS_DIR="ai-agents"
 LOGS_DIR="$AGENTS_DIR/logs"
 SESSIONS_DIR="$AGENTS_DIR/sessions"
 INSTRUCTIONS_DIR="$AGENTS_DIR/instructions"
+TMP_DIR="$AGENTS_DIR/tmp"
 
 # 必要ディレクトリの作成
 init_directories() {
@@ -57,7 +58,7 @@ EOF
     log_success "📝 ${role} セッションを作成しました: $session_file"
 }
 
-# AI役割の対話システム
+# AI役割の対話システム（実際のClaude Code使用）
 start_ai_chat() {
     local role=$1
     local instruction_file="$INSTRUCTIONS_DIR/${role}.md"
@@ -70,55 +71,21 @@ start_ai_chat() {
     fi
     
     clear
-    echo "🤖 AI組織システム - ${role^^} 対話モード"
+    local role_upper=$(echo "$role" | tr '[:lower:]' '[:upper:]')
+    echo "🤖 AI組織システム - ${role_upper} 対話モード"
     echo "=================================================="
     echo ""
     cat "$instruction_file"
     echo ""
     echo "=================================================="
-    echo "💬 対話を開始します。'exit'で終了、'help'でヘルプ"
+    echo "💬 Claude Code起動中...（自動認証・権限スキップ）"
     echo ""
     
     # ログ開始
-    echo "$(date): ${role} 対話セッション開始" >> "$log_file"
+    echo "$(date): ${role} Claude Code セッション開始" >> "$log_file"
     
-    while true; do
-        echo -n "${role^^}> "
-        read -r user_input
-        
-        case "$user_input" in
-            "exit"|"quit"|"q")
-                echo "$(date): ${role} セッション終了" >> "$log_file"
-                log_info "👋 ${role} セッションを終了します"
-                break
-                ;;
-            "help"|"h")
-                show_help "$role"
-                ;;
-            "status"|"s")
-                show_status "$role"
-                ;;
-            "clear"|"c")
-                clear
-                echo "🤖 AI組織システム - ${role^^} 対話モード"
-                echo "=================================================="
-                ;;
-            "")
-                continue
-                ;;
-            *)
-                # ユーザー入力をログに記録
-                echo "$(date): USER: $user_input" >> "$log_file"
-                
-                # AI応答をシミュレート（実際のAI統合時はここを置き換え）
-                ai_response=$(generate_ai_response "$role" "$user_input")
-                echo "$(date): AI: $ai_response" >> "$log_file"
-                
-                echo "🤖 $ai_response"
-                echo ""
-                ;;
-        esac
-    done
+    # Claude Codeを直接起動（権限スキップ）
+    claude --dangerously-skip-permissions
 }
 
 # AI応答生成（シミュレート版）
@@ -144,37 +111,78 @@ generate_ai_response() {
 
 # ヘルプ表示
 show_help() {
-    local role=$1
+    echo "🤖 AI組織管理システム v2.0"
+    echo "=========================="
     echo ""
-    echo "📚 ${role^^} ヘルプ"
-    echo "===================="
-    echo "exit/quit/q  - セッション終了"
-    echo "help/h       - このヘルプを表示"
-    echo "status/s     - 現在の状況を表示"
-    echo "clear/c      - 画面をクリア"
+    echo "使用方法:"
+    echo "  ./ai-agents/manage.sh [コマンド]"
     echo ""
-    echo "💡 ${role} の役割に応じた指示を入力してください"
+    echo "🚀 推奨コマンド:"
+    echo "  quick-start         4画面AI組織システム起動（全自動）"
+    echo "  attach-multiagent   4ワーカー自動起動＋アタッチ（参照リポジトリ準拠）"
+    echo "  attach-president    PRESIDENT自動起動＋アタッチ"
+    echo ""
+    echo "基本コマンド:"
+    echo "  start               tmuxセッション作成"
+    echo "  clean               セッション削除"
+    echo "  claude-setup        Claude Code一括起動"
+    echo "  status              システム状況確認"
+    echo ""
+    echo "🔥 参照リポジトリ準拠の使用法:"
+    echo "  1. ./ai-agents/manage.sh quick-start        # セッション作成"
+    echo "  2. ./ai-agents/manage.sh attach-multiagent  # 4ワーカー自動起動"
+    echo "  3. ./ai-agents/manage.sh attach-president   # PRESIDENT自動起動"
+    echo "  または:"
+    echo "  tmux attach-session -t multiagent           # 手動アタッチ"
+    echo "  tmux attach-session -t president            # 手動アタッチ"
     echo ""
 }
 
 # 状況表示
 show_status() {
-    local role=$1
-    local session_file="$SESSIONS_DIR/${role}_session.json"
-    local log_file="$LOGS_DIR/${role}.log"
-    
+    echo "🤖 AI組織システム状況"
+    echo "======================"
     echo ""
-    echo "📊 ${role^^} 状況"
-    echo "=================="
-    echo "役割: $role"
-    echo "セッション: $([ -f "$session_file" ] && echo "アクティブ" || echo "非アクティブ")"
-    echo "ログファイル: $log_file"
     
-    if [ -f "$log_file" ]; then
-        echo "最新ログ:"
-        tail -3 "$log_file" | sed 's/^/  /'
+    # ディレクトリ確認
+    echo "📁 ディレクトリ状況:"
+    for dir in "$LOGS_DIR" "$SESSIONS_DIR" "$INSTRUCTIONS_DIR"; do
+        if [ -d "$dir" ]; then
+            echo "  ✅ $dir"
+        else
+            echo "  ❌ $dir (未作成)"
+        fi
+    done
+    echo ""
+    
+    # 指示書確認
+    echo "📋 指示書状況:"
+    for role in president boss worker; do
+        local file="$INSTRUCTIONS_DIR/${role}.md"
+        if [ -f "$file" ]; then
+            echo "  ✅ $role ($file)"
+        else
+            echo "  ❌ $role ($file 未作成)"
+        fi
+    done
+    echo ""
+    
+    # アクティブセッション確認
+    echo "💬 アクティブセッション:"
+    if [ -d "$SESSIONS_DIR" ] && [ "$(ls -A $SESSIONS_DIR 2>/dev/null)" ]; then
+        ls -la "$SESSIONS_DIR"/*.json 2>/dev/null | sed 's/^/  /' || echo "  なし"
+    else
+        echo "  なし"
     fi
     echo ""
+    
+    # ログファイル確認
+    echo "📊 ログファイル:"
+    if [ -d "$LOGS_DIR" ] && [ "$(ls -A $LOGS_DIR 2>/dev/null)" ]; then
+        ls -la "$LOGS_DIR"/*.log 2>/dev/null | sed 's/^/  /' || echo "  なし"
+    else
+        echo "  なし"
+    fi
 }
 
 # 4画面起動システム（Cursor内ターミナル + tmux対応）
@@ -197,24 +205,32 @@ launch_tmux_sessions() {
     tmux kill-session -t president 2>/dev/null || true
     tmux kill-session -t multiagent 2>/dev/null || true
     
-    # PRESIDENTセッション作成
-    tmux new-session -d -s president -c "$(pwd)" \
-        "echo '🎯 PRESIDENT セッション' && ./ai-agents/manage.sh president"
+    # PRESIDENTセッション作成（永続化）
+    tmux new-session -d -s president -c "$(pwd)"
+    tmux send-keys -t president "echo '🎯 PRESIDENT セッション - 対話開始準備完了'" C-m
+    tmux send-keys -t president "echo 'プレジデントモード開始: ./ai-agents/manage.sh president'" C-m
     
     # multiagentセッション作成（4ペイン）
-    tmux new-session -d -s multiagent -c "$(pwd)" \
-        "echo '👔 BOSS1 ペイン' && ./ai-agents/manage.sh boss"
+    tmux new-session -d -s multiagent -c "$(pwd)"
+    tmux send-keys -t multiagent "echo '👔 BOSS1 ペイン - 対話開始準備完了'" C-m
+    tmux send-keys -t multiagent "echo 'ボスモード開始: ./ai-agents/manage.sh boss'" C-m
     
     # 追加ペイン作成
-    tmux split-window -t multiagent -h -c "$(pwd)" \
-        "echo '👷 WORKER1 ペイン' && ./ai-agents/manage.sh worker"
+    tmux split-window -t multiagent -h -c "$(pwd)"
+    tmux send-keys -t multiagent:0.1 "echo '👷 WORKER1 ペイン - 対話開始準備完了'" C-m
+    tmux send-keys -t multiagent:0.1 "echo 'ワーカーモード開始: ./ai-agents/manage.sh worker'" C-m
     
-    tmux split-window -t multiagent -v -c "$(pwd)" \
-        "echo '👷 WORKER2 ペイン' && ./ai-agents/manage.sh worker"
+    tmux split-window -t multiagent:0.1 -v -c "$(pwd)"
+    tmux send-keys -t multiagent:0.2 "echo '👷 WORKER2 ペイン - 対話開始準備完了'" C-m
+    tmux send-keys -t multiagent:0.2 "echo 'ワーカーモード開始: ./ai-agents/manage.sh worker'" C-m
     
     tmux select-pane -t multiagent:0.0
-    tmux split-window -t multiagent -v -c "$(pwd)" \
-        "echo '👷 WORKER3 ペイン' && ./ai-agents/manage.sh worker"
+    tmux split-window -t multiagent:0.0 -v -c "$(pwd)"
+    tmux send-keys -t multiagent:0.1 "echo '👷 WORKER3 ペイン - 対話開始準備完了'" C-m
+    tmux send-keys -t multiagent:0.1 "echo 'ワーカーモード開始: ./ai-agents/manage.sh worker'" C-m
+    
+    # レイアウト調整
+    tmux select-layout -t multiagent tiled
     
     log_success "✅ tmuxセッションを作成しました"
     echo ""
@@ -222,7 +238,13 @@ launch_tmux_sessions() {
     echo "  tmux attach-session -t president    # PRESIDENT画面"
     echo "  tmux attach-session -t multiagent   # 4ペイン画面"
     echo ""
-    echo "🚀 Claude Code一括起動:"
+    echo "🚀 AI対話開始方法:"
+    echo "  各ペインで以下のコマンドを実行:"
+    echo "  • PRESIDENT画面: ./ai-agents/manage.sh president"
+    echo "  • BOSS画面: ./ai-agents/manage.sh boss"
+    echo "  • WORKER画面: ./ai-agents/manage.sh worker"
+    echo ""
+    echo "🔥 Claude Code一括起動:"
     echo "  ./ai-agents/manage.sh claude-setup  # 全セッションでClaude起動"
 }
 
@@ -380,61 +402,308 @@ run_demo() {
     fi
 }
 
-# メイン処理
+# 簡単4画面起動（ユーザー要求対応）
+quick_start() {
+    log_info "🚀 簡単4画面AI組織システム起動中..."
+    
+    # 既存セッションの削除
+    tmux kill-session -t president 2>/dev/null || true
+    tmux kill-session -t multiagent 2>/dev/null || true
+    
+    # PRESIDENTセッション（Claude Code自動起動）
+    tmux new-session -d -s president -c "$(pwd)"
+    tmux send-keys -t president "clear" C-m
+    tmux send-keys -t president "echo '🎯 PRESIDENT セッション - Claude Code自動起動中...'" C-m
+    tmux send-keys -t president "sleep 2" C-m
+    tmux send-keys -t president "claude --dangerously-skip-permissions" C-m
+    
+    # multiagentセッション（4ペインClaude Code自動起動）
+    tmux new-session -d -s multiagent -c "$(pwd)"
+    
+    # BOSS1ペイン
+    tmux send-keys -t multiagent "clear" C-m
+    tmux send-keys -t multiagent "echo '👔 BOSS1 ペイン - Claude Code自動起動中...'" C-m
+    tmux send-keys -t multiagent "sleep 3" C-m
+    tmux send-keys -t multiagent "claude --dangerously-skip-permissions" C-m
+    
+    # WORKER1ペイン
+    tmux split-window -t multiagent -h -c "$(pwd)"
+    tmux send-keys -t multiagent:0.1 "clear" C-m
+    tmux send-keys -t multiagent:0.1 "echo '👷 WORKER1 ペイン - Claude Code自動起動中...'" C-m
+    tmux send-keys -t multiagent:0.1 "sleep 4" C-m
+    tmux send-keys -t multiagent:0.1 "claude --dangerously-skip-permissions" C-m
+    
+    # WORKER2ペイン
+    tmux split-window -t multiagent:0.1 -v -c "$(pwd)"
+    tmux send-keys -t multiagent:0.2 "clear" C-m
+    tmux send-keys -t multiagent:0.2 "echo '👷 WORKER2 ペイン - Claude Code自動起動中...'" C-m
+    tmux send-keys -t multiagent:0.2 "sleep 5" C-m
+    tmux send-keys -t multiagent:0.2 "claude --dangerously-skip-permissions" C-m
+    
+    # WORKER3ペイン
+    tmux select-pane -t multiagent:0.0
+    tmux split-window -t multiagent:0.0 -v -c "$(pwd)"
+    tmux send-keys -t multiagent:0.1 "clear" C-m
+    tmux send-keys -t multiagent:0.1 "echo '👷 WORKER3 ペイン - Claude Code自動起動中...'" C-m
+    tmux send-keys -t multiagent:0.1 "sleep 6" C-m
+    tmux send-keys -t multiagent:0.1 "claude --dangerously-skip-permissions" C-m
+    
+    # レイアウト最適化
+    tmux select-layout -t multiagent tiled
+    
+    log_success "✅ 4画面AI組織システム起動完了"
+    echo ""
+    echo "🎯 次の手順で使用開始:"
+    echo ""
+    echo "【ターミナル1】プレジデント画面:"
+    echo "  tmux attach-session -t president"
+    echo ""
+    echo "【ターミナル2】ワーカー4画面:"
+    echo "  tmux attach-session -t multiagent"
+    echo ""
+    echo "💡 使用方法:"
+    echo "  1. ターミナル1（president）で指示開始:"
+    echo "     'あなたはpresidentです。指示書に従って'"
+    echo ""
+    echo "  2. ターミナル2（multiagent）で各AIの作業確認"
+    echo ""
+    echo "  3. 実際のClaude Code AIが階層組織で動作"
+    echo ""
+    echo "🔧 システム確認:"
+    echo "  tmux list-sessions  # セッション一覧確認"
+}
+
+# multiagentセッション自動起動アタッチ（参照リポジトリ対応）
+attach_multiagent() {
+    log_info "🚀 multiagentセッション自動起動アタッチ中..."
+    
+    # セッション存在確認
+    if ! tmux has-session -t multiagent 2>/dev/null; then
+        log_error "❌ multiagentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh start"
+        return 1
+    fi
+    
+    # Cursor内で新しいターミナルを開く（macOS対応）
+    log_info "🖥️ Cursor内で新ターミナル起動中..."
+    
+    # 新しいターミナルタブを開く
+    if command -v osascript &> /dev/null; then
+        # macOSの場合：Cmd+Shift+T で新しいターミナル
+        osascript -e 'tell application "System Events" to keystroke "t" using {command down, shift down}' &
+        sleep 2
+    fi
+    
+    # 4つのペインでClaude Code自動起動（参照リポジトリ準拠）
+    log_info "🤖 4ワーカー自動起動中..."
+    
+    # ペイン0.0: boss1
+    tmux send-keys -t multiagent:0.0 "echo '👔 BOSS1 - Claude Code起動中...'" C-m
+    tmux send-keys -t multiagent:0.0 "claude --dangerously-skip-permissions" C-m
+    
+    # ペイン0.1: worker1  
+    tmux send-keys -t multiagent:0.1 "echo '👷 WORKER1 - Claude Code起動中...'" C-m
+    tmux send-keys -t multiagent:0.1 "claude --dangerously-skip-permissions" C-m
+    
+    # ペイン0.2: worker2
+    tmux send-keys -t multiagent:0.2 "echo '👷 WORKER2 - Claude Code起動中...'" C-m
+    tmux send-keys -t multiagent:0.2 "claude --dangerously-skip-permissions" C-m
+    
+    # ペイン0.3: worker3
+    tmux send-keys -t multiagent:0.3 "echo '👷 WORKER3 - Claude Code起動中...'" C-m
+    tmux send-keys -t multiagent:0.3 "claude --dangerously-skip-permissions" C-m
+    
+    sleep 1
+    log_success "✅ 4ワーカー自動起動完了"
+    
+    # セッションにアタッチ
+    tmux attach-session -t multiagent
+}
+
+# presidentセッション自動起動アタッチ
+attach_president() {
+    log_info "🎯 presidentセッション自動起動アタッチ中..."
+    
+    # セッション存在確認
+    if ! tmux has-session -t president 2>/dev/null; then
+        log_error "❌ presidentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh quick-start"
+        return 1
+    fi
+    
+    # Claude Code自動起動
+    tmux send-keys -t president "echo '🎯 PRESIDENT - Claude Code起動中...'" C-m
+    tmux send-keys -t president "claude --dangerously-skip-permissions" C-m
+    
+    sleep 1
+    log_success "✅ PRESIDENT自動起動完了"
+    
+    # セッションにアタッチ
+    tmux attach-session -t president
+}
+
+# 初期化関数
+init_dirs() {
+    # 必要なディレクトリを作成
+    mkdir -p "$LOGS_DIR" "$SESSIONS_DIR" "$INSTRUCTIONS_DIR" "$TMP_DIR"
+    
+    # ログディレクトリ内のサブディレクトリ作成
+    mkdir -p "$LOGS_DIR/ai-agents" "$LOGS_DIR/system"
+}
+
+# 正確なClaude Code起動手順（参照リポジトリ準拠）
+setup_claude_correct_flow() {
+    log_info "🎯 正確なClaude Code起動手順"
+    echo ""
+    echo "📋 手順1: PRESIDENTセッション起動"
+    
+    # セッション存在確認（なければ自動作成）
+    if ! tmux has-session -t president 2>/dev/null; then
+        log_warn "⚠️ tmuxセッションが存在しません。自動作成します..."
+        launch_tmux_sessions
+        sleep 1
+        log_success "✅ tmuxセッション自動作成完了"
+    fi
+    
+    # PRESIDENT起動（権限スキップ）
+    log_info "👑 PRESIDENT起動中..."
+    tmux send-keys -t president 'claude --dangerously-skip-permissions' C-m
+    
+    # 起動待機
+    sleep 3
+    
+    # 自動的に初期メッセージを送信
+    log_info "📋 指示書読み込み中..."
+    tmux send-keys -t president 'あなたはpresidentです。指示書に従って' C-m
+    
+    # さらに少し待機してから4画面を背景で起動
+    sleep 2
+    log_info "🚀 4画面を背景で自動起動コマンド送信中..."
+    tmux send-keys -t president 'nohup ./ai-agents/manage.sh attach-multiagent > /dev/null 2>&1 &' C-m
+    
+    echo ""
+    echo "✅ 自動化完了！以下が実行されました:"
+    echo "  1. PRESIDENTにClaude Code起動"
+    echo "  2. 初期メッセージ「あなたはpresidentです。指示書に従って」送信"
+    echo "  3. Cursor内新ターミナルで4画面自動起動コマンド送信"
+    echo ""
+    echo "📋 指示書の場所:"
+    echo "  ./ai-agents/instructions/president.md"
+    echo ""
+    echo "📊 確認方法:"
+    echo "  tmux attach-session -t president    # PRESIDENT画面"
+    echo "  tmux attach-session -t multiagent   # 4画面確認"
+    echo ""
+    
+    # PRESIDENTセッションに自動アタッチ
+    log_success "✅ PRESIDENT起動完了 - セッションに接続します"
+    sleep 1
+    tmux attach-session -t president
+}
+
+# 手動4画面起動（バックアップ用）
+manual_multiagent_start() {
+    log_info "🔧 手動4画面起動（バックアップ用）"
+    
+    # セッション存在確認
+    if ! tmux has-session -t multiagent 2>/dev/null; then
+        log_error "❌ multiagentセッションが存在しません。先に起動してください:"
+        echo "  ./ai-agents/manage.sh start"
+        return 1
+    fi
+    
+    log_info "👥 手動4画面起動中..."
+    
+    # 権限スキップで起動
+    for i in {0..3}; do 
+        tmux send-keys -t multiagent:0.$i 'claude --dangerously-skip-permissions' C-m
+        sleep 0.5
+    done
+    
+    log_success "✅ 手動4画面起動完了"
+    echo ""
+}
+
+# メイン処理（参照リポジトリ準拠）
 main() {
+    init_dirs
+    
     case "${1:-help}" in
-        "president"|"boss"|"worker")
-            init_directories
-            create_session "$1"
-            start_ai_chat "$1"
+        # 🚀 参照リポジトリ準拠の基本コマンド
+        "start")
+            # tmuxセッション作成のみ
+            log_info "🚀 tmuxセッション作成中..."
+            launch_tmux_sessions
+            echo ""
+            echo "📋 次のステップ（参照リポジトリ準拠）:"
+            echo "  1. ./ai-agents/manage.sh claude-auth     # PRESIDENT認証"
+            echo "  2. ./ai-agents/manage.sh multiagent-start # multiagent起動"
+            echo ""
             ;;
-        "start"|"launch")
-            init_directories
-            launch_four_screens
+        "claude-auth")
+            # PRESIDENT認証（段階1）
+            setup_claude_correct_flow
+            ;;
+        "auto")
+            # 🚀 ワンコマンド起動（全自動）
+            log_info "🚀 AI組織システム全自動起動中..."
+            setup_claude_correct_flow
+            ;;
+        "multiagent-start")
+            # multiagent一括起動（段階2）
+            manual_multiagent_start
+            ;;
+        "president")  
+            # PRESIDENT画面アタッチ
+            if tmux has-session -t president 2>/dev/null; then
+                tmux attach-session -t president
+            else
+                log_error "❌ presidentセッションが存在しません。先に './ai-agents/manage.sh start' を実行してください"
+            fi
+            ;;
+        "multiagent")
+            # multiagent画面アタッチ
+            if tmux has-session -t multiagent 2>/dev/null; then
+                tmux attach-session -t multiagent
+            else
+                log_error "❌ multiagentセッションが存在しません。先に './ai-agents/manage.sh start' を実行してください"
+            fi
+            ;;
+        "clean")
+            # セッション削除
+            clean_sessions
+            ;;
+        # 🔧 詳細コマンド（必要時のみ）
+        "quick-start")
+            quick_start
             ;;
         "claude-setup")
             setup_claude_code
             ;;
-        "demo")
-            run_demo
-            ;;
         "status")
             system_status
             ;;
-        "init")
-            init_directories
-            log_success "🎉 AI組織システムを初期化しました"
-            ;;
-        "clean"|"clear")
-            rm -rf "$SESSIONS_DIR"/*.json 2>/dev/null || true
-            rm -rf "$LOGS_DIR"/*.log 2>/dev/null || true
-            log_success "🧹 セッションとログをクリアしました"
-            ;;
-        "help"|*)
-            echo "🤖 AI組織管理システム v2.0"
-            echo "=========================="
+        "help"|"--help"|"-h"|*)
+            echo "🤖 AI組織システム - 起動方法"
+            echo "============================"
             echo ""
-            echo "使用方法:"
-            echo "  ./ai-agents/manage.sh [コマンド]"
+            echo "🚀 簡単起動（推奨）:"
+            echo "  ./ai-agents/manage.sh auto               # ワンコマンド全自動起動"
             echo ""
-            echo "コマンド:"
-            echo "  president      プレジデント対話モード開始"
-            echo "  boss           ボス対話モード開始"
-            echo "  worker         ワーカー対話モード開始"
-            echo "  start          4画面AI組織システム起動"
-            echo "  launch         4画面AI組織システム起動（startと同じ）"
-            echo "  claude-setup   Claude Code一括起動"
-            echo "  demo           Hello Worldデモ実行"
-            echo "  status         システム状況確認"
-            echo "  init           システム初期化"
-            echo "  clean          セッション・ログクリア"
-            echo "  clear          セッション・ログクリア（cleanと同じ）"
-            echo "  help           このヘルプを表示"
+            echo "🔧 詳細起動（必要時のみ）:"
+            echo "  1. ./ai-agents/manage.sh start           # tmuxセッション作成のみ"
+            echo "  2. ./ai-agents/manage.sh claude-auth     # PRESIDENT起動（自動セッション作成対応）"
             echo ""
-            echo "🚀 推奨使用方法:"
-            echo "  1. ./ai-agents/manage.sh start        # 4画面起動"
-            echo "  2. ./ai-agents/manage.sh claude-setup # Claude一括起動"
-            echo "  3. ./ai-agents/manage.sh demo         # デモ実行"
+            echo "📋 PRESIDENTに送信するコマンド:"
+            echo "  for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions' C-m; done"
+            echo ""
+            echo "📊 セッション操作:"
+            echo "  ./ai-agents/manage.sh president          # PRESIDENT画面"
+            echo "  ./ai-agents/manage.sh multiagent         # 4画面確認"
+            echo "  ./ai-agents/manage.sh clean              # セッション削除"
+            echo ""
+            echo "💡 参照リポジトリ:"
+            echo "  https://github.com/Akira-Papa/Claude-Code-Communication"
             echo ""
             ;;
     esac
