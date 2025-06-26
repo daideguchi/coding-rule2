@@ -1,207 +1,109 @@
-# 🤖 AI 開発支援ツール
+# AI 開発支援ツール セットアップ
 
-開発者が AI を効率的に制御するための包括的なツールセットです。
+AI 開発をサポートするシンプルなセットアップツールです。Cursor、Claude Code、AI 組織システムの 3 パターンから選択できます。
 
-## 🎯 概要
+## 📂 ディレクトリ構成
 
-このツールは、AI 駆動開発を最適化するために設計された 3 段階のセットアップシステムを提供します：
-
-- **A**: Cursor Rules 設定（基本的な AI 支援）
-- **B**: Claude Code 初期設定（高度な AI 連携）
-- **C**: Claude Code Company（AI 組織による自律開発）
-
-## 🚀 クイックスタート
-
-### 一発セットアップ
-
-```bash
-# スクリプトを実行可能にする
-chmod +x setup-ai-dev.sh
-
-# 段階的セットアップ
-./setup-ai-dev.sh A      # Cursor Rulesのみ
-./setup-ai-dev.sh AB     # Cursor Rules + Claude Code
-./setup-ai-dev.sh ABC    # 完全セットアップ
+```
+coding-rule2/
+├── cursor-rules/           # 技術用ファイル
+│   ├── dev-rules/         # 開発関連ルール
+│   ├── globals.mdc        # グローバルルール
+│   ├── rules.mdc          # プロジェクトルール
+│   ├── todo.mdc           # タスク管理
+│   └── uiux.mdc           # UI/UX関連
+├── setup.sh               # セットアップスクリプト
+├── README.md              # 説明書（このファイル）
+└── .spellright.json       # mdスペルチェック無効化
 ```
 
-## 📋 セットアップオプション詳細
+## 🚀 使用方法
 
-### Option A: Cursor Rules 設定
-
-**対象者**: Cursor ユーザー  
-**効果**: AI 支援の基本ルール設定
-
-- `.cursor/rules`ファイル作成
-- 日本語対応、ユーザー優先の開発方針
-- 並列処理最適化
-- TypeScript/React 開発ベストプラクティス
+### 1. セットアップスクリプト実行
 
 ```bash
-./setup-ai-dev.sh A
+./setup.sh
 ```
 
-### Option AB: Cursor + Claude Code 連携
+### 2. パターン選択
 
-**対象者**: Cursor と Claude Code を併用したい開発者  
-**効果**: 綿密な AI 連携環境
+スクリプト実行後、以下の 3 パターンから選択できます：
 
-- Option A の内容に加えて：
-- Claude Code プロジェクト設定
-- Cursor ⇄ Claude Code 同期スクリプト
-- 作業状況の自動記録・共有
+#### パターン 1: 基本設定
+
+- Cursor Rules 設定のみ
+- 軽量で最小限の構成
+- 初心者や軽量使用に適している
+
+#### パターン 2: 開発環境設定
+
+- Cursor Rules + Claude Code 設定
+- 開発作業に必要な基本環境
+- 通常の開発作業に最適
+
+#### パターン 3: 完全設定
+
+- 全機能 + AI 組織システム
+- 高度な開発・分析環境
+- 高度な開発やチーム作業に適している
+
+## 📋 各パターンの詳細
+
+### パターン 1 で設定されるもの
+
+- `.cursor/rules/` - Cursor 用ルールファイル
+- `.cursor/rules.md` - メインルールファイル
+
+### パターン 2 で追加されるもの
+
+- `.claude-project` - Claude Code 設定
+- `claude-cursor-sync.sh` - Cursor-Claude 同期スクリプト
+
+### パターン 3 で追加されるもの
+
+- `ai-agents/` - AI 組織システム
+- `ai-agents/instructions/` - 各 AI 役割の指示書
+- `ai-agents/manage.sh` - AI 組織管理スクリプト
+
+## 🔧 セットアップ後の操作
+
+### 基本設定後
 
 ```bash
-./setup-ai-dev.sh AB
+# Cursorを再起動してRulesを反映
+```
 
+### 開発環境設定後
+
+```bash
 # Cursor作業状況を記録
 ./claude-cursor-sync.sh record
 
-# Claude Codeで最新状況を確認
+# 記録した状況をClaude Codeで確認
 ./claude-cursor-sync.sh share
 ```
 
-### Option ABC: 完全 AI 組織システム
-
-**対象者**: 最先端のマルチエージェント開発を体験したい開発者  
-**効果**: [Claude Code Company][memory:5369506453358436803]]による階層型 AI 自律開発
-
-- Option A+B の内容に加えて：
-- PRESIDENT → BOSS → Workers の組織構造
-- tmux ベースのマルチセッション管理
-- エージェント間自動通信システム
+### 完全設定後
 
 ```bash
-./setup-ai-dev.sh ABC
+# AI組織システム開始
+./ai-agents/manage.sh start
 
-# AI組織セッション確認
-tmux attach-session -t multiagent   # ワーカーエージェント
-tmux attach-session -t president    # 統括エージェント
+# AI組織システム状況確認
+./ai-agents/manage.sh status
 ```
 
-## 🔄 Cursor ⇄ Claude Code 連携
+## 🎯 重要事項
 
-### 基本的な連携フロー
+- **機能の勝手な変更禁止**: 明示的に指示されていない変更は行いません
+- **日本語コミュニケーション**: 全て日本語で対応します
+- **ユーザー最優先**: ユーザーの要求を最優先に処理します
+- **シンプル構成**: 必要最小限のファイル構成を維持します
 
-1. **Cursor で開発作業**
+## 📞 サポート
 
-   ```bash
-   # 作業状況を記録
-   ./claude-cursor-sync.sh record
-   ```
-
-2. **Claude Code で作業引き継ぎ**
-
-   ```bash
-   # 最新状況を確認
-   ./claude-cursor-sync.sh share
-
-   # Claude Code起動
-   claude
-   ```
-
-3. **状況共有の自動化**
-   - ファイル変更の自動追跡
-   - Git 状況の同期
-   - プロジェクト進捗の記録
-
-### 連携設定ファイル
-
-- `.claude-project`: Claude Code プロジェクト設定
-- `.cursor-claude-sync.json`: 作業状況同期データ
-- `claude-cursor-sync.sh`: 同期スクリプト
-
-## 🏢 AI 組織システム（Claude Code Company）
-
-### 組織構造
-
-```
-📊 PRESIDENT セッション
-└── PRESIDENT: プロジェクト統括責任者
-
-📊 multiagent セッション
-├── boss1: チームリーダー
-├── worker1: 実行担当者A
-├── worker2: 実行担当者B
-└── worker3: 実行担当者C
-```
-
-### 動作フロー
-
-1. **PRESIDENT**: ユーザーからの要求を受信・分析
-2. **BOSS**: PRESIDENT の指示を受けてワーカーに分担
-3. **WORKERS**: 実際の開発作業を並列実行
-4. **報告**: WORKERS → BOSS → PRESIDENT → ユーザー
-
-### 組織管理コマンド
-
-```bash
-# AI組織起動
-./setup-ai-dev.sh ABC
-
-# セッション確認
-tmux list-sessions
-
-# エージェント間通信
-cd Claude-Code-Communication
-./agent-send.sh boss1 "指示内容"
-./agent-send.sh worker1 "作業内容"
-
-# ログ確認
-cat logs/send_log.txt
-```
-
-## 🛠️ トラブルシューティング
-
-### よくある問題
-
-**Claude Code がインストールされていない**
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-**tmux セッションが競合**
-
-```bash
-tmux kill-server  # 全セッション削除
-./setup-ai-dev.sh ABC  # 再構築
-```
-
-**同期が取れない**
-
-```bash
-rm .cursor-claude-sync.json
-./claude-cursor-sync.sh record  # 再記録
-```
-
-## 📚 関連ドキュメント
-
-- [Claude Code Communication 詳細](Claude-Code-Communication/README.md)
-- [エージェント指示書](Claude-Code-Communication/instructions/)
-- [システム構造](Claude-Code-Communication/CLAUDE.md)
-
-## 🔧 カスタマイズ
-
-### Cursor Rules 追加
-
-`.cursor/rules`ファイルを編集して、プロジェクト固有のルールを追加できます。
-
-### Claude Code 設定変更
-
-`.claude-project`ファイルで Claude Code の動作をカスタマイズできます。
-
-### AI 組織拡張
-
-`Claude-Code-Communication/instructions/`ディレクトリで各エージェントの役割を調整できます。
-
-## 📝 ライセンス
-
-MIT License
-
-## 🤝 コントリビューション
-
-プルリクエストや Issue でのコントリビューションを歓迎します！
+設定や使用方法で不明な点がある場合は、セットアップスクリプトの選択メニューから適切なパターンを選択し直してください。
 
 ---
 
-🚀 **効率的な AI 駆動開発を始めましょう！** 🤖
+_Last updated: 2025-01-22_

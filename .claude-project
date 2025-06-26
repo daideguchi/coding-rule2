@@ -2,22 +2,14 @@
   "name": "AI開発支援プロジェクト",
   "description": "Cursor + Claude Code連携開発環境",
   "rules": [
-    "作業開始前にCLAUDE.mdを必ず確認",
     "日本語でコミュニケーション",
     "ユーザーの要求を最優先",
     "機能を勝手に変更しない",
-    "Cursor作業内容との連携を保持",
-    "重要な変更や決定事項はCLAUDE.mdに記録"
+    "Cursor作業内容との連携を保持"
   ],
   "memory": {
     "sync_with_cursor": true,
     "track_changes": true,
-    "preserve_context": true,
-    "project_status_file": "CLAUDE.md"
-  },
-  "workflow": {
-    "start": "CLAUDE.mdで現在の状況を確認",
-    "sync": "./claude-cursor-sync.sh shareで最新情報を取得",
-    "record": "./claude-cursor-sync.sh recordで作業内容を記録"
+    "preserve_context": true
   }
 }

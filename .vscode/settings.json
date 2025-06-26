@@ -1,0 +1,43 @@
+{
+  "cSpell.enabled": false,
+  "cSpell.enableFiletypes": [],
+  "cSpell.language": "en,ja",
+  "cSpell.ignorePaths": [
+    "**/*.mdc",
+    "**/*.md",
+    ".git/**",
+    "node_modules/**"
+  ],
+  "cSpell.words": [
+    "AI",
+    "Claude",
+    "Cursor",
+    "mdc",
+    "readme",
+    "セットアップ",
+    "開発",
+    "支援",
+    "ツール",
+    "パターン",
+    "システム",
+    "組織",
+    "プロジェクト"
+  ],
+  "spellright.language": [
+    "en"
+  ],
+  "spellright.documentTypes": [
+    "markdown",
+    "plaintext"
+  ],
+  "spellright.ignoreFiles": [
+    "**/*.mdc",
+    "**/*.md"
+  ],
+  "editor.wordBasedSuggestions": false,
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+  }
+} 

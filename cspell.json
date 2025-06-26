@@ -1,0 +1,52 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "AI",
+    "開発支援ツール",
+    "セットアップ",
+    "Claude",
+    "Code",
+    "組織システムの",
+    "Cursor",
+    "mdc",
+    "readme",
+    "プロジェクト",
+    "ディレクトリ",
+    "ファイル",
+    "スクリプト",
+    "パターン",
+    "基本設定",
+    "環境設定", 
+    "完全設定",
+    "システム",
+    "組織",
+    "エージェント",
+    "マルチ",
+    "TypeScript",
+    "JavaScript",
+    "React",
+    "Vue",
+    "github",
+    "git"
+  ],
+  "ignorePaths": [
+    "**/*.mdc",
+    "**/*.md",
+    ".git/**",
+    "node_modules/**",
+    "dist/**",
+    "build/**"
+  ],
+  "ignoreRegExpList": [
+    "[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF\\u3400-\\u4DBF]+" 
+  ],
+  "languageSettings": [
+    {
+      "languageId": "markdown",
+      "ignoreRegExpList": [
+        "[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF\\u3400-\\u4DBF]+"
+      ]
+    }
+  ]
+} 
