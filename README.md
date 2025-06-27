@@ -1,372 +1,297 @@
-# 🤖 CodingRule2 - AI 組織開発システム
+# 🚀 CodingRule2 - AI 組織統治開発プラットフォーム
 
-<div align="center">
+## 📋 革新的な AI 組織システム
 
-**🚀 日本語対応の階層型マルチエージェント AI 組織で開発を革新 🚀**
-
-[![Setup](https://img.shields.io/badge/Setup-2分で完了-brightgreen)](./setup.sh)
-[![Language](https://img.shields.io/badge/Language-日本語完全対応-blue)](#特徴)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
-[![AI Agents](https://img.shields.io/badge/AI_Agents-5個同時実行-red)](#ai-組織構成)
-
-</div>
-
----
-
-## 📋 目次
-
-<div align="center">
-
-| セクション | 内容 | 所要時間 |
-|-----------|------|----------|
-| [🚀 最速セットアップ](#-最速セットアップ2-分) | セットアップガイド | 2分 |
-| [🎯 使い方](#-使い方超簡単) | 基本的な使用方法 | 3分 |
-| [📦 設定パターン](#-選べる-3-パターン) | 3つの設定パターン | 1分 |
-| [🔧 トラブルシューティング](#-トラブルシューティング) | 問題解決ガイド | 5分 |
-
-</div>
-
----
-
-## 🚀 **最速セットアップ（2 分）**
-
-<div align="center">
-
-### 🔥 **ワンコマンドインストール（推奨）**
+**5 人の AI チームが協調して開発**する、世界初の階層型マルチエージェント開発環境です。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/your-repo/coding-rule2/main/quick-install.sh | bash
+./setup.sh  # ワンコマンドセットアップ
+./ai-agents/manage.sh claude-auth  # AI組織起動
 ```
 
-**✨ 自動でクローン→権限設定→初期セットアップまで完了！**
+### 🤖 AI 組織構造
 
-</div>
+```
+👑 PRESIDENT (統括責任者) - [ペイン: president]
+  └── 👔 BOSS1 (チームリーダー) - [ペイン: 0.0]
+      ├── 💻 WORKER1 (実行担当A) - [ペイン: 0.1]
+      ├── 🔧 WORKER2 (実行担当B) - [ペイン: 0.2]
+      └── 🎨 WORKER3 (実行担当C) - [ペイン: 0.3]
+```
 
-<details>
-<summary>📋 <strong>手動セットアップ手順（3ステップ）</strong></summary>
+### 🎯 3 つの選択肢（初心者〜上級者対応）
+
+| レベル        | 選択              | 内容                      | 対象                             |
+| ------------- | ----------------- | ------------------------- | -------------------------------- |
+| 🟢 **初心者** | `1) 基本設定`     | Cursor Rules のみ         | 「とりあえず AI 支援を試したい」 |
+| 🟡 **中級者** | `2) 開発環境設定` | Cursor + Claude Code 連携 | 「本格的な AI 開発をしたい」     |
+| 🔴 **上級者** | `3) 完全設定`     | **AI 組織システム + ガバナンス体制**  | 「AI チームに作業を任せたい」    |
+
+---
+
+## 🎮 使い方（超簡単）
+
+### ステップ 1: ダウンロード
 
 ```bash
-# 1️⃣ リポジトリクローン
-git clone https://github.com/your-repo/coding-rule2.git
+git clone https://github.com/[your-repo]/coding-rule2.git
 cd coding-rule2
-
-# 2️⃣ セットアップ実行
-./setup.sh
-
-# 3️⃣ 認証設定（重要！）
-./setup.sh → a) 認証設定 → Proプラン または API Key を選択
 ```
 
-</details>
-
-<div align="center">
-
-### 🎯 **起動手順**
-
-</div>
-
-<details>
-<summary>📋 <strong>AI組織システム起動方法</strong></summary>
+### ステップ 2: 起動
 
 ```bash
-# 1️⃣ 認証設定（初回のみ）
-./setup.sh → a) 認証設定 → 使いたい方法を選択
-
-# 2️⃣ AI組織システム起動
-./ai-agents/manage.sh claude-auth
+./setup.sh
 ```
 
-</details>
+### ステップ 3: 選択
 
-<div align="center">
+画面の指示に従って `1`, `2`, `3` のいずれかを選択
 
-| ステップ | 操作 | 所要時間 | 成功指標 |
-|---------|------|----------|----------|
-| 🔥 | ワンコマンドインストール | 1分 | ✅ 完全セットアップ完了 |
-| 🔐 | 認証設定 | 1分 | ✅ Claude認証完了 |
-| 🚀 | AI組織起動 | 30秒 | ✅ 5つのAIが起動 |
+### ステップ 4: 完了！
 
-**🎉 これで完了！PRESIDENT + 4 つのワーカー AI が自動起動します**
-
-</div>
+- **選択 1・2**: Cursor を再起動して AI 支援開始
+- **選択 3**: 下記「AI 組織システム」へ
 
 ---
 
-## 🎯 **使い方（超簡単）**
+## 🤖 AI 組織システム - 実際に動作する AI チーム
 
-<div align="center">
+### 🎯 革新的な特徴
 
-### 🔥 **3ステップワークフロー**
+- **実際の Claude Code AI**: シミュレーションではなく本物の AI が動作
+- **4 画面同時表示**: tmux による多画面リアルタイム監視
+- **階層型ガバナンス**: PRESIDENT → BOSS → WORKER の指揮系統
+- **ペイン番号システム**: [0] 形式での報告体制
+- **並列作業処理**: 複数 AI が同時進行で開発
 
-</div>
+### 🏛️ ガバナンス体制
 
-### **Step 1: AI 組織システム起動**
+| エージェント | ペイン番号 | 責任範囲 | 報告形式 |
+|-------------|-----------|----------|----------|
+| 👑 PRESIDENT | president | 全体統括・最終決定 | 独立セッション |
+| 👔 BOSS1 | 0.0 | タスク分散・進捗管理 | [0] BOSS報告 |
+| 💻 WORKER1 | 0.1 | 実行作業A | [1] WORKER1報告 |
+| 🔧 WORKER2 | 0.2 | 実行作業B | [2] WORKER2報告 |
+| 🎨 WORKER3 | 0.3 | 実行作業C | [3] WORKER3報告 |
 
+### 🚀 起動・操作方法
+
+#### 1. AI 組織システム起動
 ```bash
 ./ai-agents/manage.sh claude-auth
 ```
 
-<div align="center">
-
-| 機能 | 状態 | 説明 |
-|------|------|------|
-| 🔐 認証設定 | ✅ 自動選択 | 設定済み認証を自動検出 |
-| 👑 PRESIDENT | ✅ 自動起動 | 統括AIが起動 |
-| 👥 4ワーカー | ✅ 自動起動 | 実行担当AIが起動 |
-| 🗾 日本語対応 | ✅ 完全対応 | 全AIが日本語で対話 |
-
-</div>
-
-### **Step 2: プロジェクト指示**
-
-**PRESIDENT 画面**でプロジェクトを指示するだけ：
-
-<details>
-<summary>💡 <strong>指示例を表示</strong></summary>
-
-**初心者向け:**
-```
-Hello Worldプロジェクトを作成してください
-```
-
-**Web開発:**
-```
-Python FlaskでTodoアプリを作成してください。API設計、フロントエンド、テストまで含めて
-```
-
-**データ分析:**
-```
-CSVファイルを読み込んで可視化するPythonスクリプトを作成してください
-```
-
-</details>
-
-### **Step 3: AI 活動監視**
-
-**ターミナル 2**で 4 つの AI の活動をリアルタイム監視：
-
+#### 2. 画面操作
 ```bash
+# PRESIDENT 画面（独立セッション）
+tmux attach-session -t president
+
+# チーム画面（4分割表示）
 tmux attach-session -t multiagent
+
+# 画面切り替え
+# - マウスクリック
+# - Ctrl+B → 矢印キー
 ```
 
-<div align="center">
-
-**🤖 AI同士が日本語で相談しながら、実際にファイルを作成します！**
-
-</div>
-
----
-
-## 🤖 **AI 組織構成**
-
-<div align="center">
-
-```mermaid
-graph TD
-    A["👑 PRESIDENT<br/><b>統括AI</b><br/>プロジェクト全体管理"] --> B["👔 BOSS1<br/><b>チームリーダー</b><br/>作業分担・進捗管理"]
-    A --> C["👷 WORKER1<br/><b>実行担当</b><br/>ファイル作成・編集"]
-    A --> D["👷 WORKER2<br/><b>実行担当</b><br/>コード生成・実行"]
-    A --> E["👷 WORKER3<br/><b>実行担当</b><br/>テスト・検証"]
-    
-    style A fill:#FFE6E6,stroke:#FF6B6B,stroke-width:4px,color:#000
-    style B fill:#E6F3FF,stroke:#4DABF7,stroke-width:3px,color:#000
-    style C fill:#E6FFE6,stroke:#51CF66,stroke-width:3px,color:#000
-    style D fill:#E6FFE6,stroke:#51CF66,stroke-width:3px,color:#000
-    style E fill:#E6FFE6,stroke:#51CF66,stroke-width:3px,color:#000
-```
-
-</div>
-
-<div align="center">
-
-| 役割 | AI | 主な機能 | 特徴 |
-|------|----|---------|----- |
-| 🎯 統括 | 👑 PRESIDENT | プロジェクト全体統括 | 日本語指示対応・方針決定 |
-| 📋 管理 | 👔 BOSS1 | チームリーダー | 作業分担・進捗管理 |
-| ⚡ 実行 | 👷 WORKER1-3 | 実行担当 | ファイル作成・編集・実行 |
-
-</div>
-
-<div align="center">
-
-**💪 実際にファイル作成・コード生成・実行を行います！**
-
-</div>
-
----
-
-## 🔐 **認証設定（重要）**
-
-| 認証方法                    | 特徴                   | 推奨対象 |
-| --------------------------- | ---------------------- | -------- |
-| **🏆 claude.ai Pro プラン** | 高性能・安定・月額固定 | **推奨** |
-| **🔑 ANTHROPIC_API_KEY**    | 従量課金・開発者向け   | テスト用 |
-
+#### 3. エージェント間通信
 ```bash
-# 認証設定
-./setup.sh → a) 認証設定 → 使いたい方法を選択
+# BOSS への指示送信
+./ai-agents/simple-enter.sh boss "タスク内容"
 
-# 認証競合エラーが出た場合
-./setup.sh → a) 認証設定 → 3) 現在の設定確認
+# 直接エージェント通信
+./ai-agents/agent-send.sh [agent] [message]
 ```
 
----
-
-## 🎬 **実際の使用例**
-
-### **Web 開発プロジェクト**
-
-```
-PRESIDENT画面で指示:
-「Python FlaskでTodoアプリを作成してください。API設計、フロントエンド、テストまで含めて」
-```
-
-### **データ分析プロジェクト**
-
-```
-PRESIDENT画面で指示:
-「CSVファイルを読み込んで可視化するPythonスクリプトを作成してください」
-```
-
-**AI 同士が日本語で相談しながら、実際にファイルを作成します！**
-
----
-
-## 🔧 **トラブルシューティング**
-
-### **認証エラー**
-
+#### 4. システム終了
 ```bash
-# 1. 認証状況確認
-./setup.sh → a) 認証設定 → 3) 現在の設定確認
-
-# 2. 認証方法選択
-./setup.sh → a) 認証設定 → 使いたい方法を選択
-```
-
-### **stdin Raw mode エラー**
-
-```bash
-# stdin エラー自動修正
-./ai-agents/claude-stdin-fix.sh auto president 0
-
-# エラー状況確認
-./ai-agents/claude-stdin-fix.sh check president 0
-
-# 手動修正（PTY使用）
-./ai-agents/claude-stdin-fix.sh pty president 0
-```
-
-### **AI 組織システムが起動しない**
-
-```bash
-# 完全リセット
 ./ai-agents/manage.sh clean
-./ai-agents/manage.sh claude-auth
 ```
 
+### 📊 実際の作業フロー例
+
+1. **PRESIDENT**: "ランディングページを作成してください"
+2. **BOSS1**: タスクを 3 つのワーカーに分散
+   - WORKER1: HTML構造作成
+   - WORKER2: CSS スタイリング
+   - WORKER3: JavaScript インタラクション
+3. **並列作業**: 3 人の AI が同時進行
+4. **進捗報告**: 各ワーカーが [ペイン番号] 形式で報告
+5. **統合・完了**: BOSS が結果をまとめて PRESIDENT に報告
+
 ---
 
-## 🌟 **特徴**
+## 🛠️ トラブルシューティング
 
-- 🎯 **日本語完全対応** - 全 AI が日本語で対話
-- 🚀 **ワンコマンド起動** - `claude-auth`で全自動
-- 👥 **5 つの AI エージェント** - 階層型組織
-- 🔧 **実際の開発支援** - ファイル作成・編集・実行
+### よくある質問
 
----
-
-## 📦 **選べる 3 パターン**
-
-<div align="center">
+**Q: 認証エラーが出る**
 
 ```bash
-./setup.sh
+# 認証設定を確認
+./setup.sh  # → a) 認証設定メニュー を選択
 ```
 
-**🎯 用途に応じて最適なパターンを選択**
+**Q: AI が動かない**
 
-</div>
+```bash
+# セッションをリセット
+./ai-agents/manage.sh clean
+./ai-agents/manage.sh claude-auth  # 再起動
+```
 
-<div align="center">
+**Q: 画面が見にくい**
 
-| パターン | 機能 | 対象ユーザー | 推奨度 | セットアップ時間 |
-|----------|------|-------------|--------|-----------------|
-| 🟢 **基本版** | Cursor Rules のみ | 個人開発・初心者 | ⭐⭐⭐ | 30秒 |
-| 🟡 **開発版** | Cursor + Claude Code | チーム開発・実務 | ⭐⭐⭐⭐ | 1分 |
-| 🔴 **完全版** | AI組織システム | 高度な開発・研究 | ⭐⭐⭐⭐⭐ | 2分 |
+```bash
+# UI を修復
+./ai-agents/manage.sh restore-ui
+```
 
-</div>
+### エラー解決
 
-<details>
-<summary>📋 <strong>各パターンの詳細比較</strong></summary>
-
-### 🟢 **パターン 1: 基本版**
-- ✅ Cursor Rules のみ
-- ✅ 軽量で最小限の構成
-- ✅ 学習コスト低
-- 💡 個人開発・初心者に最適
-
-### 🟡 **パターン 2: 開発版**
-- ✅ Cursor Rules + Claude Code 連携
-- ✅ 開発作業に必要な基本環境
-- ✅ Cursor↔Claude同期機能
-- 💡 チーム開発・実務に最適
-
-### 🔴 **パターン 3: 完全版（AI 組織システム）**
-- ✅ 全機能 + 5 つの AI エージェント組織
-- ✅ マルチエージェント連携
-- ✅ 大規模プロジェクト対応
-- 💡 **推奨** - 高度な開発・研究に最適
-
-</details>
+| エラー                      | 原因                       | 解決法                                               |
+| --------------------------- | -------------------------- | ---------------------------------------------------- |
+| `command not found: claude` | Claude Code 未インストール | [Claude Code](https://claude.ai/code) をインストール |
+| `tmux: server not found`    | tmux 未インストール        | `brew install tmux` (macOS)                          |
+| `認証に失敗しました`        | API キー競合               | `unset ANTHROPIC_API_KEY`                            |
 
 ---
 
-<details>
-<summary>🔽 その他のコマンド（上級者向け）</summary>
-
-## 🛠️ **セッション操作コマンド**
-
-```bash
-# 画面確認・操作
-./ai-agents/manage.sh president          # PRESIDENT画面
-./ai-agents/manage.sh multiagent         # 4画面確認
-tmux attach-session -t president         # PRESIDENT直接接続
-tmux attach-session -t multiagent        # 4画面直接接続
-
-# システム管理
-./ai-agents/manage.sh clean              # 全セッション削除
-./ai-agents/manage.sh status             # システム状況確認
-./ai-agents/manage.sh auto               # 旧起動方法（非推奨）
-```
-
-## 📁 **ファイル構成**
+## 📁 フォルダ構成
 
 ```
 coding-rule2/
-├── 📁 cursor-rules/              # AI開発ルール集
-├── 📁 ai-agents/                # AI組織システム
-│   ├── instructions/            # エージェント指示書
-│   ├── logs/                    # AI活動ログ
-│   └── manage.sh                # 管理スクリプト
-├── 📄 setup.sh                  # セットアップスクリプト
-└── 📄 README.md                 # このファイル
+├── setup.sh                    # 🎯 メインセットアップ（これを実行）
+├── cursor-rules/                # 🧠 AI開発ルール集
+│   ├── dev-rules/              # 開発ガイドライン
+│   ├── globals.mdc             # 基本設定
+│   ├── rules.mdc               # プロジェクトルール
+│   └── uiux.mdc                # UI/UX デザインガイド
+├── ai-agents/                   # 🤖 AI組織システム
+│   ├── manage.sh               # システム管理コマンド
+│   ├── instructions/           # AI役割定義
+│   │   ├── boss.md            # BOSS 指示書
+│   │   ├── president.md       # PRESIDENT 指示書
+│   │   └── worker.md          # WORKER 指示書
+│   ├── utils/                  # 管理ユーティリティ
+│   └── sessions/               # セッション管理
+├── scripts/                     # 🔧 管理スクリプト
+│   └── deploy.sh               # デプロイ自動化
+├── docs/                        # 📚 ドキュメント
+│   └── SECURITY.md             # セキュリティガイドライン
+└── logs/                        # 📝 作業記録・エラーログ
+    └── PRESIDENT_MISTAKES.md   # 重要運用ノート
 ```
-
-## 🎯 **参考リポジトリ**
-
-- [Claude Code Communication](https://github.com/Akira-Papa/Claude-Code-Communication)
-
-</details>
 
 ---
 
-<div align="center">
+## 🎁 付属機能
 
-## 🚀 **今すぐ始めよう！**
+### ✅ 含まれるもの
 
-**たった 3 ステップで、日本語対応 AI 組織システムを体験！**
+- **階層型マルチエージェントシステム**: 5 人の AI による協調作業
+- **tmux 基盤セッション管理**: 4 画面リアルタイム監視
+- **ペイン番号ガバナンス体制**: [0] 形式の統制報告システム
+- **Cursor Rules エンジン**: AI 支援ルールの標準化
+- **Cursor ↔ Claude Code 連携**: シームレスな情報共有
+- **作業記録システム**: 全作業の自動記録・管理
+- **自動認証システム**: 初心者でも迷わない設計
+- **セキュリティ機能**: 認証情報保護・危険コマンド制限
+- **デプロイ自動化**: Vercel/Netlify/GitHub Pages 対応
+
+### 🚀 実現できること
+
+#### 個人開発者向け
+- **AI 支援開発**: 開発効率 3〜5倍向上
+- **自動化**: 単調作業をAIが代行
+- **学習支援**: AI が最適な実装方法を提案
+
+#### チーム開発者向け
+- **統一環境**: Cursor + Claude Code で標準化
+- **コード品質向上**: AI による自動レビュー
+- **知識共有**: チーム全体のノウハウ蓄積
+
+#### 上級者・企業向け
+- **大規模プロジェクト**: AI 組織システムで並列開発
+- **複雑タスク分散**: 5人のAIチームが協調作業
+- **24時間体制**: AIなので休憩不要の継続開発
+
+---
+
+## 🌟 こんな人におすすめ
+
+- **「AI 支援を試してみたい」** → 選択 1（基本設定）
+- **「本格的に AI 開発したい」** → 選択 2（開発環境設定）
+- **「AI チームに作業を任せたい」** → 選択 3（完全設定・AI組織システム）
+- **「複数の作業を並列処理したい」** → AI組織システムで効率化
+- **「複雑な設定は苦手」** → 全自動なので安心
+- **「プロ級の環境が欲しい」** → テンプレートなので即完成
+- **「チーム開発を効率化したい」** → 統一された開発環境
+
+---
+
+## 📞 サポート
+
+### 🛠️ コマンドリファレンス
+
+#### セットアップ・基本操作
+```bash
+./setup.sh                          # メインセットアップ
+./setup.sh --help                   # ヘルプ表示
+```
+
+#### AI組織システム
+```bash
+./ai-agents/manage.sh claude-auth   # システム起動
+./ai-agents/manage.sh status        # 状況確認
+./ai-agents/manage.sh clean         # システム停止・クリア
+./ai-agents/manage.sh restore-ui    # UI修復
+./ai-agents/manage.sh --help        # ヘルプ表示
+```
+
+#### エージェント通信
+```bash
+./ai-agents/simple-enter.sh boss "指示内容"     # BOSS指示送信
+./ai-agents/agent-send.sh [agent] [message]    # 直接通信
+```
+
+#### デプロイ機能
+```bash
+./scripts/deploy.sh vercel          # Vercelデプロイ
+./scripts/deploy.sh netlify         # Netlifyデプロイ
+./scripts/deploy.sh github          # GitHub Pagesデプロイ
+./scripts/deploy.sh all             # 全プラットフォーム
+```
+
+#### 画面操作
+```bash
+tmux attach-session -t president    # PRESIDENT画面
+tmux attach-session -t multiagent   # チーム画面（4分割）
+```
+
+### 🚨 トラブルシューティング
+
+#### 緊急時リセット
+```bash
+./ai-agents/manage.sh clean         # 全リセット
+./setup.sh                         # 再セットアップ
+```
+
+#### よくある問題と解決法
+| 問題 | 原因 | 解決法 |
+|------|------|--------|
+| AI が応答しない | Enter処理忘れ | `tmux send-keys -t multiagent:0.0 C-m` |
+| 画面が文字化け | UI破損 | `./ai-agents/manage.sh restore-ui` |
+| セッション接続エラー | tmux未起動 | `./ai-agents/manage.sh claude-auth` |
+
+---
+
+## 🎉 完成！
+
+たったこれだけで、**プロ級 AI 開発環境**の完成です。
+
+**今すぐ試してみてください：**
 
 ```bash
 ./setup.sh
@@ -374,25 +299,14 @@ coding-rule2/
 
 ---
 
-### 📊 **プロジェクト統計**
+### 🔗 関連リンク
 
-| 項目 | 値 |
-|------|-----|
-| 🤖 AI エージェント数 | 5個 |
-| ⚡ セットアップ時間 | 2分 |
-| 🗾 対応言語 | 日本語完全対応 |
-| 📦 設定パターン | 3種類 |
-| 🔧 対応OS | macOS, Linux |
+- **セキュリティガイド**: [docs/SECURITY.md](docs/SECURITY.md)
+- **運用重要事項**: [logs/PRESIDENT_MISTAKES.md](logs/PRESIDENT_MISTAKES.md)
+- **プロジェクト仕様**: [PRODUCT_SPECIFICATION.md](PRODUCT_SPECIFICATION.md)
 
 ---
 
-[![GitHub](https://img.shields.io/badge/GitHub-このリポジトリ-black?style=for-the-badge&logo=github)](https://github.com/your-repo)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](./LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0-blue?style=for-the-badge)](./STATUS.md)
-
----
-
-*Last updated: 2025-06-27 01:00*  
-*README improved version by Worker1 - より見やすく、より使いやすく*
-
-</div>
+_最終更新: 2025 年 6 月_  
+_AI 組織統治開発プラットフォーム - CodingRule2_  
+_ライセンス: MIT_

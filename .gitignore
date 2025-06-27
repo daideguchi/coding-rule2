@@ -9,6 +9,21 @@ scripts/*.log
 project-improvement-report.md
 reports/
 .claude/
+
+# デプロイ関連一時ファイル
+dist/
+build/
+.vercel/
+.netlify/
+*.log
+
+# デプロイ用バックアップ
+*.bak
+*.tmp
+
+# ローカル環境設定
+.env.local
+.env.production.local
 # セキュリティ関連ファイル
 .claude-auth-method
 .env
@@ -17,3 +32,4 @@ reports/
 nohup.out
 # 一時的なログファイル
 /tmp/ai-agents-*.log
+.vercel
