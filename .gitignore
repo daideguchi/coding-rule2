@@ -1,9 +1,9 @@
 .specstory
 .Claude-Code-Communication-backup/
 STATUS.md
-ai-agents/
+# ai-agents/ コメントアウト - ガバナンスツールは重要なのでコミット対象
 .cursor/
-logs/
+# logs/ コメントアウト - 作業記録は重要なのでコミット対象
 tmp/
 scripts/*.log
 project-improvement-report.md
