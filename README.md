@@ -32,21 +32,47 @@
 
 <div align="center">
 
-### 🎯 **3ステップで完了**
+### 🔥 **ワンコマンドインストール（推奨）**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/your-repo/coding-rule2/main/quick-install.sh | bash
+```
+
+**✨ 自動でクローン→権限設定→初期セットアップまで完了！**
 
 </div>
 
 <details>
-<summary>📋 <strong>詳細手順を表示</strong></summary>
+<summary>📋 <strong>手動セットアップ手順（3ステップ）</strong></summary>
 
 ```bash
-# 1️⃣ セットアップ実行
+# 1️⃣ リポジトリクローン
+git clone https://github.com/your-repo/coding-rule2.git
+cd coding-rule2
+
+# 2️⃣ セットアップ実行
 ./setup.sh
 
-# 2️⃣ 認証設定（重要！）
+# 3️⃣ 認証設定（重要！）
 ./setup.sh → a) 認証設定 → Proプラン または API Key を選択
+```
 
-# 3️⃣ AI組織システム起動
+</details>
+
+<div align="center">
+
+### 🎯 **起動手順**
+
+</div>
+
+<details>
+<summary>📋 <strong>AI組織システム起動方法</strong></summary>
+
+```bash
+# 1️⃣ 認証設定（初回のみ）
+./setup.sh → a) 認証設定 → 使いたい方法を選択
+
+# 2️⃣ AI組織システム起動
 ./ai-agents/manage.sh claude-auth
 ```
 
@@ -56,9 +82,9 @@
 
 | ステップ | 操作 | 所要時間 | 成功指標 |
 |---------|------|----------|----------|
-| 1️⃣ | セットアップ実行 | 30秒 | ✅ 設定ファイル生成 |
-| 2️⃣ | 認証設定 | 1分 | ✅ Claude認証完了 |
-| 3️⃣ | AI組織起動 | 30秒 | ✅ 5つのAIが起動 |
+| 🔥 | ワンコマンドインストール | 1分 | ✅ 完全セットアップ完了 |
+| 🔐 | 認証設定 | 1分 | ✅ Claude認証完了 |
+| 🚀 | AI組織起動 | 30秒 | ✅ 5つのAIが起動 |
 
 **🎉 これで完了！PRESIDENT + 4 つのワーカー AI が自動起動します**
 
@@ -137,16 +163,16 @@ tmux attach-session -t multiagent
 
 ```mermaid
 graph TD
-    A[👑 PRESIDENT<br/>統括AI] --> B[👔 BOSS1<br/>チームリーダー]
-    A --> C[👷 WORKER1<br/>実行担当]
-    A --> D[👷 WORKER2<br/>実行担当]
-    A --> E[👷 WORKER3<br/>実行担当]
+    A["👑 PRESIDENT<br/><b>統括AI</b><br/>プロジェクト全体管理"] --> B["👔 BOSS1<br/><b>チームリーダー</b><br/>作業分担・進捗管理"]
+    A --> C["👷 WORKER1<br/><b>実行担当</b><br/>ファイル作成・編集"]
+    A --> D["👷 WORKER2<br/><b>実行担当</b><br/>コード生成・実行"]
+    A --> E["👷 WORKER3<br/><b>実行担当</b><br/>テスト・検証"]
     
-    style A fill:#ff9999,stroke:#333,stroke-width:3px
-    style B fill:#99ccff,stroke:#333,stroke-width:2px
-    style C fill:#99ff99,stroke:#333,stroke-width:2px
-    style D fill:#99ff99,stroke:#333,stroke-width:2px
-    style E fill:#99ff99,stroke:#333,stroke-width:2px
+    style A fill:#FFE6E6,stroke:#FF6B6B,stroke-width:4px,color:#000
+    style B fill:#E6F3FF,stroke:#4DABF7,stroke-width:3px,color:#000
+    style C fill:#E6FFE6,stroke:#51CF66,stroke-width:3px,color:#000
+    style D fill:#E6FFE6,stroke:#51CF66,stroke-width:3px,color:#000
+    style E fill:#E6FFE6,stroke:#51CF66,stroke-width:3px,color:#000
 ```
 
 </div>
