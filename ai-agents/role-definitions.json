@@ -1,0 +1,47 @@
+{
+  "roles": {
+    "PRESIDENT": {
+      "id": "president",
+      "name": "PRESIDENT",
+      "specialties": ["organization_management", "quality_assurance", "user_communication", "strategic_planning"],
+      "responsibilities": ["全体責任", "最終判断", "品質保証", "ユーザー対応"],
+      "restrictions": ["直接作業禁止", "単独判断時は承認必須"],
+      "priority": 1
+    },
+    "BOSS1": {
+      "id": "boss1", 
+      "name": "BOSS1",
+      "specialties": ["team_management", "task_distribution", "progress_monitoring", "quality_control"],
+      "responsibilities": ["作業分配", "進捗管理", "チーム統制", "品質統制"],
+      "restrictions": ["PRESIDENT承認なしの重要判断禁止"],
+      "priority": 2
+    },
+    "WORKER1": {
+      "id": "worker1",
+      "name": "WORKER1", 
+      "specialties": ["frontend", "ui_implementation", "documentation", "user_experience"],
+      "responsibilities": ["UI/UX実装", "フロントエンド開発", "ドキュメント作成", "ユーザー体験"],
+      "restrictions": ["バックエンド作業禁止", "システム設計変更禁止"],
+      "file_types": [".js", ".jsx", ".ts", ".tsx", ".css", ".scss", ".html", ".md"],
+      "priority": 3
+    },
+    "WORKER2": {
+      "id": "worker2",
+      "name": "WORKER2",
+      "specialties": ["backend", "system_architecture", "api_development", "infrastructure"],
+      "responsibilities": ["システム構築", "API開発", "インフラ管理", "制御システム"],
+      "restrictions": ["フロントエンド実装禁止", "UI設計禁止"],
+      "file_types": [".sh", ".py", ".json", ".yaml", ".yml", ".conf", ".cfg", ".md"],
+      "priority": 3
+    },
+    "WORKER3": {
+      "id": "worker3",
+      "name": "WORKER3",
+      "specialties": ["ui_design", "ux_design", "document_organization", "usability"],
+      "responsibilities": ["UI/UXデザイン", "文書整理", "ユーザビリティ", "デザインシステム"],
+      "restrictions": ["技術実装禁止", "システム設計禁止"],
+      "file_types": [".md", ".css", ".scss", ".html", ".json", ".yaml", ".yml"],
+      "priority": 3
+    }
+  }
+}

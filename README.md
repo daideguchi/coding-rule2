@@ -1,12 +1,11 @@
-# 🚀 CodingRule2 - AI 組織統治開発プラットフォーム
+# 🚀 TeamAI - AI 組織統治開発プラットフォーム
 
 ## 📋 革新的な AI 組織システム
 
 **5 人の AI チームが協調して開発**する、世界初の階層型マルチエージェント開発環境です。
 
 ```bash
-./setup.sh  # ワンコマンドセットアップ
-./ai-agents/manage.sh claude-auth  # AI組織起動
+./ai-team.sh      # 統合メインスクリプト（全機能）
 ```
 
 ### 🤖 AI 組織構造
@@ -34,24 +33,47 @@
 ### ステップ 1: ダウンロード
 
 ```bash
-git clone https://github.com/[your-repo]/coding-rule2.git
-cd coding-rule2
+git clone https://github.com/[your-repo]/team-ai.git
+cd team-ai
 ```
 
-### ステップ 2: 起動
+### ステップ 2: AI-TEAM起動
 
 ```bash
-./setup.sh
+./ai-team.sh
 ```
 
-### ステップ 3: 選択
+**🚀 統合メインスクリプト - 全機能を1つに集約**
+- ✅ 初回セットアップ
+- ✅ AI組織起動  
+- ✅ 設定変更
+- ✅ トラブルシューティング
+- ✅ ステータス確認
 
-画面の指示に従って `1`, `2`, `3` のいずれかを選択
+**🎯 革新的改善: 3つのスクリプト → 1つの統合スクリプト**
+
+### ステップ 3: メニューから選択
+
+AI-TEAMの統合メニューから利用したい機能を選択：
+
+1. 🚀 AI組織起動 - AI組織システムを起動
+2. ⚙️ 初回セットアップ - 環境構築・認証設定  
+3. ⚡ クイック起動 - 簡易起動
+4. 🔧 設定変更 - 認証・設定の変更
+5. 🆘 トラブルシューティング - 問題解決
+6. 📊 ステータス確認 - システム状態確認
 
 ### ステップ 4: 完了！
 
-- **選択 1・2**: Cursor を再起動して AI 支援開始
+- **初回**: セットアップ完了後、AI組織起動
+- **通常**: AI組織起動で開発開始
 - **選択 3**: 下記「AI 組織システム」へ
+
+## 📋 重要ドキュメント
+
+- **📊 [要件定義書](docs/REQUIREMENTS_SPECIFICATION.md)** - 包括的仕様・TODO管理
+- **📊 [プロジェクト現状](docs/PROJECT-STATUS.md)** - 現在の状況把握  
+- **🤖 [AI組織起動](ai-team.sh)** - 統合メインスクリプト
 
 ---
 
@@ -166,7 +188,7 @@ tmux attach-session -t multiagent
 ## 📁 フォルダ構成
 
 ```
-coding-rule2/
+team-ai/
 ├── setup.sh                    # 🎯 メインセットアップ（これを実行）
 ├── cursor-rules/                # 🧠 AI開発ルール集
 │   ├── dev-rules/              # 開発ガイドライン
@@ -313,5 +335,5 @@ tmux attach-session -t multiagent   # チーム画面（4分割）
 ---
 
 _最終更新: 2025 年 6 月_  
-_AI 組織統治開発プラットフォーム - CodingRule2_  
+_AI 組織統治開発プラットフォーム - TeamAI_  
 _ライセンス: MIT_

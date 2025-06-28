@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 🚀 CodingRule2 自動デプロイスクリプト
+# 🚀 TeamAI 自動デプロイスクリプト
 # 画像最適化・デプロイ自動化の専門家 WORKER3 作成
 
 set -e
@@ -25,7 +25,7 @@ log_warn() {
 # デプロイ先選択
 deploy_target=${1:-"vercel"}
 
-log_info "🚀 CodingRule2 自動デプロイ開始 - ターゲット: $deploy_target"
+log_info "🚀 TeamAI 自動デプロイ開始 - ターゲット: $deploy_target"
 
 # 前提条件チェック
 check_prerequisites() {
@@ -91,8 +91,8 @@ prepare_deployment() {
     # HTMLファイルの更新（実際のGitHubリポジトリURLに置換）
     if [ -f "landing-page/index.html" ]; then
         # プレースホルダーを実際のリポジトリに置換
-        sed -i.bak 's|https://github.com/your-repo/coding-rule2|https://github.com/$(whoami)/coding-rule2|g' landing-page/index.html
-        sed -i.bak 's|https://raw.githubusercontent.com/your-repo/coding-rule2|https://raw.githubusercontent.com/$(whoami)/coding-rule2|g' landing-page/index.html
+        sed -i.bak 's|https://github.com/your-repo/team-ai|https://github.com/$(whoami)/team-ai|g' landing-page/index.html
+        sed -i.bak 's|https://raw.githubusercontent.com/your-repo/team-ai|https://raw.githubusercontent.com/$(whoami)/team-ai|g' landing-page/index.html
         rm landing-page/index.html.bak 2>/dev/null || true
         log_success "✅ HTMLファイル更新完了"
     fi
@@ -101,7 +101,7 @@ prepare_deployment() {
     if [ ! -f "package.json" ]; then
         cat > package.json << 'EOF'
 {
-  "name": "coding-rule2",
+  "name": "team-ai",
   "version": "1.0.0",
   "description": "AI組織開発システム",
   "main": "landing-page/index.html",

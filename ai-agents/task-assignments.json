@@ -1,0 +1,16 @@
+{
+  "active_tasks": [
+    {
+      "id": "1751087887",
+      "description": "テストタスク",
+      "worker": "WORKER2",
+      "type": "general",
+      "complexity": "medium",
+      "status": "assigned",
+      "assigned_at": "2025-06-28T14:18:07+09:00",
+      "started_at": null,
+      "completed_at": null
+    }
+  ],
+  "completed_tasks": []
+}

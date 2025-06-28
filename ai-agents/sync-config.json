@@ -1,0 +1,52 @@
+{
+  "sync_settings": {
+    "interval_seconds": 30,
+    "timeout_seconds": 10,
+    "max_retries": 3,
+    "batch_size": 10
+  },
+  "sync_levels": {
+    "basic": {
+      "description": "基本情報同期",
+      "fields": ["worker_id", "current_task", "status", "progress_percent", "last_update"],
+      "frequency": "high"
+    },
+    "detailed": {
+      "description": "詳細状況同期",
+      "fields": ["task_details", "files_modified", "errors", "warnings", "performance_metrics"],
+      "frequency": "medium"
+    },
+    "strategic": {
+      "description": "戦略レベル同期",
+      "fields": ["overall_plan", "priority_changes", "resource_allocation", "timeline_adjustments"],
+      "frequency": "low"
+    }
+  },
+  "workers": {
+    "PRESIDENT": {
+      "session": "multiagent:0.president",
+      "sync_level": ["basic", "detailed", "strategic"],
+      "priority": 1
+    },
+    "BOSS1": {
+      "session": "multiagent:0.0", 
+      "sync_level": ["basic", "detailed"],
+      "priority": 2
+    },
+    "WORKER1": {
+      "session": "multiagent:0.1",
+      "sync_level": ["basic"],
+      "priority": 3
+    },
+    "WORKER2": {
+      "session": "multiagent:0.2",
+      "sync_level": ["basic"],
+      "priority": 3
+    },
+    "WORKER3": {
+      "session": "multiagent:0.3",
+      "sync_level": ["basic"],
+      "priority": 3
+    }
+  }
+}
