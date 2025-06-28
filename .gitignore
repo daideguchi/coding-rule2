@@ -24,6 +24,7 @@ build/
 # ローカル環境設定
 .env.local
 .env.production.local
+.ai-org-configured
 # セキュリティ関連ファイル
 .claude-auth-method
 .env
