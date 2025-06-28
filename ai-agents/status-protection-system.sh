@@ -3,60 +3,75 @@
 # 🔒 ステータス保護システム
 # 作業中にステータス表示が消えるのを完全防止
 
-# 固定ステータス定義（絶対に変更されない）
-FIXED_STATUSES=(
-    "president:0:#[bg=colour238,fg=colour15] 🔵作業中 👑PRESIDENT │ システム統括管理 #[default]"
-    "multiagent:0.0:#[bg=colour238,fg=colour15] 🔵作業中 👔チームリーダー │ 作業指示・進捗管理 #[default]"
-    "multiagent:0.1:#[bg=colour238,fg=colour15] 🔵作業中 💻フロントエンド │ UI実装・React開発 #[default]"
-    "multiagent:0.2:#[bg=colour238,fg=colour15] 🔵作業中 🔧バックエンド │ API開発・DB設計 #[default]"
-    "multiagent:0.3:#[bg=colour238,fg=colour15] 🔵作業中 🎨UI/UXデザイン │ デザイン改善・UX最適化 #[default]"
-)
-
-# ステータス強制復元
-force_restore_status() {
-    echo "🔒 ステータス強制復元実行中..."
+# 動的ステータス復元関数
+get_correct_status() {
+    local pane=$1
+    local content=$(tmux capture-pane -t "$pane" -p)
     
-    for status_def in "${FIXED_STATUSES[@]}"; do
-        IFS=':' read -r session pane title <<< "$status_def"
-        echo "復元中: $session:$pane -> $title"
-        tmux select-pane -t "$session:$pane" -T "$title" 2>/dev/null || echo "⚠️ $session:$pane 復元失敗"
-    done
-    
-    echo "✅ ステータス強制復元完了"
+    # 実際の作業状況を検知
+    if echo "$content" | grep -q "Wrangling\|Organizing\|Planning\|Polishing\|Searching\|Thinking\|Writing\|Creating\|Analyzing\|Processing"; then
+        echo "🔵作業中"
+    elif echo "$content" | grep -q "tokens.*esc to interrupt\|Context left until auto-compact"; then
+        echo "🔵作業中"
+    elif echo "$content" | grep -q "> " && echo "$content" | grep -v "PRESIDENTからの指示をお待ちしております\|BOSSからの指示をお待ちしております"; then
+        echo "🔵作業中"
+    else
+        echo "🟡待機中"
+    fi
 }
 
-# 継続監視と自動復元
+# 基本フォーマット定義
+get_base_format() {
+    local pane=$1
+    case $pane in
+        "president:0") echo "👑PRESIDENT │ システム統括管理" ;;
+        "multiagent:0.0") echo "👔チームリーダー │ 作業指示・進捗管理" ;;
+        "multiagent:0.1") echo "💻フロントエンド │ UI実装・React開発" ;;
+        "multiagent:0.2") echo "🔧バックエンド │ API開発・DB設計" ;;
+        "multiagent:0.3") echo "🎨UI/UXデザイン │ デザイン改善・UX最適化" ;;
+        *) echo "❌ 不明" ;;
+    esac
+}
+
+# ステータス強制復元（動的版）
+force_restore_status() {
+    echo "🔒 動的ステータス復元実行中..."
+    
+    local panes=("president:0" "multiagent:0.0" "multiagent:0.1" "multiagent:0.2" "multiagent:0.3")
+    
+    for pane in "${panes[@]}"; do
+        local status=$(get_correct_status "$pane")
+        local base_format=$(get_base_format "$pane")
+        local full_title="#[bg=colour238,fg=colour15] $status $base_format #[default]"
+        
+        echo "復元中: $pane -> $status $base_format"
+        tmux select-pane -t "$pane" -T "$full_title" 2>/dev/null || echo "⚠️ $pane 復元失敗"
+    done
+    
+    echo "✅ 動的ステータス復元完了"
+}
+
+# 継続監視と自動復元（動的版）
 continuous_protection() {
-    echo "🛡️ ステータス保護システム開始（10秒間隔監視）"
+    echo "🛡️ 動的ステータス保護システム開始（10秒間隔監視）"
     
     while true; do
-        for status_def in "${FIXED_STATUSES[@]}"; do
-            IFS=':' read -r session pane expected_title <<< "$status_def"
-            
+        local panes=("president:0" "multiagent:0.0" "multiagent:0.1" "multiagent:0.2" "multiagent:0.3")
+        
+        for pane in "${panes[@]}"; do
             # 現在のタイトル取得
-            current_title=$(tmux display-message -t "$session:$pane" -p "#{pane_title}" 2>/dev/null)
+            current_title=$(tmux display-message -t "$pane" -p "#{pane_title}" 2>/dev/null)
             
-            # タイトルが変更されている場合は即座復元
-            if [[ "$current_title" != *"👑PRESIDENT"* ]] && [[ "$session:$pane" == "president:0" ]]; then
-                echo "🚨 プレジデントステータス異常検出: $current_title"
-                tmux select-pane -t president:0 -T "#[bg=colour238,fg=colour15] 🔵作業中 👑PRESIDENT │ システム統括管理 #[default]"
-                echo "✅ プレジデントステータス復元"
-            elif [[ "$current_title" != *"👔チームリーダー"* ]] && [[ "$session:$pane" == "multiagent:0.0" ]]; then
-                echo "🚨 BOSS1ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.0 -T "#[bg=colour238,fg=colour15] 🔵作業中 👔チームリーダー │ 作業指示・進捗管理 #[default]"
-                echo "✅ BOSS1ステータス復元"
-            elif [[ "$current_title" != *"💻フロントエンド"* ]] && [[ "$session:$pane" == "multiagent:0.1" ]]; then
-                echo "🚨 WORKER1ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.1 -T "#[bg=colour238,fg=colour15] 🔵作業中 💻フロントエンド │ UI実装・React開発 #[default]"
-                echo "✅ WORKER1ステータス復元"
-            elif [[ "$current_title" != *"🔧バックエンド"* ]] && [[ "$session:$pane" == "multiagent:0.2" ]]; then
-                echo "🚨 WORKER2ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.2 -T "#[bg=colour238,fg=colour15] 🔵作業中 🔧バックエンド │ API開発・DB設計 #[default]"
-                echo "✅ WORKER2ステータス復元"
-            elif [[ "$current_title" != *"🎨UI/UXデザイン"* ]] && [[ "$session:$pane" == "multiagent:0.3" ]]; then
-                echo "🚨 WORKER3ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.3 -T "#[bg=colour238,fg=colour15] 🔵作業中 🎨UI/UXデザイン │ デザイン改善・UX最適化 #[default]"
-                echo "✅ WORKER3ステータス復元"
+            # 基本フォーマットのキーワードがない場合は復元
+            local base_format=$(get_base_format "$pane")
+            local keyword=$(echo "$base_format" | cut -d'│' -f1 | xargs)
+            
+            if [[ "$current_title" != *"$keyword"* ]]; then
+                echo "🚨 $pane ステータス異常検出: $current_title"
+                local status=$(get_correct_status "$pane")
+                local full_title="#[bg=colour238,fg=colour15] $status $base_format #[default]"
+                tmux select-pane -t "$pane" -T "$full_title"
+                echo "✅ $pane 動的ステータス復元: $status"
             fi
         done
         
@@ -85,10 +100,11 @@ stop_protection() {
 # 現在のステータス確認
 check_current_status() {
     echo "📊 現在のステータス表示:"
-    for status_def in "${FIXED_STATUSES[@]}"; do
-        IFS=':' read -r session pane expected <<< "$status_def"
-        current=$(tmux display-message -t "$session:$pane" -p "#{pane_title}" 2>/dev/null || echo "❌ 接続エラー")
-        echo "  $session:$pane: $current"
+    local panes=("president:0" "multiagent:0.0" "multiagent:0.1" "multiagent:0.2" "multiagent:0.3")
+    
+    for pane in "${panes[@]}"; do
+        current=$(tmux display-message -t "$pane" -p "#{pane_title}" 2>/dev/null || echo "❌ 接続エラー")
+        echo "  $pane: $current"
     done
 }
 
