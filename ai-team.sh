@@ -485,7 +485,7 @@ start_president_session() {
     
     local timeout=60 elapsed=0
     while [ $elapsed -lt $timeout ]; do
-        if tmux capture-pane -t president -p | grep -q "Welcome to Claude"; then
+        if tmux capture-pane -t president -p | grep -E "(Welcome to Claude Code|cwd:|Bypassing Permissions)" >/dev/null 2>&1; then
             log_success "PRESIDENT起動確認完了"
             break
         fi
