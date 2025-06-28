@@ -177,6 +177,14 @@ tmux attach-session -t multiagent
 
 ### よくある質問
 
+**Q: Claude Codeが「Do you trust the files in this folder?」で止まる**
+
+```bash
+# 解決方法1: ターミナルで「1」を入力してEnter
+# 解決方法2: 権限チェックをスキップして起動（推奨）
+claude --dangerously-skip-permissions
+```
+
 **Q: 認証エラーが出る**
 
 ```bash
@@ -197,6 +205,20 @@ tmux attach-session -t multiagent
 ```bash
 # UI を修復
 ./ai-agents/manage.sh restore-ui
+```
+
+**Q: 他のプロジェクトでも使いたい**
+
+```bash
+# 1. プロジェクトフォルダにcoding-rule2をコピー
+cp -r /path/to/coding-rule2 ./your-project/
+cd your-project/coding-rule2
+
+# 2. 権限スキップで起動
+claude --dangerously-skip-permissions
+
+# 3. AI組織システムを起動
+./ai-team.sh
 ```
 
 ### エラー解決
