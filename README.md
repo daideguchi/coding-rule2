@@ -57,6 +57,10 @@ cd coding-rule2
 
 ## 🤖 AI 組織システム - 実際に動作する AI チーム
 
+![AI Organization System](docs/images/ai-organization-system.png)
+
+*▲ 実際の AI 組織システム動作画面 - 5つの AI が同時に協調作業中*
+
 ### 🎯 革新的な特徴
 
 - **実際の Claude Code AI**: シミュレーションではなく本物の AI が動作
@@ -64,6 +68,7 @@ cd coding-rule2
 - **階層型ガバナンス**: PRESIDENT → BOSS → WORKER の指揮系統
 - **ペイン番号システム**: [0] 形式での報告体制
 - **並列作業処理**: 複数 AI が同時進行で開発
+- **リアルタイムステータス**: 各AIの作業状況をリアルタイム表示
 
 ### 🏛️ ガバナンス体制
 
