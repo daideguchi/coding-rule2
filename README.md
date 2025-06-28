@@ -1,4 +1,4 @@
-# 🚀 TeamAI - AI 組織統治開発プラットフォーム
+# 🚀 AI組織システム - 複数AIが協調開発するプラットフォーム
 
 ## 📋 革新的な AI 組織システム
 
@@ -7,6 +7,19 @@
 ```bash
 ./ai-team.sh      # 統合メインスクリプト（全機能）
 ```
+
+## ✅ 必要な環境
+- **macOS または Linux** (WindowsはWSL推奨)
+- **Git** - [インストール方法](https://git-scm.com/)
+- **tmux** - 以下でインストール可能:
+  ```bash
+  # macOS
+  brew install tmux
+  
+  # Ubuntu/Debian
+  sudo apt install tmux
+  ```
+- **Claude Code** - [Anthropic公式](https://claude.ai/code) からアクセス
 
 ### 🤖 AI 組織構造
 
@@ -30,18 +43,29 @@
 
 ## 🎮 使い方（超簡単）
 
-### ステップ 1: ダウンロード
+### ステップ 1: このリポジトリをダウンロード
 
 ```bash
-git clone https://github.com/[your-repo]/team-ai.git
-cd team-ai
+# 以下のコマンドをターミナルで実行してください
+git clone https://github.com/daideguchi/coding-rule2.git
+cd coding-rule2
 ```
+
+💡 **初心者の方へ**: 
+- **ターミナルの開き方**: Mac (Cmd+Space→terminal), Windows (WSL推奨)
+- **必要な準備**: 上記「必要な環境」をすべてインストールしてください
+- **実行場所**: `coding-rule2` フォルダ内でコマンドを実行してください
+
+⚠️ **重要**: 初回起動前に [Claude Code](https://claude.ai/code) にログインしておいてください
 
 ### ステップ 2: AI-TEAM起動
 
 ```bash
+# AI組織システムを起動します
 ./ai-team.sh
 ```
+
+📌 **実行方法**: ダウンロードした `coding-rule2` フォルダ内で上記コマンドを実行してください
 
 **🚀 統合メインスクリプト - 全機能を1つに集約**
 - ✅ 初回セットアップ
