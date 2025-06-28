@@ -816,7 +816,7 @@ setup_claude_semi_auto() {
                 # 各ワーカーに役割メッセージを即座送信（起動済みの場合）
                 for worker_id in {0..3}; do
                     # ワーカーの起動状況をチェック
-                    worker_content=\$(tmux capture-pane -t multiagent:0.\$worker_id -p 2>/dev/null || echo \"\")
+                    worker_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
                     
                     if echo \"\$worker_content\" | grep -q \"Welcome to Claude Code\\|Bypassing Permissions\\|cwd:\" 2>/dev/null; then
                         log_info \"📤 WORKER\${worker_id} 既に起動済み - 即座役割メッセージ送信\"
