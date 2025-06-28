@@ -5,11 +5,11 @@
 
 # 固定ステータス定義（絶対に変更されない）
 FIXED_STATUSES=(
-    "president:0:🔵作業中 👑PRESIDENT │ システム統括管理"
-    "multiagent:0.0:🔵作業中 👔チームリーダー │ 作業指示・進捗管理"
-    "multiagent:0.1:🔵作業中 💻フロントエンド │ UI実装・React開発"
-    "multiagent:0.2:🔵作業中 🔧バックエンド │ API開発・DB設計"
-    "multiagent:0.3:🔵作業中 🎨UI/UXデザイン │ デザイン改善・UX最適化"
+    "president:0:#[bg=colour238,fg=colour15] 🔵作業中 👑PRESIDENT │ システム統括管理 #[default]"
+    "multiagent:0.0:#[bg=colour238,fg=colour15] 🔵作業中 👔チームリーダー │ 作業指示・進捗管理 #[default]"
+    "multiagent:0.1:#[bg=colour238,fg=colour15] 🔵作業中 💻フロントエンド │ UI実装・React開発 #[default]"
+    "multiagent:0.2:#[bg=colour238,fg=colour15] 🔵作業中 🔧バックエンド │ API開発・DB設計 #[default]"
+    "multiagent:0.3:#[bg=colour238,fg=colour15] 🔵作業中 🎨UI/UXデザイン │ デザイン改善・UX最適化 #[default]"
 )
 
 # ステータス強制復元
@@ -39,23 +39,23 @@ continuous_protection() {
             # タイトルが変更されている場合は即座復元
             if [[ "$current_title" != *"👑PRESIDENT"* ]] && [[ "$session:$pane" == "president:0" ]]; then
                 echo "🚨 プレジデントステータス異常検出: $current_title"
-                tmux select-pane -t president:0 -T "🔵作業中 👑PRESIDENT │ システム統括管理"
+                tmux select-pane -t president:0 -T "#[bg=colour238,fg=colour15] 🔵作業中 👑PRESIDENT │ システム統括管理 #[default]"
                 echo "✅ プレジデントステータス復元"
             elif [[ "$current_title" != *"👔チームリーダー"* ]] && [[ "$session:$pane" == "multiagent:0.0" ]]; then
                 echo "🚨 BOSS1ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.0 -T "🔵作業中 👔チームリーダー │ 作業指示・進捗管理"
+                tmux select-pane -t multiagent:0.0 -T "#[bg=colour238,fg=colour15] 🔵作業中 👔チームリーダー │ 作業指示・進捗管理 #[default]"
                 echo "✅ BOSS1ステータス復元"
             elif [[ "$current_title" != *"💻フロントエンド"* ]] && [[ "$session:$pane" == "multiagent:0.1" ]]; then
                 echo "🚨 WORKER1ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.1 -T "🔵作業中 💻フロントエンド │ UI実装・React開発"
+                tmux select-pane -t multiagent:0.1 -T "#[bg=colour238,fg=colour15] 🔵作業中 💻フロントエンド │ UI実装・React開発 #[default]"
                 echo "✅ WORKER1ステータス復元"
             elif [[ "$current_title" != *"🔧バックエンド"* ]] && [[ "$session:$pane" == "multiagent:0.2" ]]; then
                 echo "🚨 WORKER2ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.2 -T "🔵作業中 🔧バックエンド │ API開発・DB設計"
+                tmux select-pane -t multiagent:0.2 -T "#[bg=colour238,fg=colour15] 🔵作業中 🔧バックエンド │ API開発・DB設計 #[default]"
                 echo "✅ WORKER2ステータス復元"
             elif [[ "$current_title" != *"🎨UI/UXデザイン"* ]] && [[ "$session:$pane" == "multiagent:0.3" ]]; then
                 echo "🚨 WORKER3ステータス異常検出: $current_title"
-                tmux select-pane -t multiagent:0.3 -T "🔵作業中 🎨UI/UXデザイン │ デザイン改善・UX最適化"
+                tmux select-pane -t multiagent:0.3 -T "#[bg=colour238,fg=colour15] 🔵作業中 🎨UI/UXデザイン │ デザイン改善・UX最適化 #[default]"
                 echo "✅ WORKER3ステータス復元"
             fi
         done

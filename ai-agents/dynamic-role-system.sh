@@ -3,33 +3,53 @@
 # 🔄 動的役職変更システム
 # AI組織の最大の利点：必要に応じて役職を柔軟に変更
 
-# 役職定義（拡張可能）
-declare -A ROLES=(
-    ["frontend"]="💻フロントエンド"
-    ["backend"]="🔧バックエンド"
-    ["uiux"]="🎨UI/UXデザイン"
-    ["devops"]="⚙️DevOps"
-    ["security"]="🔐セキュリティ"
-    ["data"]="📊データ分析"
-    ["ai"]="🤖AI/ML"
-    ["qa"]="🧪QA/テスト"
-    ["product"]="📋プロダクト"
-    ["research"]="🔬リサーチ"
-    ["mobile"]="📱モバイル"
-    ["api"]="🔌API開発"
-)
+# 役職定義関数
+get_role_name() {
+    case $1 in
+        "frontend") echo "💻フロントエンド" ;;
+        "backend") echo "🔧バックエンド" ;;
+        "uiux") echo "🎨UI/UXデザイン" ;;
+        "devops") echo "⚙️DevOps" ;;
+        "security") echo "🔐セキュリティ" ;;
+        "data") echo "📊データ分析" ;;
+        "ai") echo "🤖AI/ML" ;;
+        "qa") echo "🧪QA/テスト" ;;
+        "product") echo "📋プロダクト" ;;
+        "research") echo "🔬リサーチ" ;;
+        "mobile") echo "📱モバイル" ;;
+        "api") echo "🔌API開発" ;;
+        "fullstack") echo "🌐フルスタック" ;;
+        "optimization") echo "⚡最適化" ;;
+        "innovation") echo "💡イノベーション" ;;
+        "integration") echo "🔗統合" ;;
+        "architecture") echo "🏗️アーキテクチャ" ;;
+        "strategy") echo "🎯戦略" ;;
+        *) echo "" ;;
+    esac
+}
 
-# ステータス定義
-declare -A STATUSES=(
-    ["waiting"]="🟡待機中"
-    ["working"]="🔵作業中"
-    ["completed"]="✅完了"
-    ["thinking"]="🧠思考中"
-    ["analyzing"]="🔍分析中"
-    ["coding"]="⌨️コーディング中"
-    ["testing"]="🧪テスト中"
-    ["reviewing"]="👀レビュー中"
-)
+get_available_roles() {
+    echo "frontend backend uiux devops security data ai qa product research mobile api fullstack optimization innovation integration architecture strategy"
+}
+
+# ステータス定義関数
+get_status_name() {
+    case $1 in
+        "waiting") echo "🟡待機中" ;;
+        "working") echo "🔵作業中" ;;
+        "completed") echo "✅完了" ;;
+        "thinking") echo "🧠思考中" ;;
+        "analyzing") echo "🔍分析中" ;;
+        "coding") echo "⌨️コーディング中" ;;
+        "testing") echo "🧪テスト中" ;;
+        "reviewing") echo "👀レビュー中" ;;
+        *) echo "" ;;
+    esac
+}
+
+get_available_statuses() {
+    echo "waiting working completed thinking analyzing coding testing reviewing"
+}
 
 # 役職変更関数
 change_role() {
@@ -43,20 +63,19 @@ change_role() {
         return 1
     fi
     
-    if [ ! "${ROLES[$role_key]}" ]; then
+    local role=$(get_role_name "$role_key")
+    if [ -z "$role" ]; then
         echo "❌ 無効な役職: $role_key"
-        echo "利用可能な役職: ${!ROLES[@]}"
+        echo "利用可能な役職: $(get_available_roles)"
         return 1
     fi
     
-    if [ ! "${STATUSES[$status_key]}" ]; then
+    local status=$(get_status_name "$status_key")
+    if [ -z "$status" ]; then
         echo "❌ 無効なステータス: $status_key"
-        echo "利用可能なステータス: ${!STATUSES[@]}"
+        echo "利用可能なステータス: $(get_available_statuses)"
         return 1
     fi
-    
-    local role="${ROLES[$role_key]}"
-    local status="${STATUSES[$status_key]}"
     local title="$status $role"
     
     echo "🔄 WORKER$worker_id の役職変更: $title"
@@ -67,7 +86,7 @@ change_role() {
     echo "✅ 役職変更完了: WORKER$worker_id"
 }
 
-# プロジェクト専用役職セット
+# プロジェクト専用役職セット（拡張版）
 set_project_roles() {
     local project_type=$1
     
@@ -96,8 +115,26 @@ set_project_roles() {
             change_role 2 ai working
             change_role 3 research thinking
             ;;
+        "fullstack")
+            echo "🔄 フルスタック開発チーム編成"
+            change_role 1 fullstack working
+            change_role 2 devops working
+            change_role 3 qa testing
+            ;;
+        "optimization")
+            echo "⚡ パフォーマンス最適化チーム編成"
+            change_role 1 backend analyzing
+            change_role 2 frontend analyzing
+            change_role 3 data analyzing
+            ;;
+        "innovation")
+            echo "💡 イノベーション創造チーム編成"
+            change_role 1 research thinking
+            change_role 2 ai thinking
+            change_role 3 product thinking
+            ;;
         *)
-            echo "利用可能なプロジェクト: webapp, mobile, security, data"
+            echo "利用可能なプロジェクト: webapp, mobile, security, data, fullstack, optimization, innovation"
             ;;
     esac
 }
@@ -106,17 +143,19 @@ set_project_roles() {
 update_all_status() {
     local status_key=$1
     
-    if [ ! "${STATUSES[$status_key]}" ]; then
+    local status=$(get_status_name "$status_key")
+    if [ -z "$status" ]; then
         echo "❌ 無効なステータス: $status_key"
+        echo "利用可能なステータス: $(get_available_statuses)"
         return 1
     fi
     
-    echo "🔄 全ワーカーステータス更新: ${STATUSES[$status_key]}"
+    echo "🔄 全ワーカーステータス更新: $status"
     
     for i in {1..3}; do
         local current_title=$(tmux display-message -t multiagent:0.$i -p "#{pane_title}")
         local current_role=$(echo "$current_title" | sed 's/^[^ ]* //')
-        local new_title="${STATUSES[$status_key]} $current_role"
+        local new_title="$status $current_role"
         
         tmux select-pane -t multiagent:0.$i -T "$new_title"
     done
@@ -127,13 +166,13 @@ update_all_status() {
 # 役職リスト表示
 show_roles() {
     echo "📋 利用可能な役職:"
-    for key in "${!ROLES[@]}"; do
-        echo "  $key: ${ROLES[$key]}"
+    for role in $(get_available_roles); do
+        echo "  $role: $(get_role_name "$role")"
     done
     echo ""
     echo "📊 利用可能なステータス:"
-    for key in "${!STATUSES[@]}"; do
-        echo "  $key: ${STATUSES[$key]}"
+    for status in $(get_available_statuses); do
+        echo "  $status: $(get_status_name "$status")"
     done
 }
 

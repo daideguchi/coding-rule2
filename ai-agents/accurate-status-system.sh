@@ -43,7 +43,7 @@ update_accurate_status() {
     
     # プレジデント確認
     local president_status=$(detect_actual_status "president:0")
-    tmux select-pane -t president:0 -T "$president_status 👑PRESIDENT │ システム統括管理"
+    tmux select-pane -t president:0 -T "#[bg=colour238,fg=colour15] $president_status 👑PRESIDENT │ システム統括管理 #[default]"
     echo "PRESIDENT: $president_status"
     
     # ワーカー確認
@@ -51,7 +51,7 @@ update_accurate_status() {
     
     for i in {0..3}; do
         local worker_status=$(detect_actual_status "multiagent:0.$i")
-        tmux select-pane -t multiagent:0.$i -T "$worker_status ${worker_roles[$i]}"
+        tmux select-pane -t multiagent:0.$i -T "#[bg=colour238,fg=colour15] $worker_status ${worker_roles[$i]} #[default]"
         echo "WORKER$i: $worker_status"
     done
     
@@ -72,23 +72,23 @@ manual_status_change() {
     
     case $worker in
         "president"|"p")
-            tmux select-pane -t president:0 -T "$status 👑PRESIDENT │ システム統括管理"
+            tmux select-pane -t president:0 -T "#[bg=colour238,fg=colour15] $status 👑PRESIDENT │ システム統括管理 #[default]"
             echo "✅ PRESIDENT: $status"
             ;;
         "boss"|"0")
-            tmux select-pane -t multiagent:0.0 -T "$status 👔チームリーダー │ 作業指示・進捗管理"
+            tmux select-pane -t multiagent:0.0 -T "#[bg=colour238,fg=colour15] $status 👔チームリーダー │ 作業指示・進捗管理 #[default]"
             echo "✅ BOSS1: $status"
             ;;
         "1")
-            tmux select-pane -t multiagent:0.1 -T "$status 💻フロントエンド │ UI実装・React開発"
+            tmux select-pane -t multiagent:0.1 -T "#[bg=colour238,fg=colour15] $status 💻フロントエンド │ UI実装・React開発 #[default]"
             echo "✅ WORKER1: $status"
             ;;
         "2")
-            tmux select-pane -t multiagent:0.2 -T "$status 🔧バックエンド │ API開発・DB設計"
+            tmux select-pane -t multiagent:0.2 -T "#[bg=colour238,fg=colour15] $status 🔧バックエンド │ API開発・DB設計 #[default]"
             echo "✅ WORKER2: $status"
             ;;
         "3")
-            tmux select-pane -t multiagent:0.3 -T "$status 🎨UI/UXデザイン │ デザイン改善・UX最適化"
+            tmux select-pane -t multiagent:0.3 -T "#[bg=colour238,fg=colour15] $status 🎨UI/UXデザイン │ デザイン改善・UX最適化 #[default]"
             echo "✅ WORKER3: $status"
             ;;
         *) echo "❌ 無効なワーカー: $worker"; return 1 ;;

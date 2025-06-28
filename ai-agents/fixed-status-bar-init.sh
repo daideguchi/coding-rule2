@@ -11,7 +11,7 @@ setup_fixed_status_bar() {
     tmux set-option -g pane-border-status top
     tmux set-option -g pane-border-style "fg=colour8"
     tmux set-option -g pane-active-border-style "fg=colour4,bold"
-    tmux set-option -g pane-border-format "#{?pane_active,#[bg=colour240,fg=colour15,bold],#[bg=colour236,fg=colour15]} #{pane_title} #[default]"
+    tmux set-option -g pane-border-format "#{pane_title}"
     
     # 下段ステータスバー固定設定
     tmux set-option -g status on
@@ -23,12 +23,12 @@ setup_fixed_status_bar() {
     tmux set-option -g status-interval 1
     tmux set-option -g status-style "bg=colour233,fg=colour15"
     
-    # 固定ペインタイトル設定
-    tmux select-pane -t president:0 -T "🟡待機中 👑PRESIDENT"
-    tmux select-pane -t multiagent:0.0 -T "🟡待機中 👔チームリーダー"
-    tmux select-pane -t multiagent:0.1 -T "🟡待機中 💻フロントエンド"
-    tmux select-pane -t multiagent:0.2 -T "🟡待機中 🔧バックエンド"
-    tmux select-pane -t multiagent:0.3 -T "🟡待機中 🎨UI/UXデザイン"
+    # 固定ペインタイトル設定（適切なグレー背景）
+    tmux select-pane -t president:0 -T "#[bg=colour238,fg=colour15] 🟡待機中 👑PRESIDENT │ システム統括管理 #[default]"
+    tmux select-pane -t multiagent:0.0 -T "#[bg=colour238,fg=colour15] 🟡待機中 👔チームリーダー │ 作業指示・進捗管理 #[default]"
+    tmux select-pane -t multiagent:0.1 -T "#[bg=colour238,fg=colour15] 🟡待機中 💻フロントエンド │ UI実装・React開発 #[default]"
+    tmux select-pane -t multiagent:0.2 -T "#[bg=colour238,fg=colour15] 🟡待機中 🔧バックエンド │ API開発・DB設計 #[default]"
+    tmux select-pane -t multiagent:0.3 -T "#[bg=colour238,fg=colour15] 🟡待機中 🎨UI/UXデザイン │ デザイン改善・UX最適化 #[default]"
     
     # ウィンドウタイトル固定
     tmux rename-window -t president "👑 PRESIDENT"
