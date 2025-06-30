@@ -1,0 +1,33 @@
+{
+  "models": {
+    "user_behavior_model": {
+      "version": "1.0.0",
+      "created_at": null,
+      "updated_at": null,
+      "accuracy": null,
+      "file_path": "user_behavior_model.pkl",
+      "description": "ユーザー行動パターン予測モデル"
+    },
+    "error_prediction_model": {
+      "version": "1.0.0", 
+      "created_at": null,
+      "updated_at": null,
+      "accuracy": null,
+      "file_path": "error_prediction_model.pkl",
+      "description": "エラー発生予測モデル"
+    },
+    "optimization_recommendations": {
+      "version": "1.0.0",
+      "created_at": null,
+      "updated_at": null,
+      "file_path": "optimization_recommendations.json",
+      "description": "最適化推奨事項"
+    }
+  },
+  "training_config": {
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "epochs": 100,
+    "validation_split": 0.2
+  }
+}
