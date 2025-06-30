@@ -22,6 +22,8 @@ get_detailed_status() {
         echo "🟢作業中"
     elif echo "$content" | grep -q "Documenting"; then
         echo "🟢文書作成中"
+    elif echo "$content" | grep -q "Puttering"; then
+        echo "🟢作業中"
     elif echo "$content" | grep -q "Architecting"; then
         echo "🟢設計中"
     elif echo "$content" | grep -q "Guiding"; then
