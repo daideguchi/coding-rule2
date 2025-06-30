@@ -1,0 +1,28 @@
+{
+    "timestamp": "2025-07-01T01:28:31+09:00",
+    "sessions": {
+        "multiagent": "active",
+        "president": "active"
+    },
+    "workers": {
+        "boss": "0: [65x18] [history 134/2000, 109917 bytes] %1 (active)
+active",
+        "worker1": "1: [65x18] [history 104/2000, 71561 bytes] %3
+active",
+        "worker2": "2: [65x7] [history 53/2000, 42337 bytes] %4
+active",
+        "worker3": "3: [65x7] [history 78/2000, 52016 bytes] %2
+active"
+    },
+    "processes": {
+        "balanced_auto": "30852
+running",
+        "declaration_enforcement": "stopped"
+    },
+    "last_commands": [
+        "",
+        "",
+        "",
+        ""
+    ]
+}

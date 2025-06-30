@@ -34,3 +34,6 @@ nohup.out
 # 一時的なログファイル
 /tmp/ai-agents-*.log
 .vercel
+
+# 環境変数ファイル
+.env
