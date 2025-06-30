@@ -16,8 +16,6 @@ get_detailed_status() {
     # 具体的な作業パターンを検出（🔵を🟢に統一）
     if echo "$content" | grep -q "Stewing"; then
         echo "🟢熟考中"
-    elif echo "$content" | grep -q "Brewing"; then
-        echo "🟢作業中"
     elif echo "$content" | grep -q "Doing"; then
         echo "🟢作業中"
     elif echo "$content" | grep -q "Documenting"; then
@@ -46,20 +44,6 @@ get_detailed_status() {
         echo "🟢考察中"
     elif echo "$content" | grep -q "Unfurling"; then
         echo "🟢展開中"
-    elif echo "$content" | grep -q "Harmonizing"; then
-        echo "🟢調整中"
-    elif echo "$content" | grep -q "Meandering"; then
-        echo "🟢思索中"
-    elif echo "$content" | grep -q "Tinkering"; then
-        echo "🟢調整中"
-    elif echo "$content" | grep -q "Calculating"; then
-        echo "🟢計算中"
-    elif echo "$content" | grep -q "Considering"; then
-        echo "🟢検討中"
-    elif echo "$content" | grep -q "Imagining"; then
-        echo "🟢構想中"
-    elif echo "$content" | grep -q "Documenting"; then
-        echo "🟢文書作成中"
     elif echo "$content" | grep -q "completed\|完了\|finished"; then
         echo "✅完了"
     elif echo "$content" | grep -q "> Try"; then
@@ -97,10 +81,6 @@ set_pane_border() {
 update_complete_status() {
     echo "🔄 高精度ステータス更新中..."
     
-    # 変更検知用の前回状況保存
-    local status_changed=false
-    local status_report=""
-    
     for i in {0..3}; do
         # 具体的なステータス取得
         detailed_status=$(get_detailed_status $i)
@@ -114,51 +94,20 @@ update_complete_status() {
             set_pane_border $i "false"
         fi
         
-        # 役割表示（2025-06-29 実際の作業内容に基づき修正）
+        # 役割表示
         case $i in
-            0) role="👔 管理・統括" ;;
-            1) role="📚 ドキュメント" ;;
-            2) role="⚙️ システム開発" ;;
-            3) role="🎨 UI/UX" ;;
+            0) role="👔チームリーダー" ;;
+            1) role="💻フロントエンド" ;;
+            2) role="🔧バックエンド" ;;
+            3) role="🎨UI/UXデザイン" ;;
         esac
         
-        # 現在の処理状況を取得
-        current_task=""
-        if [ "$detailed_status" = "🟢作業中" ] || [ "$detailed_status" = "🟢熟考中" ] || [ "$detailed_status" = "🟢文書作成中" ] || [ "$detailed_status" = "🟢設計中" ] || [ "$detailed_status" = "🟢整理中" ] || [ "$detailed_status" = "🟢計画中" ] || [ "$detailed_status" = "🟢調査中" ] || [ "$detailed_status" = "🟢探索中" ] || [ "$detailed_status" = "🟢仕上げ中" ] || [ "$detailed_status" = "🟢構想中" ] || [ "$detailed_status" = "🟢検索中" ] || [ "$detailed_status" = "🟢考察中" ] || [ "$detailed_status" = "🟢展開中" ]; then
-            # 作業中の場合は具体的な処理内容を追加
-            case $i in
-                0) current_task="システム統合作業中" ;;
-                1) current_task="フロントエンド確認中" ;;
-                2) current_task="バックエンド処理中" ;;
-                3) current_task="UI/UX設計中" ;;
-            esac
-        fi
-        
-        # タイトル設定（型: 🟢作業中 役職 現在の処理状況）
-        if [ -n "$current_task" ]; then
-            title="$detailed_status $role $current_task"
-        else
-            title="$detailed_status $role"
-        fi
+        # タイトル設定（ステータス文頭、アクティブ表示付き、simplified format）
+        title="$detailed_status $role"
         tmux select-pane -t $SESSION:0.$i -T "$title"
         
         echo "  → WORKER$i: $detailed_status $([ -n "$active_indicator" ] && echo "(アクティブ)" || echo "")"
-        
-        # ステータス変更の記録
-        if [ "$detailed_status" != "🟡待機中" ]; then
-            status_changed=true
-            status_report="$status_report\n  WORKER$i: $detailed_status"
-        fi
     done
-    
-    # 変更があった場合のみ報告
-    if [ "$status_changed" = true ]; then
-        echo ""
-        echo "📢 作業状況変更検知:"
-        echo -e "$status_report"
-        echo ""
-    fi
-    
     echo "✅ 高精度ステータス更新完了"
 }
 
@@ -169,10 +118,10 @@ check_status() {
     for i in {0..3}; do
         detailed_status=$(get_detailed_status $i)
         case $i in
-            0) echo "👔 管理・統括: $detailed_status" ;;
-            1) echo "📚 ドキュメント: $detailed_status" ;;
-            2) echo "⚙️ システム開発: $detailed_status" ;;
-            3) echo "🎨 UI/UX: $detailed_status" ;;
+            0) echo "👔 チームリーダー: $detailed_status" ;;
+            1) echo "💻 フロントエンド: $detailed_status" ;;
+            2) echo "🔧 バックエンド: $detailed_status" ;;
+            3) echo "🎨 UI/UXデザイン: $detailed_status" ;;
         esac
     done
     echo "================================================"

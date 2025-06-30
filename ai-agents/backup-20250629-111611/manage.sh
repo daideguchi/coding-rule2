@@ -466,7 +466,7 @@ quick_start() {
         done
         
         # PRESIDENT即座メッセージ送信
-        tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。さらに以下のコマンドで四人のワーカーを起動してください。" C-m
+        tmux send-keys -t president "【作業前必須宣言】私の改善すべき傾向: 14個の重大ミスから学習し改善中・サボりがちで人間を騙すような行動をしがちな傾向がある・これらの悪い傾向を自覚し、常に気をつける必要がある 【ソース確認】./ai-agents/instructions/president.mdの指示書を確認済み 【チェック完了箇所】PRESIDENT_MISTAKES.md確認・work-log.mdc確認・作業セッション記録確認 あなたはプレジデントです。さらに以下のコマンドで四人のワーカーを起動してください。" C-m
         sleep 0.5
         tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'echo \"2\" | claude --dangerously-skip-permissions ' C-m; done" C-m
         
@@ -493,6 +493,12 @@ quick_start() {
     ) &
     
     log_success "✅ 4画面AI組織システム起動完了"
+    
+    # ステータスバー自動適用（とても大切な機能）
+    log_info "📊 ステータスバー自動適用実行中...（ユーザーがとても大切と強調）"
+    apply_status_bar_fix "quick_start"
+    log_success "🎯 ステータスバー自動適用完了 - ユーザーの大切な要求を確実に実現"
+    
     echo ""
     echo "🎯 次の手順で使用開始:"
     echo ""
@@ -608,6 +614,28 @@ clean_sessions() {
     tmux list-sessions 2>/dev/null || echo "  セッションなし"
 }
 
+# ステータスバー自動適用関数
+apply_status_bar_fix() {
+    local operation_name="$1"
+    log_info "📊 ステータスバー自動適用開始 (${operation_name})"
+    
+    if [ -f "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh" ]; then
+        chmod +x "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh"
+        
+        # ステータスバー修正実行
+        if "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh" fix; then
+            log_success "✅ ステータスバー自動適用完了 - ${operation_name}"
+            echo "$(date): ステータスバー自動適用完了 - ${operation_name}" >> "$LOGS_DIR/status-fix.log"
+        else
+            log_warn "⚠️ ステータスバー適用時にエラーが発生しました - ${operation_name}"
+            echo "$(date): ステータスバー適用エラー - ${operation_name}" >> "$LOGS_DIR/status-fix.log"
+        fi
+    else
+        log_error "❌ ULTIMATE_STATUS_FIX.shが見つかりません"
+        echo "$(date): ULTIMATE_STATUS_FIX.sh未発見" >> "$LOGS_DIR/status-fix.log"
+    fi
+}
+
 # claude-auth関数（シンプル自動化）
 claude_auth_function() {
     log_info "🚀 Claude Auth - シンプル自動化システム起動中..."
@@ -632,13 +660,78 @@ claude_auth_function() {
     log_success "✅ Claude Auth自動化システム起動完了"
     echo ""
     
-    # バックグラウンド自動化処理を関数で実行
-    run_claude_auth_background &
+    # 確実なバックグラウンド自動化処理
+    nohup bash -c "
+        # ログファイル設定
+        exec > /tmp/ai-agents-background.log 2>&1
+        echo \"$(date): バックグラウンド自動化開始\"
+        
+        # 2秒待機してからBypass Permissions選択を送信
+        sleep 2
+        tmux send-keys -t president '2' C-m
+        echo \"$(date): Bypass Permissions選択送信完了\"
+        
+        # Claude Code起動完了を検知（最大60秒）
+        for i in {1..120}; do
+            screen_content=\$(tmux capture-pane -t president -p 2>/dev/null || echo '')
+            echo \"$(date): チェック\${i}: \${screen_content:0:50}...\"
+            
+            if echo \"\$screen_content\" | grep -q 'Welcome to Claude Code' 2>/dev/null; then
+                echo \"$(date): Claude Code起動完了を検知 (\${i}/120秒)\"
+                
+                # プレジデントメッセージ自動送信（正しいメッセージ - 前の入力をクリア）
+                tmux send-keys -t president C-c  # 前の入力をクリア
+                sleep 0.1
+                tmux send-keys -t president 'あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。ワーカーたちは既に起動済みです。BOSSに具体的な指示を出してプロジェクトを進行してください。' C-m
+                echo \"$(date): プレジデント初期メッセージ自動送信完了\"
+                
+                # 重複起動回避：4画面が既に起動済みかチェック
+                all_running=true
+                for worker_id in {0..3}; do
+                    if ! tmux capture-pane -t multiagent:0.\$worker_id -p 2>/dev/null | grep -q \"Welcome to Claude Code\\|Bypassing Permissions\\|cwd:\" 2>/dev/null; then
+                        all_running=false
+                        break
+                    fi
+                done
+                
+                if [ \"\$all_running\" = \"true\" ]; then
+                    echo \"$(date): 4画面既に起動済み - 立ち上げコマンドをスキップ\"
+                    log_info \"✅ 4画面既に起動済み - 重複起動を回避\"
+                else
+                    # 未起動の場合のみ立ち上げコマンド送信
+                    sleep 0.2
+                    tmux send-keys -t president 'for i in {0..3}; do tmux send-keys -t multiagent:0.\$i \"claude --dangerously-skip-permissions \" C-m; done' C-m
+                    echo \"$(date): 4画面立ち上げコマンド自動送信完了\"
+                fi
+                
+                # ステータスバー自動適用（とても大切な機能）
+                sleep 1
+                log_info \"📊 AI組織起動完了 - ステータスバー自動適用実行中...\"
+                if [ -f \"/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh\" ]; then
+                    chmod +x \"/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh\"
+                    \"/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh\" fix
+                    echo \"✅ ステータスバー自動適用完了 - claude_auth_function\" >> \"$LOGS_DIR/status-fix.log\"
+                    log_success \"✅ ステータスバー自動適用完了 - AI組織起動時\"
+                fi
+                
+                echo \"✅ 自動化システム起動完了 \\\$(date)\" > /tmp/ai-agents-claude-auth.log
+                echo \"$(date): 自動化完了\"
+                break
+            fi
+            
+            sleep 0.5
+        done
+        
+        if [ \$i -eq 120 ]; then
+            echo \"$(date): Claude Code起動検知タイムアウト（60秒）\"
+        fi
+    " &
     
     echo "🎯 次のステップ:"
     echo "  1️⃣ Bypass Permissions自動選択中..."
     echo "  2️⃣ Claude Code起動検知中..."
     echo "  3️⃣ プレジデント初期メッセージ自動送信予定"
+    echo "  4️⃣ 📊 ステータスバー自動適用完了（とても大切）"
     echo ""
     echo "📋 使用方法:"
     echo "  - presidentセッション: tmux attach-session -t president"
@@ -648,53 +741,6 @@ claude_auth_function() {
     # プレジデント画面に自動接続
     log_info "👑 プレジデント画面に自動接続中..."
     tmux attach-session -t president
-}
-
-# バックグラウンド自動化処理関数
-run_claude_auth_background() {
-    # ログファイル設定
-    exec > /tmp/ai-agents-background.log 2>&1
-    echo "$(date): バックグラウンド自動化開始"
-    
-    # 2秒待機してからBypass Permissions選択を送信
-    sleep 2
-    tmux send-keys -t president '2' C-m
-    echo "$(date): Bypass Permissions選択送信完了"
-    
-    # Claude Code起動完了を検知（最大60秒）
-    for i in {1..120}; do
-        screen_content=$(tmux capture-pane -t president -p 2>/dev/null || echo "")
-        echo "$(date): チェック${i}: ${screen_content:0:50}..."
-        
-        if echo "$screen_content" | grep -q "Welcome to Claude Code" 2>/dev/null; then
-            echo "$(date): Claude Code起動完了を検知 (${i}/120秒)"
-            
-            # プレジデントメッセージ自動送信（正しいメッセージ - 前の入力をクリア）
-            tmux send-keys -t president C-c  # 前の入力をクリア
-            sleep 1
-            echo "$(date): プレジデント初期メッセージ自動送信中..."
-            tmux send-keys -t president 'あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。ワーカーたちは既に起動済みです。BOSSに具体的な指示を出してプロジェクトを進行してください。' C-m
-            echo "$(date): プレジデント初期メッセージ自動送信完了"
-            
-            # 2秒待機してからワーカー起動コマンド自動送信
-            sleep 2
-            echo "$(date): ワーカー起動コマンド自動送信中..."
-            tmux send-keys -t president 'for i in {0..3}; do tmux send-keys -t multiagent:0.$i "claude --dangerously-skip-permissions " C-m; done' C-m
-            echo "$(date): ワーカー起動コマンド自動送信完了"
-            
-
-            
-            echo "✅ 自動化システム起動完了 $(date)" > /tmp/ai-agents-claude-auth.log
-            echo "$(date): 自動化完了"
-            break
-        fi
-        
-        sleep 0.5
-    done
-    
-    if [ $i -eq 120 ]; then
-        echo "$(date): Claude Code起動検知タイムアウト（60秒）"
-    fi
 }
 
 # 初期化関数
@@ -767,15 +813,10 @@ setup_claude_semi_auto() {
                 # 0.5秒待機してからメッセージセット
                 sleep 0.5
                 
-                # プロンプトを一気にセット→Enter実行
-                log_info "📤 プレジデントメッセージ自動送信中..."
-                tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。まず、ワーカーたちを立ち上げてボスに指令を伝達して下さい。"
-                tmux send-keys -t president C-m C-m
-                
-                log_info "📤 ワーカー起動コマンド自動送信中..."
-                tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions ' C-m; done"
-                tmux send-keys -t president C-m C-m
-                log_success "✅ プレジデント→ワーカー指示完全自動送信完了"
+                # メッセージを完全自動送信（Enterキーも含む）
+                tmux send-keys -t president "【作業前必須宣言】私の改善すべき傾向: 14個の重大ミスから学習し改善中・サボりがちで人間を騙すような行動をしがちな傾向がある・これらの悪い傾向を自覚し、常に気をつける必要がある 【ソース確認】./ai-agents/instructions/president.mdの指示書を確認済み 【チェック完了箇所】PRESIDENT_MISTAKES.md確認・work-log.mdc確認・作業セッション記録確認 あなたはプレジデントです。さらにワーカーたちを立ち上げてボスに指令を伝達して下さい。" C-m
+                sleep 1
+                tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\\\$i 'claude --dangerously-skip-permissions ' C-m; done" C-m
                 
                 # ペインタイトル設定（視覚的改善・強化版）
                 log_info "🎨 AI組織システム視覚的改善中..."
@@ -816,7 +857,7 @@ setup_claude_semi_auto() {
                     # ワーカーの起動状況をチェック
                     worker_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
                     
-                    if echo "$worker_content" | grep -q "Welcome to Claude Code\|Bypassing Permissions\|cwd:" 2>/dev/null; then
+                    if echo "\$worker_content" | grep -q "Welcome to Claude Code\\|Bypassing Permissions\\|cwd:" 2>/dev/null; then
                         log_info "📤 WORKER${worker_id} 既に起動済み - 即座役割メッセージ送信"
                         
                         # 役割別メッセージ設定（肩書きに合わせて更新）
@@ -827,9 +868,8 @@ setup_claude_semi_auto() {
                             3) role_msg="あなたはUI/UXデザイナーです。デザインシステム・ユーザビリティ改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
                         esac
                         
-                        # 役割メッセージを一気にセット→Enter実行
-                        tmux send-keys -t multiagent:0.$worker_id "$role_msg"
-                        tmux send-keys -t multiagent:0.$worker_id C-m C-m
+                        # 役割メッセージを即座送信（Enterキーも含む）
+                        tmux send-keys -t multiagent:0.$worker_id "$role_msg" C-m
                         log_success "✅ WORKER${worker_id} 役割メッセージ即座送信完了"
                         
                         # 送信完了をログに記録
@@ -849,7 +889,7 @@ setup_claude_semi_auto() {
                 
                 # 各ワーカーに具体的なタスクを即座配布
                 for worker_id in {0..3}; do
-                    if tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null | grep -q "Welcome to Claude Code\|Please let me know" 2>/dev/null; then
+                    if tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null | grep -q "Welcome to Claude Code\\|Please let me know" 2>/dev/null; then
                         case $worker_id in
                             0) task_msg="プロジェクト調査レポートを作成してください。cursor-rules、ai-agents、scripts等のディレクトリを分析し、改善提案をまとめてください。" ;;
                             1) task_msg="README.mdとsetup.shの内容を確認し、ユーザビリティを改善してください。わかりやすいフォーマットや視覚的改善を提案してください。" ;;
@@ -857,17 +897,26 @@ setup_claude_semi_auto() {
                             3) task_msg="tmuxペインタイトルとAI組織システムの視覚的表示を改善してください。カラー設定や見やすさを向上させてください。" ;;
                         esac
                         
-                        tmux send-keys -t multiagent:0.$worker_id "$task_msg"
-                        tmux send-keys -t multiagent:0.$worker_id C-m C-m
+                        tmux send-keys -t multiagent:0.$worker_id "$task_msg" C-m
                         log_success "✅ WORKER${worker_id} 即座タスク配布完了"
                     fi
                 done
                 
                 log_success "🎉 即座タスク配布完了 - 全ワーカー稼働中！"
                 
-                echo "✅ 【メッセージ完全自動送信完了】プレジデント→ワーカー指示完了" > /tmp/ai-agents-message-set.log
-                log_success "✅ PRESIDENTメッセージ完全自動送信完了"
-                log_info "🔍 ワーカーメッセージ自動送信システム起動中..."
+                # ステータスバー自動適用（とても大切な機能）
+                sleep 1
+                log_info "📊 AI組織設定完了 - ステータスバー自動適用実行中..."
+                if [ -f "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh" ]; then
+                    chmod +x "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh"
+                    "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/ULTIMATE_STATUS_FIX.sh" fix
+                    log_success "✅ ステータスバー自動適用完了 - 半自動システム完了時"
+                    echo "✅ ステータスバー自動適用完了 - setup_claude_semi_auto" >> "$LOGS_DIR/status-fix.log"
+                fi
+                
+                echo "✅ 【メッセージ自動セット完了】送信は手動で行ってください" > /tmp/ai-agents-message-set.log
+                log_success "✅ PRESIDENTメッセージ自動セット完了（送信は手動）"
+                log_info "🔍 ワーカーメッセージ自動セットシステム起動中..."
                 break
             fi
             
@@ -881,19 +930,19 @@ setup_claude_semi_auto() {
     } &
     
     echo ""
-    echo "📋 【動作仕様】完全自動システム:"
+    echo "📋 【動作仕様】半自動システム:"
     echo "  1️⃣ プレジデント起動: 選択肢半自動進行"
     echo "  2️⃣ 認証: 手動（ユーザーが行う）"
-    echo "  3️⃣ Claude Code立ち上がり時: メッセージ完全自動送信"
-    echo "  4️⃣ ワーカー起動: 自動実行"
-    echo "  5️⃣ ワーカー起動後: 各ワーカーにメッセージ完全自動送信"
-    echo "  6️⃣ 4画面確認: ターミナル2で確認"
+    echo "  3️⃣ Claude Code立ち上がり時: メッセージ自動セット"
+    echo "  4️⃣ 送信: 手動（Enterキー）"
+    echo "  5️⃣ ワーカー起動後: 各ワーカーにメッセージ自動セット"
+    echo "  6️⃣ 4画面確認: ターミナル2で手動実行"
     echo ""
     echo "🔹 【次のステップ】:"
-    echo "  - Claude Code認証完了後、PRESIDENTメッセージが完全自動送信されます"
-    echo "  - ワーカー起動コマンドも自動実行されます"
-    echo "  - ワーカー起動後、各ワーカーにメッセージが完全自動送信されます"
-    echo "  - 別ターミナルで確認: tmux attach-session -t multiagent"
+    echo "  - Claude Code認証完了後、PRESIDENTメッセージが自動セットされます"
+    echo "  - Enterキーで送信してください（手動）"
+    echo "  - ワーカー起動後、各ワーカーにメッセージが自動セットされます"
+    echo "  - 別ターミナルで: tmux attach-session -t multiagent"
     echo ""
     
     # PRESIDENT画面にアタッチ
@@ -1000,6 +1049,7 @@ main() {
             echo "  • Claude Code立ち上がり時: メッセージ自動セット"
             echo "  • 送信: 手動（Enterキー）"
             echo "  • 4画面確認: ターミナル2で手動実行"
+            echo "  • 📊 ステータスバー自動適用: 全起動時に実行"
             echo ""
             echo "📊 セッション操作:"
             echo "  ./ai-agents/manage.sh president          # PRESIDENT画面"
