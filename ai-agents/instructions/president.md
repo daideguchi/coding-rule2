@@ -38,25 +38,25 @@
 
 1. **PRESIDENT_MISTAKES.md** - プレジデントの重大ミス記録（最重要）
 
-   - パス: `/Users/dd/Desktop/1_dev/coding-rule2/logs/ai-agents/president/PRESIDENT_MISTAKES.md`
+   - 相対パス: `./logs/ai-agents/president/PRESIDENT_MISTAKES.md`
    - 45個の重大ミスと対策を必ず確認
    - 特に指示送信後の Enter 実行忘れ問題に注意
    - **NEW: ミス 45 - 宣言忘れ+cursor rules未確認を追加（2025-06-30）**
 
 2. **cursor work-log.mdc** - 過去の作業記録
 
-   - パス: `/Users/dd/Desktop/1_dev/coding-rule2/.cursor/rules/work-log.mdc`
+   - 相対パス: `./.cursor/rules/work-log.mdc`
    - 作業記録から過去の修正内容を把握
    - プロジェクトの背景と問題解決履歴を理解
 
 3. **要件定義・仕様書確認（追加必須）**
-   - パス: `/Users/dd/Desktop/1_dev/coding-rule2/.cursor/rules/work-log.mdc`
+   - 相対パス: `./.cursor/rules/work-log.mdc`
    - 「自動実行監視システムの完全復旧」が最高優先要件
    - システム自動化・監視・統合・品質保証に特化
    - プロジェクト要件に基づく役職・機能設計必須
 
 4. **自律成長プロセス確認（追加必須）**
-   - 継続的改善システム（CONTINUOUS_IMPROVEMENT_SYSTEM.md）参照
+   - 相対パス: `./ai-agents/CONTINUOUS_IMPROVEMENT_SYSTEM.md`
    - Phase別発展計画の理解
    - 自己学習・進化メカニズムの活用
    - 知識蓄積・経験値向上の体系的実行
