@@ -693,36 +693,37 @@ run_claude_auth_background() {
         if echo "$screen_content" | grep -q "Welcome to Claude Code" 2>/dev/null; then
             echo "$(date): Claude Code起動完了を検知 (${i}/120秒)"
             
-            # 統合自動エンターシステムを使用した改善版メッセージ送信
-            if [ -f "./ai-agents/UNIFIED_AUTO_ENTER_SYSTEM.sh" ]; then
-                echo "$(date): 統合自動エンターシステム連携開始"
-                
-                # 統合システムによる初期メッセージ配布
-                ./ai-agents/UNIFIED_AUTO_ENTER_SYSTEM.sh init-messages
-                
-                # バックグラウンド監視開始
-                ./ai-agents/UNIFIED_AUTO_ENTER_SYSTEM.sh monitor &
-                
-                echo "$(date): 統合自動エンターシステム連携完了"
-            else
-                # フォールバック: 従来の方式
-                tmux send-keys -t president C-c  # 前の入力をクリア
-                sleep 1
-                echo "$(date): プレジデント初期メッセージ自動送信中..."
-                tmux send-keys -t president 'あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。ワーカーたちは既に起動済みです。BOSSに具体的な指示を出してプロジェクトを進行してください。' C-m
-                echo "$(date): プレジデント初期メッセージ自動送信完了"
-                
-                # 2秒待機してからワーカー起動コマンド自動送信
-                sleep 2
-                echo "$(date): ワーカー起動コマンド自動送信中..."
-                tmux send-keys -t president 'for i in {0..3}; do tmux send-keys -t multiagent:0.$i "claude --dangerously-skip-permissions " C-m; done' C-m
-                echo "$(date): ワーカー起動コマンド自動送信完了"
-            fi
+            # 1秒待機してからメッセージセット（バッファー安定化）
+            sleep 1
             
-
+            # プロンプトをシンプルに送信（Enter 1回のみ）
+            log_info "📤 プレジデントメッセージ送信中..."
+            tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。"
+            tmux send-keys -t president C-m
             
-            echo "✅ 自動化システム起動完了 $(date)" > /tmp/ai-agents-claude-auth.log
-            echo "$(date): 自動化完了"
+            # 待機時間を追加
+            sleep 2
+            
+            log_info "📤 ワーカー起動コマンド送信中..."
+            tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions' C-m; done"
+            tmux send-keys -t president C-m
+            
+            log_success "✅ プレジデント基本メッセージ送信完了"
+            
+            # 基本的な視覚設定のみ
+            log_info "🎨 基本UI設定中..."
+            tmux set-option -g pane-border-status top
+            tmux set-option -g pane-border-format "#{pane_title}"
+            
+            # 基本的なペインタイトル設定
+            tmux select-pane -t president:0 -T "👑PRESIDENT"
+            tmux select-pane -t multiagent:0.0 -T "��BOSS"
+            tmux select-pane -t multiagent:0.1 -T "💻WORKER1"
+            tmux select-pane -t multiagent:0.2 -T "🔧WORKER2"
+            tmux select-pane -t multiagent:0.3 -T "🎨WORKER3"
+            
+            log_success "✅ 基本UI設定完了"
+            log_success "✅ プレジデント操作ロジック修正完了"
             break
         fi
         
@@ -801,110 +802,37 @@ setup_claude_semi_auto() {
             if echo "$screen_content" | grep -q "Welcome to Claude Code\|cwd:" 2>/dev/null; then
                 log_success "✅ Claude Code起動完了を検知 (${i}/60秒)"
                 
-                # 0.5秒待機してからメッセージセット
-                sleep 0.5
+                # 1秒待機してからメッセージセット（バッファー安定化）
+                sleep 1
                 
-                # プロンプトを一気にセット→Enter実行
-                log_info "📤 プレジデントメッセージ自動送信中..."
-                tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。まず、ワーカーたちを立ち上げてボスに指令を伝達して下さい。"
-                tmux send-keys -t president C-m C-m
+                # プロンプトをシンプルに送信（Enter 1回のみ）
+                log_info "📤 プレジデントメッセージ送信中..."
+                tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。"
+                tmux send-keys -t president C-m
                 
-                log_info "📤 ワーカー起動コマンド自動送信中..."
-                tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions ' C-m; done"
-                tmux send-keys -t president C-m C-m
-                log_success "✅ プレジデント→ワーカー指示完全自動送信完了"
+                # 待機時間を追加
+                sleep 2
                 
-                # ペインタイトル設定（視覚的改善・強化版）
-                log_info "🎨 AI組織システム視覚的改善中..."
+                log_info "📤 ワーカー起動コマンド送信中..."
+                tmux send-keys -t president "for i in {0..3}; do tmux send-keys -t multiagent:0.\$i 'claude --dangerously-skip-permissions' C-m; done"
+                tmux send-keys -t president C-m
                 
-                # 高度なtmux視覚設定
+                log_success "✅ プレジデント基本メッセージ送信完了"
+                
+                # 基本的な視覚設定のみ
+                log_info "🎨 基本UI設定中..."
                 tmux set-option -g pane-border-status top
-                tmux set-option -g pane-border-style "fg=colour8"
-                tmux set-option -g pane-active-border-style "fg=colour4,bold"
+                tmux set-option -g pane-border-format "#{pane_title}"
                 
-                # カラフルなペインタイトルフォーマット（役割別カラー + 状態表示）
-                tmux set-option -g pane-border-format "#{?pane_active,#[bg=colour4#,fg=colour15#,bold],#[bg=colour8#,fg=colour7]} #{pane_title} #[default]"
+                # 基本的なペインタイトル設定
+                tmux select-pane -t president:0 -T "👑PRESIDENT"
+                tmux select-pane -t multiagent:0.0 -T "👔BOSS"
+                tmux select-pane -t multiagent:0.1 -T "💻WORKER1"
+                tmux select-pane -t multiagent:0.2 -T "🔧WORKER2"
+                tmux select-pane -t multiagent:0.3 -T "🎨WORKER3"
                 
-                # 時刻表示付きステータスライン
-                tmux set-option -g status-left-length 50
-                tmux set-option -g status-right-length 50
-                tmux set-option -g status-left "#[bg=colour4,fg=colour15,bold] AI組織システム #[default]"
-                tmux set-option -g status-right "#[bg=colour2,fg=colour15] %H:%M:%S #[default]"
-                tmux set-option -g status-interval 1
-                
-                # 各ペインに詳細な肩書きを設定（カラーコード + 状態表示）
-                tmux select-pane -t president:0 -T "🟡待機中 👑PRESIDENT"
-                tmux select-pane -t multiagent:0.0 -T "🟡待機中 👔チームリーダー"
-                tmux select-pane -t multiagent:0.1 -T "🟡待機中 💻フロントエンド"
-                tmux select-pane -t multiagent:0.2 -T "🟡待機中 🔧バックエンド"
-                tmux select-pane -t multiagent:0.3 -T "🟡待機中 🎨UI/UXデザイン"
-                
-                # ウィンドウタイトルも設定
-                tmux rename-window -t president "👑 PRESIDENT"
-                tmux rename-window -t multiagent "👥 AI-TEAM"
-                
-                log_success "✅ AI組織システム視覚的改善完了"
-                
-                # 致命的欠陥修正: ワーカー役割メッセージの即座自動送信
-                log_info "🔍 ワーカー役割メッセージ即座自動送信開始..."
-                
-                # 各ワーカーに役割メッセージを即座送信（起動済みの場合）
-                for worker_id in {0..3}; do
-                    # ワーカーの起動状況をチェック
-                    worker_content=$(tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null || echo "")
-                    
-                    if echo "$worker_content" | grep -q "Welcome to Claude Code\|Bypassing Permissions\|cwd:" 2>/dev/null; then
-                        log_info "📤 WORKER${worker_id} 既に起動済み - 即座役割メッセージ送信"
-                        
-                        # 役割別メッセージ設定（肩書きに合わせて更新）
-                        case $worker_id in
-                            0) role_msg="あなたはBOSS・チームリーダーです。プロジェクト全体の調査結果をまとめて、具体的な改善指示をワーカーたちに出してください。./ai-agents/instructions/boss.md を参照して日本語で応答してください。" ;;
-                            1) role_msg="あなたはフロントエンドエンジニアです。React・Vue・HTML/CSS等の技術でUI改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
-                            2) role_msg="あなたはバックエンドエンジニアです。Node.js・Python・データベース等の技術でシステム改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
-                            3) role_msg="あなたはUI/UXデザイナーです。デザインシステム・ユーザビリティ改善を実行してください。./ai-agents/instructions/worker.md を参照して日本語で応答してください。" ;;
-                        esac
-                        
-                        # 役割メッセージを一気にセット→Enter実行
-                        tmux send-keys -t multiagent:0.$worker_id "$role_msg"
-                        tmux send-keys -t multiagent:0.$worker_id C-m C-m
-                        log_success "✅ WORKER${worker_id} 役割メッセージ即座送信完了"
-                        
-                        # 送信完了をログに記録
-                        echo "✅ WORKER${worker_id} 役割メッセージ即座送信完了 $(date)" >> /tmp/ai-agents-role-messages.log
-                    else
-                        log_warn "⚠️ WORKER${worker_id} 未起動 - 役割メッセージ送信スキップ"
-                    fi
-                    
-                    # 連続送信の間隔を開ける
-                    sleep 0.5
-                done
-                
-                log_success "🎉 全ワーカー役割メッセージ即座送信完了！"
-                
-                # 起動済みワーカーへの即座タスク配布機能
-                log_info "🚀 起動済みワーカーへの即座タスク配布開始..."
-                
-                # 各ワーカーに具体的なタスクを即座配布
-                for worker_id in {0..3}; do
-                    if tmux capture-pane -t multiagent:0.$worker_id -p 2>/dev/null | grep -q "Welcome to Claude Code\|Please let me know" 2>/dev/null; then
-                        case $worker_id in
-                            0) task_msg="プロジェクト調査レポートを作成してください。cursor-rules、ai-agents、scripts等のディレクトリを分析し、改善提案をまとめてください。" ;;
-                            1) task_msg="README.mdとsetup.shの内容を確認し、ユーザビリティを改善してください。わかりやすいフォーマットや視覚的改善を提案してください。" ;;
-                            2) task_msg="ai-agents/manage.shの構造を分析し、パフォーマンス改善とエラーハンドリング強化を実装してください。" ;;
-                            3) task_msg="tmuxペインタイトルとAI組織システムの視覚的表示を改善してください。カラー設定や見やすさを向上させてください。" ;;
-                        esac
-                        
-                        tmux send-keys -t multiagent:0.$worker_id "$task_msg"
-                        tmux send-keys -t multiagent:0.$worker_id C-m C-m
-                        log_success "✅ WORKER${worker_id} 即座タスク配布完了"
-                    fi
-                done
-                
-                log_success "🎉 即座タスク配布完了 - 全ワーカー稼働中！"
-                
-                echo "✅ 【メッセージ完全自動送信完了】プレジデント→ワーカー指示完了" > /tmp/ai-agents-message-set.log
-                log_success "✅ PRESIDENTメッセージ完全自動送信完了"
-                log_info "🔍 ワーカーメッセージ自動送信システム起動中..."
+                log_success "✅ 基本UI設定完了"
+                log_success "✅ プレジデント操作ロジック修正完了"
                 break
             fi
             
