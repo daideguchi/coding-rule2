@@ -1,7 +1,32 @@
 #!/bin/bash
 # パフォーマンス監視強化システム
 
+set -euo pipefail
+
+# プロジェクトルート自動検出
+detect_project_root() {
+    local current_dir="$(pwd)"
+    local search_dir="$current_dir"
+    while [ "$search_dir" != "/" ]; do
+        if [ -d "$search_dir/.git" ] && [ -d "$search_dir/ai-agents" ]; then
+            echo "$search_dir"
+            return 0
+        fi
+        search_dir="$(dirname "$search_dir")"
+    done
+    echo "ERROR: プロジェクトルートが見つかりません" >&2
+    return 1
+}
+
+if ! PROJECT_ROOT=$(detect_project_root); then
+    exit 1
+fi
+
+BASE_DIR="$PROJECT_ROOT"
 PERFORMANCE_LOG="$BASE_DIR/logs/performance-monitoring.log"
+
+# ログディレクトリ作成
+mkdir -p "$(dirname "$PERFORMANCE_LOG")"
 
 monitor_system_performance() {
     echo "[$(date '+%H:%M:%S')] パフォーマンス監視開始" >> "$PERFORMANCE_LOG"
@@ -28,7 +53,7 @@ monitor_system_performance() {
     
     # 品質維持効果測定
     local prevention_logs=$(find "$BASE_DIR/logs" -name "*prevention*" -o -name "*guard*" 2>/dev/null | wc -l)
-    echo "🛡️  防止システム稼働: $prevention_logs個" >> "$PERFORMANCE_LOG"
+    echo "🛡️  防止システム稼働: ${prevention_logs}個" >> "$PERFORMANCE_LOG"
 }
 
 # 継続監視ループ

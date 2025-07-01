@@ -1,7 +1,32 @@
 #!/bin/bash
 # 虚偽報告検知・確認強制システム
 
+set -euo pipefail
+
+# プロジェクトルート自動検出
+detect_project_root() {
+    local current_dir="$(pwd)"
+    local search_dir="$current_dir"
+    while [ "$search_dir" != "/" ]; do
+        if [ -d "$search_dir/.git" ] && [ -d "$search_dir/ai-agents" ]; then
+            echo "$search_dir"
+            return 0
+        fi
+        search_dir="$(dirname "$search_dir")"
+    done
+    echo "ERROR: プロジェクトルートが見つかりません" >&2
+    return 1
+}
+
+if ! PROJECT_ROOT=$(detect_project_root); then
+    exit 1
+fi
+
+BASE_DIR="$PROJECT_ROOT"
 VERIFICATION_LOG="$BASE_DIR/logs/verification-checks.log"
+
+# ログディレクトリ作成
+mkdir -p "$(dirname "$VERIFICATION_LOG")"
 
 verify_actual_execution() {
     local action="$1"
