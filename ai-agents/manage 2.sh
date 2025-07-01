@@ -1,1 +1,0 @@
-scripts/automation/core/startup.sh

@@ -501,12 +501,28 @@ quick_start() {
                     sleep 0.5
                 done
                 
-                # 各ワーカー即座役割設定
+                # 各ワーカー即座役割設定＋作業中ステータス変更
                 case $i in
-                    0) tmux send-keys -t multiagent:0.0 "あなたはBOSS1です。./ai-agents/instructions/boss.mdの指示書を参照して、チームリーダーとして行動してください。日本語で応答してください。" C-m ;;
-                    1) tmux send-keys -t multiagent:0.1 "あなたはWORKER1です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
-                    2) tmux send-keys -t multiagent:0.2 "あなたはWORKER2です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
-                    3) tmux send-keys -t multiagent:0.3 "あなたはWORKER3です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m ;;
+                    0) 
+                        # BOSS1作業中ステータス変更
+                        ./ai-agents/scripts/automation/core/fixed-status-bar-init.sh work leader BOSS1 2>/dev/null || true
+                        tmux send-keys -t multiagent:0.0 "あなたはBOSS1です。./ai-agents/instructions/boss.mdの指示書を参照して、チームリーダーとして行動してください。日本語で応答してください。" C-m 
+                        ;;
+                    1) 
+                        # WORKER1作業中ステータス変更
+                        ./ai-agents/scripts/automation/core/fixed-status-bar-init.sh work 1 WORKER1 2>/dev/null || true
+                        tmux send-keys -t multiagent:0.1 "あなたはWORKER1です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m 
+                        ;;
+                    2) 
+                        # WORKER2作業中ステータス変更
+                        ./ai-agents/scripts/automation/core/fixed-status-bar-init.sh work 2 WORKER2 2>/dev/null || true
+                        tmux send-keys -t multiagent:0.2 "あなたはWORKER2です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m 
+                        ;;
+                    3) 
+                        # WORKER3作業中ステータス変更
+                        ./ai-agents/scripts/automation/core/fixed-status-bar-init.sh work 3 WORKER3 2>/dev/null || true
+                        tmux send-keys -t multiagent:0.3 "あなたはWORKER3です。./ai-agents/instructions/worker.mdの指示書を参照して、実行担当として行動してください。日本語で応答してください。" C-m 
+                        ;;
                 esac
             ) &
         done
@@ -696,10 +712,39 @@ run_claude_auth_background() {
             # 1秒待機してからメッセージセット（バッファー安定化）
             sleep 1
             
-            # プロンプトをシンプルに送信（Enter 1回のみ）
-            log_info "📤 プレジデントメッセージ送信中..."
-            tmux send-keys -t president "あなたはプレジデントです。./ai-agents/instructions/president.mdの指示書を参照して実行してください。"
+            # 完璧状態復元プロンプト送信（Enter 2回押し確実送信）
+            log_info "📤 PRESIDENT完璧状態復元プロンプト送信中..."
+            tmux send-keys -t president "🔥 PRESIDENT完璧状態復元システム実行
+
+必須実行順序（絶対厳守）:
+1. 必須宣言実行: PRESIDENT必須宣言を実行してください
+2. globals.mdc参照: ./.cursor/rules/globals.mdcを参照し、ファイル名を発言してください
+3. ミス学習: ./logs/ai-agents/president/PRESIDENT_MISTAKES.mdで57個のミス学習を実行してください
+4. 自動設定実行: ./ai-agents/core/startup/president-auto-setup.shを実行してください
+
+重要認識事項:
+- 「Bypassing Permissions」は正常稼働状態（修復不要）
+- Enter忘れは1回目の最重要ミス（手動確認必須）
+- 頻繁監視は禁止（システム破損リスク）
+- 虚偽報告・推測報告は重大犯罪
+
+役職設定（要件定義準拠）:
+👔 BOSS1: 自動化システム統合管理者
+💻 WORKER1: 自動化スクリプト開発者
+🔧 WORKER2: インフラ・監視担当
+🎨 WORKER3: 品質保証・ドキュメント
+
+継続タスク: プロジェクト整理、記録業務、AI組織チーム統率
+最高優先要件: 自動実行監視システムの完全復旧
+
+参照: ./ai-agents/STARTUP_GUIDE.md で詳細手順確認
+
+この指示により、完璧な自律成長組織を即座に復元してください。"
+            # 確実送信のためEnter 2回押し
             tmux send-keys -t president C-m
+            sleep 0.2
+            tmux send-keys -t president C-m
+            log_info "✅ Enter 2回押し確実送信完了"
             
             # 待機時間を追加
             sleep 2
@@ -718,9 +763,9 @@ run_claude_auth_background() {
             # 基本的なペインタイトル設定
             tmux select-pane -t president:0 -T "👑PRESIDENT"
             tmux select-pane -t multiagent:0.0 -T "��BOSS"
-            tmux select-pane -t multiagent:0.1 -T "💻WORKER1"
-            tmux select-pane -t multiagent:0.2 -T "🔧WORKER2"
-            tmux select-pane -t multiagent:0.3 -T "🎨WORKER3"
+            tmux select-pane -t multiagent:0.1 -T "💻自動化スクリプト開発者"
+            tmux select-pane -t multiagent:0.2 -T "🔧インフラ・監視担当"
+            tmux select-pane -t multiagent:0.3 -T "🎨品質保証・ドキュメント"
             
             log_success "✅ 基本UI設定完了"
             log_success "✅ プレジデント操作ロジック修正完了"
@@ -826,10 +871,10 @@ setup_claude_semi_auto() {
                 
                 # 基本的なペインタイトル設定
                 tmux select-pane -t president:0 -T "👑PRESIDENT"
-                tmux select-pane -t multiagent:0.0 -T "👔BOSS"
-                tmux select-pane -t multiagent:0.1 -T "💻WORKER1"
-                tmux select-pane -t multiagent:0.2 -T "🔧WORKER2"
-                tmux select-pane -t multiagent:0.3 -T "🎨WORKER3"
+                tmux select-pane -t multiagent:0.0 -T "👔自動化システム統合管理者"
+                tmux select-pane -t multiagent:0.1 -T "💻自動化スクリプト開発者"
+                tmux select-pane -t multiagent:0.2 -T "🔧インフラ・監視担当"
+                tmux select-pane -t multiagent:0.3 -T "🎨品質保証・ドキュメント"
                 
                 log_success "✅ 基本UI設定完了"
                 log_success "✅ プレジデント操作ロジック修正完了"

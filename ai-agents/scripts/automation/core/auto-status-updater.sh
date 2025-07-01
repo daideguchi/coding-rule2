@@ -47,10 +47,10 @@ get_detailed_status() {
 get_role() {
     local worker_id=$1
     case $worker_id in
-        0) echo "👔チームリーダー" ;;
-        1) echo "💻フロントエンド" ;;
-        2) echo "🔧バックエンド" ;;
-        3) echo "🎨UI/UXデザイン" ;;
+        0) echo "👔自動化システム統合管理者" ;;
+        1) echo "💻自動化スクリプト開発者" ;;
+        2) echo "🔧インフラ・監視担当" ;;
+        3) echo "🎨品質保証・ドキュメント" ;;
     esac
 }
 
@@ -65,7 +65,7 @@ update_all_status() {
         
         # tmuxペインタイトル更新（WORKER3は強制修正）
         if [ $i -eq 3 ]; then
-            tmux select-pane -t $SESSION:0.$i -T "🟡待機中 🎨UI/UXデザイン"
+            tmux select-pane -t $SESSION:0.$i -T "🟡待機中 🎨品質保証・ドキュメント"
         else
             tmux select-pane -t $SESSION:0.$i -T "$title"
         fi
