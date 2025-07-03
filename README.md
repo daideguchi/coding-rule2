@@ -4,6 +4,22 @@
 
 **5つのAIが協調して開発**する革新的なマルチエージェントシステムです。
 
+## 🔥 NEW: Claude-Gemini対話システム確立！
+
+**AI間対話が実現！** 
+- ✅ Claude ↔ Gemini 直接対話可能
+- ✅ 日本語自然対話確認済み
+- ✅ 完全自動化システム構築
+
+```bash
+# 30秒でテスト
+npm install -g @google/gemini-cli
+echo "こんにちは" | npx @google/gemini-cli
+python3 integrations/gemini/claude_gemini_standard_dialogue.py test
+```
+
+📖 **詳細ガイド**: [GEMINI_DIALOGUE_SETUP_GUIDE.md](./GEMINI_DIALOGUE_SETUP_GUIDE.md)
+
 ```bash
 ./ai-team.sh      # 🎯 メインスクリプト（全機能統合）
 ```

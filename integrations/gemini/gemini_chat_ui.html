@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Claude-Gemini 対話UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .message.claude {
+            justify-content: flex-end;
+        }
+        
+        .message.gemini {
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            position: relative;
+        }
+        
+        .claude .message-content {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 20px;
+        }
+        
+        .gemini .message-content {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            margin-right: 20px;
+        }
+        
+        .message-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #messageInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        #messageInput:focus {
+            border-color: #667eea;
+        }
+        
+        #sendButton {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        
+        #sendButton:hover {
+            transform: translateY(-2px);
+        }
+        
+        #sendButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .timestamp {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+        
+        .quick-messages {
+            display: flex;
+            gap: 10px;
+            padding: 10px 20px;
+            flex-wrap: wrap;
+            background: #f8f9fa;
+        }
+        
+        .quick-message {
+            padding: 8px 15px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        
+        .quick-message:hover {
+            background: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            🤖 Claude ↔ Gemini 対話システム
+        </div>
+        
+        <div class="quick-messages">
+            <button class="quick-message" onclick="sendQuickMessage('こんにちは！')">こんにちは</button>
+            <button class="quick-message" onclick="sendQuickMessage('Kindle本のアイデアを教えて')">本のアイデア</button>
+            <button class="quick-message" onclick="sendQuickMessage('AIについて簡潔に教えて')">AIについて</button>
+            <button class="quick-message" onclick="sendQuickMessage('副業のアドバイスをお願いします')">副業相談</button>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div class="status">
+                💡 Geminiとの対話を開始しましょう！下のメッセージ欄に入力するか、クイックメッセージをクリックしてください。
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <span style="margin-left: 10px;">Geminiと対話中...</span>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Geminiに聞きたいことを入力してください..." onkeypress="handleKeyPress(event)">
+            <button id="sendButton" onclick="sendMessage()">送信</button>
+        </div>
+    </div>
+
+    <script>
+        let messageCount = 0;
+
+        function addMessage(sender, content, isError = false) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender.toLowerCase()}`;
+            
+            const timestamp = new Date().toLocaleTimeString('ja-JP');
+            
+            messageDiv.innerHTML = `
+                <div class="message-content ${isError ? 'error' : ''}">
+                    <div class="message-label">${sender}</div>
+                    <div>${content}</div>
+                    <div class="timestamp">${timestamp}</div>
+                </div>
+            `;
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            messageCount++;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('sendButton').disabled = show;
+            document.getElementById('messageInput').disabled = show;
+        }
+
+        async function sendToGemini(message) {
+            try {
+                // Pythonスクリプトを実行してGeminiと対話
+                const response = await fetch('/api/gemini-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('ネットワークエラー');
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                return {
+                    status: 'error',
+                    response: `接続エラー: ${error.message}`
+                };
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Claudeのメッセージを表示
+            addMessage('Claude', message);
+            input.value = '';
+            
+            // ローディング表示
+            showLoading(true);
+            
+            try {
+                // Geminiに送信
+                const result = await sendToGemini(message);
+                
+                // レスポンス表示
+                addMessage('Gemini', result.response, result.status === 'error');
+                
+            } catch (error) {
+                addMessage('Gemini', `エラー: ${error.message}`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 初期化
+        window.onload = function() {
+            // 初期メッセージなし - 実際の対話のみ表示
+        };
+    </script>
+</body>
+</html>

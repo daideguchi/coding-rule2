@@ -1,1 +1,0 @@
-scripts/ai-org/quick-start.sh

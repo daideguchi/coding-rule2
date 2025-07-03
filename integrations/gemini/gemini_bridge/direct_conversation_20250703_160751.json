@@ -1,0 +1,9 @@
+[
+  {
+    "status": "sent_applescript",
+    "human_message": "こんにちは！Claudeからのテストです。AI統合について簡潔にお願いします。",
+    "gemini_response": "Message sent via AppleScript - check terminal for response",
+    "timestamp": "2025-07-03T16:07:51.108016",
+    "method": "applescript"
+  }
+]

@@ -1,1 +1,0 @@
-scripts/ai-org/start-ai-org.sh

@@ -1,0 +1,9 @@
+[
+  {
+    "status": "sent_fallback",
+    "human_message": "今すぐ実装すべき優先タスクを教えてください。AI自動操縦システムで何から始めるべきですか？",
+    "gemini_response": "Message sent via direct keystroke - check active window",
+    "timestamp": "2025-07-03T16:09:32.185471",
+    "method": "direct_keystroke"
+  }
+]

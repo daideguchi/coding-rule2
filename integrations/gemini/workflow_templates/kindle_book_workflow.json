@@ -1,0 +1,100 @@
+{
+  "workflow_name": "Kindle本5フェーズ生産ワークフロー",
+  "version": "1.0",
+  "description": "Geminiとの協働によるKindle本大量生産システム",
+  "phases": [
+    {
+      "phase": 1,
+      "name": "戦略・企画",
+      "owner": "user",
+      "description": "ジャンル・テーマ決定、キーワード設定",
+      "tasks": [
+        "ジャンルとテーマの決定（24冊分）",
+        "キーワードとターゲット読者の設定",
+        "Geminiへの指示書作成"
+      ],
+      "output": "enterprise_planning.json"
+    },
+    {
+      "phase": 2,
+      "name": "構成案作成",
+      "owner": "gemini_claude",
+      "description": "Gemini生成 → Claude レビューの品質保証",
+      "gemini_prompt": "以下のテーマで書籍の詳細構成案を作成してください：\n- タイトル: {title}\n- ターゲット: {target_audience}\n- キーワード: {keywords}\n\n章立て、各章の要点、具体例を含めて構成案を提案してください。",
+      "claude_review_criteria": [
+        "論理的な流れの確認",
+        "内容の網羅性チェック",
+        "読者ニーズとの整合性",
+        "実用性の評価"
+      ],
+      "output": "approved_structure.json"
+    },
+    {
+      "phase": 3,
+      "name": "本文執筆",
+      "owner": "gemini",
+      "description": "承認済み構成案に基づく高速執筆",
+      "gemini_prompt": "承認済みの構成案に従い、第{chapter_number}章を執筆してください：\n\n構成案: {structure}\n\n要件:\n- 3000-4000文字程度\n- 具体的な数値・事例を3つ以上\n- 読者が行動しやすい実用的内容\n- {tone}のトーンで執筆\n\nMarkdown形式で出力してください。",
+      "parameters": {
+        "target_length": "3000-4000文字",
+        "examples_required": 3,
+        "tone_options": ["親しみやすい", "専門的", "初心者向け", "ビジネス調"]
+      },
+      "output": "chapter_{number}_draft.md"
+    },
+    {
+      "phase": 4,
+      "name": "レビュー・編集",
+      "owner": "claude",
+      "description": "AI生成コンテンツの品質向上",
+      "review_steps": [
+        {
+          "step": "高速リント",
+          "tools": ["textlint", "spelling_check"],
+          "auto_fix": true
+        },
+        {
+          "step": "AIレビュー",
+          "criteria": [
+            "文脈の一貫性",
+            "創造性と独自性",
+            "読みやすさ",
+            "実用性"
+          ],
+          "scoring": "100点満点評価"
+        }
+      ],
+      "quality_threshold": 90,
+      "output": "chapter_{number}_reviewed.md"
+    },
+    {
+      "phase": 5,
+      "name": "最終化・出版",
+      "owner": "user",
+      "description": "商品化と市場リリース",
+      "tasks": [
+        "最終校正",
+        "Kindle形式変換",
+        "メタデータ作成",
+        "KDP出版手続き"
+      ],
+      "automation_targets": [
+        "フォーマット変換",
+        "メタデータ生成",
+        "アップロード"
+      ],
+      "output": "published_book.epub"
+    }
+  ],
+  "kpi": {
+    "production_target": "24冊/日",
+    "revenue_target": "¥12,000/日",
+    "quality_score": "90点以上",
+    "automation_rate": "95%以上"
+  },
+  "tools": {
+    "dialogue": "claude_gemini_standard_dialogue.py",
+    "automation": "kindle_production_automation.py",
+    "monitoring": "production_monitor.py"
+  }
+}

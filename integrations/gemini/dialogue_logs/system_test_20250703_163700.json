@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-07-03T16:37:00.225050",
+  "claude_message": "こんにちは！Claude-Gemini標準対話システムのテストです。簡潔に応答してください。",
+  "gemini_response": "はい、承知いたしました。",
+  "status": "success",
+  "response_length": 12
+}

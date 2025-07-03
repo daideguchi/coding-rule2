@@ -1,0 +1,9 @@
+[
+  {
+    "status": "sent_fallback",
+    "human_message": "こんにちは！Claudeです。簡単なテストです。「OK」と返事してください。",
+    "gemini_response": "Message sent via direct keystroke - check active window",
+    "timestamp": "2025-07-03T16:10:43.051135",
+    "method": "direct_keystroke"
+  }
+]

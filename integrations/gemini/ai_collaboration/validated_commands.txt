@@ -1,0 +1,26 @@
+## ✅ 検証済みコマンド集
+
+### 基本対話（100%動作確認済み）
+echo "こんにちは" | npx @google/gemini-cli
+echo "AIについて簡潔に教えて" | npx @google/gemini-cli
+python3 claude_gemini_standard_dialogue.py "Kindle本のアイデアを教えて"
+
+### システムテスト（動作確認済み）
+python3 claude_gemini_standard_dialogue.py test
+./standard_scripts/quick_dialogue.sh "テストメッセージ"
+
+### 環境確認（必須チェック）
+node --version         # v23.11.0
+npm --version          # 10.9.2
+python3 --version      # Python 3.13.3
+npx @google/gemini-cli --version  # 0.1.9
+
+### ログ確認
+ls -t dialogue_logs/
+cat dialogue_logs/system_test_*.json
+
+### 成功時の応答例
+- 日本語での自然な応答
+- 3-5秒以内の応答時間
+- ログファイル自動生成
+- エラーなしの完了
