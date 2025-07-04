@@ -37,3 +37,4 @@ nohup.out
 
 # 環境変数ファイル
 .env
+.mcp.json.local

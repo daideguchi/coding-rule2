@@ -5,7 +5,7 @@
   "cSpell.ignorePaths": [
     "**/*.mdc",
     "**/*.md",
-    "ai-agents/docs/CLAUDE.md",
+    "CLAUDE.md",
     ".git/**",
     "node_modules/**"
   ],
@@ -26,7 +26,7 @@
   ],
   "spellright.language": ["en"],
   "spellright.documentTypes": ["plaintext"],
-  "spellright.ignoreFiles": ["**/*.mdc", "**/*.md", "ai-agents/docs/CLAUDE.md"],
+  "spellright.ignoreFiles": ["**/*.mdc", "**/*.md", "CLAUDE.md"],
   "editor.wordBasedSuggestions": "off",
   "editor.quickSuggestions": {
     "other": false,

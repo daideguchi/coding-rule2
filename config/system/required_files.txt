@@ -1,0 +1,37 @@
+# 必須ファイル・ディレクトリリスト
+# mandatory-verification.sh で使用される検証対象
+# コメント行（#で開始）は無視される
+
+# Cursor Rules - 開発ルール
+.cursor/rules/globals.mdc
+.cursor/rules/rules.mdc
+
+# PRESIDENT関連ファイル
+src/ai-agents/instructions/president.md
+logs/agents/ai-agents/president/PRESIDENT_MISTAKES.md
+
+# 作業記録システム
+logs/work-records.md
+
+# 必須設定ファイル
+config/agents/agents.json
+src/ai-agents/scripts/load-config.sh
+
+# メインスクリプト
+bin/ai-team.sh
+src/ai-agents/manage.sh
+
+# 起動・継続ルーチン
+CLAUDE.md
+
+# プロジェクトドキュメント
+docs/ORGANIZATION_RULES.md
+
+# 環境設定
+.env
+
+# 必須ディレクトリ
+logs/agents/
+config/agents/
+src/ai-agents/scripts/
+bin/

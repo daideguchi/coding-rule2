@@ -30,6 +30,26 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # 設定ローダーの読み込み
 source "$SCRIPT_DIR/load-config.sh"
 
+# 必須確認事項ベリフィケーション
+mandatory_verification_check() {
+    log_step "必須確認事項ベリフィケーション"
+    
+    local verification_script="$SCRIPT_DIR/mandatory-verification.sh"
+    
+    if [[ -f "$verification_script" ]]; then
+        if ! "$verification_script" check; then
+            log_error "必須確認事項が未完了です。確認を実行してください:"
+            echo "  $verification_script"
+            exit 1
+        fi
+    else
+        log_error "ベリフィケーションスクリプトが見つかりません: $verification_script"
+        exit 1
+    fi
+    
+    log_success "必須確認事項ベリフィケーション完了"
+}
+
 # 依存関係チェック
 check_dependencies() {
     log_step "依存関係チェック"
@@ -302,6 +322,7 @@ main() {
     echo ""
     
     # 各ステップの実行
+    mandatory_verification_check
     check_dependencies
     cleanup_existing_session
     prepare_logging
