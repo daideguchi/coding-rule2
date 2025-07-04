@@ -26,23 +26,35 @@ python3 integrations/gemini/claude_gemini_standard_dialogue.py test
 
 ## ✅ 必要環境
 
-- **macOS/Linux** (WindowsはWSL推奨)
-- **Git** + **tmux** + **Claude Code**
+- **クロスプラットフォーム対応**: macOS/Linux/Windows(WSL)
+- **自動依存関係検出**: OS別の自動インストール対応
+- **必須**: Git, tmux, jq
+- **推奨**: Claude Code, GitHub CLI
 
 ```bash
+# 🚀 ワンコマンドセットアップ（推奨）
+./setup-portable.sh
+
+# 手動インストール例
 # macOS
-brew install tmux
+brew install tmux jq
 
 # Ubuntu/Debian  
-sudo apt install tmux
+sudo apt install tmux jq
+
+# Fedora
+sudo dnf install tmux jq
 ```
 
 ## 🎮 使い方（3ステップ）
 
-### 1. ダウンロード
+### 1. ダウンロード & セットアップ
 ```bash
 git clone https://github.com/daideguchi/coding-rule2.git
 cd coding-rule2
+
+# ポータブルセットアップ実行
+./setup-portable.sh
 ```
 
 ### 2. 起動
@@ -77,6 +89,8 @@ cd coding-rule2
 - **24冊/日**: Kindle本自動生産目標
 
 ### 💡 技術的アーキテクチャ
+- **クロスプラットフォーム**: macOS/Linux/Windows完全対応
+- **動的パス解決**: 環境依存性完全除去
 - **WebSocket通信**: ポート8080でリアルタイム連携
 - **統合オーケストレーター**: 中央制御システム
 - **専門化ワーカー**: 自動化・監視・統合・分析

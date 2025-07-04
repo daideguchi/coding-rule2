@@ -16,12 +16,37 @@ NC='\033[0m'
 # 設定ファイルパス
 CONFIG_FILE="${AI_AGENTS_DIR:-$(dirname "$0")/..}/configs/agents.json"
 
-# jqコマンドの存在確認
+# jqコマンドの存在確認（クロスプラットフォーム対応）
 check_jq() {
     if ! command -v jq &> /dev/null; then
-        echo -e "${RED}[ERROR]${NC} jqコマンドが見つかりません。インストールしてください。"
-        echo "macOS: brew install jq"
-        echo "Ubuntu: sudo apt-get install jq"
+        echo -e "${RED}[ERROR]${NC} jqコマンドが見つかりません。"
+        
+        # OS検出してインストール方法を表示
+        case "$(uname -s)" in
+            Darwin*)
+                echo "macOS: brew install jq"
+                ;;
+            Linux*)
+                if command -v apt-get &> /dev/null; then
+                    echo "Ubuntu/Debian: sudo apt-get install jq"
+                elif command -v dnf &> /dev/null; then
+                    echo "Fedora: sudo dnf install jq"
+                elif command -v yum &> /dev/null; then
+                    echo "RHEL/CentOS: sudo yum install jq"
+                elif command -v pacman &> /dev/null; then
+                    echo "Arch: sudo pacman -S jq"
+                else
+                    echo "Linux: パッケージマネージャーを使用してjqをインストールしてください"
+                fi
+                ;;
+            CYGWIN*|MINGW*)
+                echo "Windows: choco install jq または手動インストール"
+                ;;
+            *)
+                echo "手動でjqをインストールしてください: https://stedolan.github.io/jq/"
+                ;;
+        esac
+        
         exit 1
     fi
 }

@@ -34,12 +34,36 @@ source "$SCRIPT_DIR/load-config.sh"
 check_dependencies() {
     log_step "依存関係チェック"
     
-    # tmuxの確認
+    # tmuxの確認（クロスプラットフォーム対応）
     if ! command -v tmux &> /dev/null; then
         log_error "tmuxが見つかりません"
         echo "インストール方法:"
-        echo "  macOS: brew install tmux"
-        echo "  Ubuntu: sudo apt-get install tmux"
+        
+        case "$(uname -s)" in
+            Darwin*)
+                echo "  macOS: brew install tmux"
+                ;;
+            Linux*)
+                if command -v apt-get &> /dev/null; then
+                    echo "  Ubuntu/Debian: sudo apt-get install tmux"
+                elif command -v dnf &> /dev/null; then
+                    echo "  Fedora: sudo dnf install tmux"
+                elif command -v yum &> /dev/null; then
+                    echo "  RHEL/CentOS: sudo yum install tmux"
+                elif command -v pacman &> /dev/null; then
+                    echo "  Arch: sudo pacman -S tmux"
+                else
+                    echo "  Linux: パッケージマネージャーを使用してtmuxをインストール"
+                fi
+                ;;
+            CYGWIN*|MINGW*)
+                echo "  Windows: choco install tmux または手動インストール"
+                ;;
+            *)
+                echo "  手動でtmuxをインストールしてください"
+                ;;
+        esac
+        
         exit 1
     fi
     

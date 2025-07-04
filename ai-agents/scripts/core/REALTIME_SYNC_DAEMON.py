@@ -48,8 +48,13 @@ class WorkerSync:
 class RealtimeSyncDaemon:
     """リアルタイム同期デーモン"""
     
-    def __init__(self, project_root: str = "/Users/dd/Desktop/1_dev/coding-rule2"):
-        self.project_root = Path(project_root)
+    def __init__(self, project_root: str = None):
+        if project_root is None:
+            # 動的にプロジェクトルートを取得
+            script_dir = Path(__file__).parent
+            self.project_root = script_dir.parent.parent.parent
+        else:
+            self.project_root = Path(project_root)
         self.ai_agents_dir = self.project_root / "ai-agents"
         self.sync_state_file = self.ai_agents_dir / "sync_state.json"
         self.event_log_file = self.ai_agents_dir / "logs" / "sync_events.jsonl"
@@ -743,8 +748,11 @@ async def main():
         logger.error(f"同期デーモン致命的エラー: {e}")
 
 if __name__ == "__main__":
-    # ログディレクトリ作成
-    Path("/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/logs").mkdir(parents=True, exist_ok=True)
+    # ログディレクトリ作成（動的パス）
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent.parent
+    logs_dir = project_root / "ai-agents" / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
     
     # デーモン実行
     asyncio.run(main())

@@ -47,8 +47,13 @@ class AIWorker:
 class ClaudeMCPBridge:
     """Claude Code と MCP の統合ブリッジ"""
     
-    def __init__(self, project_root: str = "/Users/dd/Desktop/1_dev/coding-rule2"):
-        self.project_root = Path(project_root)
+    def __init__(self, project_root: str = None):
+        if project_root is None:
+            # 動的にプロジェクトルートを取得
+            script_dir = Path(__file__).parent
+            self.project_root = script_dir.parent.parent.parent
+        else:
+            self.project_root = Path(project_root)
         self.ai_agents_dir = self.project_root / "ai-agents"
         self.workers: Dict[str, AIWorker] = {}
         self.mcp_servers: Dict[str, subprocess.Popen] = {}

@@ -8,8 +8,15 @@ const { execSync, spawn } = require('child_process');
 const EventEmitter = require('events');
 
 class SmartMonitoringEngine extends EventEmitter {
-    constructor() {
+    constructor(projectRoot = null) {
         super();
+        
+        // 動的プロジェクトルート設定
+        if (projectRoot === null) {
+            this.projectRoot = path.resolve(__dirname, '../../..');
+        } else {
+            this.projectRoot = projectRoot;
+        }
         
         // 🎯 効率化設定: 閾値ベース監視
         this.eventThresholds = {
@@ -108,8 +115,8 @@ class SmartMonitoringEngine extends EventEmitter {
     setupChangeDetection() {
         const watchPaths = [
             '/tmp/ai_org_state_cache',
-            '/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/logs',
-            '/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/sessions'
+            path.join(this.projectRoot, 'ai-agents', 'logs'),
+            path.join(this.projectRoot, 'ai-agents', 'sessions')
         ];
         
         watchPaths.forEach(watchPath => {
@@ -186,14 +193,45 @@ class SmartMonitoringEngine extends EventEmitter {
         }
     }
     
-    // 💻 CPU使用率チェック
+    // 💻 CPU使用率チェック（クロスプラットフォーム）
     checkCpuUsage() {
         try {
-            const cpuInfo = execSync('top -l 1 -n 0 | grep "CPU usage"', { encoding: 'utf8', timeout: 5000 });
-            const cpuMatch = cpuInfo.match(/(\d+\.\d+)%\s+user/);
+            const platform = process.platform;
+            let cpuInfo, cpuMatch, cpuUsage;
             
-            if (cpuMatch) {
-                const cpuUsage = parseFloat(cpuMatch[1]) / 100;
+            switch (platform) {
+                case 'darwin': // macOS
+                    cpuInfo = execSync('top -l 1 -n 0 | grep "CPU usage"', { encoding: 'utf8', timeout: 5000 });
+                    cpuMatch = cpuInfo.match(/(\d+\.\d+)%\s+user/);
+                    cpuUsage = cpuMatch ? parseFloat(cpuMatch[1]) / 100 : 0;
+                    break;
+                    
+                case 'linux':
+                    cpuInfo = execSync('top -bn1 | grep "Cpu(s)"', { encoding: 'utf8', timeout: 5000 });
+                    cpuMatch = cpuInfo.match(/(\d+\.\d+)%\s*us/);
+                    cpuUsage = cpuMatch ? parseFloat(cpuMatch[1]) / 100 : 0;
+                    break;
+                    
+                case 'win32':
+                    // Windows用（WSL環境を想定）
+                    try {
+                        cpuInfo = execSync('wmic cpu get loadpercentage /value 2>/dev/null || top -bn1 | grep "Cpu(s)"', { encoding: 'utf8', timeout: 5000 });
+                        cpuMatch = cpuInfo.match(/LoadPercentage=(\d+)/) || cpuInfo.match(/(\d+\.\d+)%\s*us/);
+                        cpuUsage = cpuMatch ? parseFloat(cpuMatch[1]) / 100 : 0;
+                    } catch {
+                        // WSL fallback
+                        cpuInfo = execSync('top -bn1 | grep "Cpu(s)"', { encoding: 'utf8', timeout: 5000 });
+                        cpuMatch = cpuInfo.match(/(\d+\.\d+)%\s*us/);
+                        cpuUsage = cpuMatch ? parseFloat(cpuMatch[1]) / 100 : 0;
+                    }
+                    break;
+                    
+                default:
+                    console.log(`⚠️ 未対応のプラットフォーム: ${platform}`);
+                    return;
+            }
+            
+            if (cpuUsage > 0) {
                 
                 if (cpuUsage > this.eventThresholds.cpuUsage) {
                     this.handleAlert('cpu', {
@@ -211,19 +249,64 @@ class SmartMonitoringEngine extends EventEmitter {
         }
     }
     
-    // 💾 メモリ使用率チェック
+    // 💾 メモリ使用率チェック（クロスプラットフォーム）
     checkMemoryUsage() {
         try {
-            const memInfo = execSync('vm_stat', { encoding: 'utf8', timeout: 5000 });
-            const pageSize = 4096; // macOS default
+            const platform = process.platform;
+            let memoryUsage = 0;
             
-            const freePages = parseInt(memInfo.match(/Pages free:\s+(\d+)/)?.[1] || '0');
-            const wiredPages = parseInt(memInfo.match(/Pages wired down:\s+(\d+)/)?.[1] || '0');
-            const activePages = parseInt(memInfo.match(/Pages active:\s+(\d+)/)?.[1] || '0');
-            
-            const totalMemory = (freePages + wiredPages + activePages) * pageSize;
-            const usedMemory = (wiredPages + activePages) * pageSize;
-            const memoryUsage = usedMemory / totalMemory;
+            switch (platform) {
+                case 'darwin': // macOS
+                    const memInfo = execSync('vm_stat', { encoding: 'utf8', timeout: 5000 });
+                    const pageSize = 4096;
+                    
+                    const freePages = parseInt(memInfo.match(/Pages free:\s+(\d+)/)?.[1] || '0');
+                    const wiredPages = parseInt(memInfo.match(/Pages wired down:\s+(\d+)/)?.[1] || '0');
+                    const activePages = parseInt(memInfo.match(/Pages active:\s+(\d+)/)?.[1] || '0');
+                    
+                    const totalMemory = (freePages + wiredPages + activePages) * pageSize;
+                    const usedMemory = (wiredPages + activePages) * pageSize;
+                    memoryUsage = usedMemory / totalMemory;
+                    break;
+                    
+                case 'linux':
+                    const linuxMemInfo = execSync('free -m', { encoding: 'utf8', timeout: 5000 });
+                    const memMatch = linuxMemInfo.match(/Mem:\s+(\d+)\s+(\d+)/);
+                    if (memMatch) {
+                        const totalMem = parseInt(memMatch[1]);
+                        const usedMem = parseInt(memMatch[2]);
+                        memoryUsage = usedMem / totalMem;
+                    }
+                    break;
+                    
+                case 'win32':
+                    try {
+                        // Windows用
+                        const winMemInfo = execSync('wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value 2>/dev/null', { encoding: 'utf8', timeout: 5000 });
+                        const totalMatch = winMemInfo.match(/TotalVisibleMemorySize=(\d+)/);
+                        const freeMatch = winMemInfo.match(/FreePhysicalMemory=(\d+)/);
+                        
+                        if (totalMatch && freeMatch) {
+                            const totalMem = parseInt(totalMatch[1]);
+                            const freeMem = parseInt(freeMatch[1]);
+                            memoryUsage = (totalMem - freeMem) / totalMem;
+                        }
+                    } catch {
+                        // WSL fallback
+                        const wslMemInfo = execSync('free -m', { encoding: 'utf8', timeout: 5000 });
+                        const wslMemMatch = wslMemInfo.match(/Mem:\s+(\d+)\s+(\d+)/);
+                        if (wslMemMatch) {
+                            const totalMem = parseInt(wslMemMatch[1]);
+                            const usedMem = parseInt(wslMemMatch[2]);
+                            memoryUsage = usedMem / totalMem;
+                        }
+                    }
+                    break;
+                    
+                default:
+                    console.log(`⚠️ メモリ監視未対応のプラットフォーム: ${platform}`);
+                    return;
+            }
             
             if (memoryUsage > this.eventThresholds.memoryUsage) {
                 this.handleAlert('memory', {
