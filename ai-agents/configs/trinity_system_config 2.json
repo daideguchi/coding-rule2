@@ -1,0 +1,212 @@
+{
+  "trinity_system": {
+    "name": "AI組織三位一体開発システム",
+    "version": "1.0.0",
+    "description": "Gemini YOLO統合による高度なAI組織システム",
+    "session_id": "trinity_system_v1",
+    "components": {
+      "gemini_yolo": {
+        "enabled": true,
+        "priority": "high",
+        "module": "ai-agents/scripts/core/gemini_yolo.py",
+        "config": {
+          "yolo_model": "yolov8n.pt",
+          "gemini_model": "gemini-1.5-flash",
+          "confidence_threshold": 0.5,
+          "max_detections": 100,
+          "output_dir": "./outputs/gemini_yolo",
+          "websocket_port": 8765,
+          "batch_size": 10,
+          "real_time_mode": true
+        }
+      },
+      "claude_mcp_bridge": {
+        "enabled": true,
+        "priority": "high",
+        "module": "ai-agents/legacy/CLAUDE_MCP_BRIDGE.py",
+        "config": {
+          "websocket_port": 8766,
+          "github_integration": true,
+          "tmux_session": "multiagent",
+          "auto_sync": true
+        }
+      },
+      "memory_optimization": {
+        "enabled": true,
+        "priority": "medium",
+        "module": "ai-agents/scripts/core/MEMORY_OPTIMIZATION_ENGINE.py",
+        "config": {
+          "cache_size": 1000,
+          "memory_threshold": 0.8,
+          "optimization_interval": 300
+        }
+      },
+      "realtime_sync": {
+        "enabled": true,
+        "priority": "medium",
+        "module": "ai-agents/legacy/REALTIME_SYNC_DAEMON.py",
+        "config": {
+          "sync_interval": 30,
+          "github_sync": true,
+          "tmux_sync": true
+        }
+      },
+      "smart_monitoring": {
+        "enabled": true,
+        "priority": "low",
+        "module": "ai-agents/scripts/core/SMART_MONITORING_ENGINE.js",
+        "config": {
+          "monitoring_interval": 60,
+          "alert_threshold": 0.9,
+          "dashboard_port": 8767
+        }
+      }
+    }
+  },
+  "integration_settings": {
+    "communication": {
+      "protocol": "websocket",
+      "base_port": 8765,
+      "timeout": 30,
+      "max_connections": 50
+    },
+    "data_flow": {
+      "input_formats": ["image", "video", "text", "json"],
+      "output_formats": ["json", "websocket", "file"],
+      "pipeline_mode": "parallel",
+      "result_aggregation": true
+    },
+    "security": {
+      "api_key_required": true,
+      "rate_limiting": {
+        "requests_per_minute": 100,
+        "burst_limit": 20
+      },
+      "cors_enabled": true,
+      "allowed_origins": ["localhost", "127.0.0.1"]
+    }
+  },
+  "environment": {
+    "development": {
+      "log_level": "DEBUG",
+      "hot_reload": true,
+      "debug_mode": true,
+      "test_data_dir": "./test_data"
+    },
+    "production": {
+      "log_level": "INFO",
+      "hot_reload": false,
+      "debug_mode": false,
+      "performance_monitoring": true
+    }
+  },
+  "api_keys": {
+    "gemini_api_key": "${GEMINI_API_KEY}",
+    "github_token": "${GITHUB_TOKEN}",
+    "openai_api_key": "${OPENAI_API_KEY}"
+  },
+  "directories": {
+    "input": "./inputs",
+    "output": "./outputs",
+    "logs": "./logs",
+    "temp": "./temp",
+    "models": "./models",
+    "configs": "./ai-agents/configs"
+  },
+  "ai_organization": {
+    "roles": {
+      "president": {
+        "name": "🚀Gemini YOLO統合エンジニア",
+        "responsibilities": [
+          "三位一体システム統合",
+          "Gemini YOLO統合管理",
+          "AI組織統率",
+          "品質保証"
+        ],
+        "priority": "highest"
+      },
+      "boss1": {
+        "name": "自動化システム統合管理者",
+        "responsibilities": [
+          "システム統合管理",
+          "自動化プロセス監視",
+          "パフォーマンス最適化"
+        ],
+        "priority": "high"
+      },
+      "worker1": {
+        "name": "自動化スクリプト開発者",
+        "responsibilities": [
+          "スクリプト開発",
+          "機能実装",
+          "テスト実行"
+        ],
+        "priority": "medium"
+      },
+      "worker2": {
+        "name": "インフラ・監視担当",
+        "responsibilities": [
+          "インフラ管理",
+          "システム監視",
+          "トラブルシューティング"
+        ],
+        "priority": "medium"
+      },
+      "worker3": {
+        "name": "品質保証・ドキュメント",
+        "responsibilities": [
+          "品質保証",
+          "ドキュメント管理",
+          "レビュー実施"
+        ],
+        "priority": "low"
+      }
+    }
+  },
+  "workflow": {
+    "startup_sequence": [
+      "gemini_yolo",
+      "claude_mcp_bridge",
+      "memory_optimization",
+      "realtime_sync",
+      "smart_monitoring"
+    ],
+    "health_check": {
+      "interval": 60,
+      "timeout": 10,
+      "max_retries": 3
+    },
+    "auto_recovery": {
+      "enabled": true,
+      "max_attempts": 3,
+      "backoff_factor": 2
+    }
+  },
+  "performance": {
+    "metrics": {
+      "response_time": true,
+      "throughput": true,
+      "error_rate": true,
+      "resource_usage": true
+    },
+    "optimization": {
+      "caching": true,
+      "compression": true,
+      "parallel_processing": true,
+      "batch_processing": true
+    }
+  },
+  "deployment": {
+    "mode": "standalone",
+    "scaling": {
+      "auto_scale": false,
+      "min_instances": 1,
+      "max_instances": 3
+    },
+    "health_monitoring": {
+      "enabled": true,
+      "endpoint": "/health",
+      "metrics_endpoint": "/metrics"
+    }
+  }
+}
