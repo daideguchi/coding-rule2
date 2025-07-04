@@ -834,7 +834,7 @@ setup_claude_semi_auto() {
                         log_success \"✅ WORKER\${worker_id} 役割メッセージ即座送信完了\"
                         
                         # 送信完了をログに記録
-                        echo \"✅ WORKER\${worker_id} 役割メッセージ即座送信完了 \$(date)\" >> /tmp/ai-agents-role-messages.log
+                        # echo \"✅ WORKER\${worker_id} 役割メッセージ即座送信完了 \$(date)\" >> /tmp/ai-agents-role-messages.log
                     else
                         log_warn \"⚠️ WORKER\${worker_id} 未起動 - 役割メッセージ送信スキップ\"
                     fi
