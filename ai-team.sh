@@ -15,6 +15,7 @@
 # ./ai-team.sh           # メインメニューから選択
 # ./ai-team.sh setup     # 初回セットアップ
 # ./ai-team.sh start     # AI組織起動
+# ./ai-team.sh president # PRESIDENT単体起動
 # ./ai-team.sh quick     # クイック起動
 #
 # =============================================================================
@@ -76,13 +77,14 @@ show_main_menu() {
     echo -e "${GREEN}📋 利用可能なオプション:${NC}"
     echo ""
     echo -e "${YELLOW}1)${NC} 🚀 AI組織起動          - AI組織システムを起動"
-    echo -e "${YELLOW}2)${NC} ⚙️  初回セットアップ      - 環境構築・認証設定"
-    echo -e "${YELLOW}3)${NC} ⚡ クイック起動         - 簡易起動（設定済み環境用）"
-    echo -e "${YELLOW}4)${NC} 🔧 設定変更           - 認証・設定の変更"
-    echo -e "${YELLOW}5)${NC} 🆘 トラブルシューティング  - 問題解決・復旧"
-    echo -e "${YELLOW}6)${NC} 📊 ステータス確認       - システム状態確認"
-    echo -e "${YELLOW}7)${NC} 📋 要件定義書管理       - TODO・仕様更新"
-    echo -e "${YELLOW}8)${NC} 📚 ヘルプ・使用方法      - 詳細ガイド"
+    echo -e "${YELLOW}2)${NC} 👑 PRESIDENT単体起動    - 簡潔タスク用（個人作業）"
+    echo -e "${YELLOW}3)${NC} ⚙️  初回セットアップ      - 環境構築・認証設定"
+    echo -e "${YELLOW}4)${NC} ⚡ クイック起動         - 簡易起動（設定済み環境用）"
+    echo -e "${YELLOW}5)${NC} 🔧 設定変更           - 認証・設定の変更"
+    echo -e "${YELLOW}6)${NC} 🆘 トラブルシューティング  - 問題解決・復旧"
+    echo -e "${YELLOW}7)${NC} 📊 ステータス確認       - システム状態確認"
+    echo -e "${YELLOW}8)${NC} 📋 要件定義書管理       - TODO・仕様更新"
+    echo -e "${YELLOW}9)${NC} 📚 ヘルプ・使用方法      - 詳細ガイド"
     echo -e "${YELLOW}0)${NC} 🚪 終了"
     echo ""
 }
@@ -389,6 +391,59 @@ manage_requirements() {
     fi
 }
 
+# PRESIDENT単体起動
+start_president_solo() {
+    log_step "PRESIDENT単体起動"
+    
+    echo -e "${CYAN}👑 PRESIDENT Solo Mode${NC}"
+    echo "========================"
+    echo ""
+    echo -e "${GREEN}個人作業・簡潔タスク用のPRESIDENT単体起動です${NC}"
+    echo ""
+    echo -e "${YELLOW}特徴:${NC}"
+    echo "• 1対1の直接対話"
+    echo "• 完全記録業務"
+    echo "• 高品質成果物"
+    echo "• 既存記録システム統合"
+    echo ""
+    
+    read -p "PRESIDENT単体モードを起動しますか？ [Y/n]: " -n 1 -r
+    echo
+    [[ ! $REPLY =~ ^[Yy]$ ]] && [[ ! -z $REPLY ]] && return 0
+    
+    # スクリプトパス確認
+    local start_president_script="./ai-agents/scripts/start-president.sh"
+    
+    if [[ ! -f "$start_president_script" ]]; then
+        log_error "start-president.shが見つかりません: $start_president_script"
+        return 1
+    fi
+    
+    if [[ ! -x "$start_president_script" ]]; then
+        log_error "start-president.shに実行権限がありません"
+        return 1
+    fi
+    
+    # PRESIDENT単体起動スクリプト実行
+    log_info "PRESIDENT単体起動スクリプトを実行中..."
+    "$start_president_script"
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_success "PRESIDENT単体起動完了"
+        echo ""
+        echo -e "${GREEN}🎉 接続方法:${NC}"
+        echo -e "  ${YELLOW}tmux attach-session -t president${NC}"
+        echo ""
+        echo -e "${BLUE}💡 ヒント:${NC}"
+        echo "• すべての作業は自動的に記録されます"
+        echo "• 完了時は必ず作業記録を更新してください"
+        echo "• 複雑なタスクは AI組織起動 を検討してください"
+    else
+        log_error "PRESIDENT単体起動に失敗しました (終了コード: $exit_code)"
+    fi
+}
+
 # ヘルプ
 show_help() {
     clear
@@ -596,6 +651,9 @@ main() {
         "start"|"run"|"r")
             start_ai_org
             ;;
+        "president"|"p"|"solo")
+            start_president_solo
+            ;;
         "quick"|"q")
             quick_start
             ;;
@@ -609,24 +667,25 @@ main() {
             # メインメニューループ
             while true; do
                 show_main_menu
-                read -p "選択してください [0-8]: " choice
+                read -p "選択してください [0-9]: " choice
                 echo ""
                 
                 case $choice in
                     1) start_ai_org;;
-                    2) run_setup;;
-                    3) quick_start;;
-                    4) change_settings;;
-                    5) troubleshooting;;
-                    6) check_status;;
-                    7) manage_requirements;;
-                    8) show_help;;
+                    2) start_president_solo;;
+                    3) run_setup;;
+                    4) quick_start;;
+                    5) change_settings;;
+                    6) troubleshooting;;
+                    7) check_status;;
+                    8) manage_requirements;;
+                    9) show_help;;
                     0) 
                         echo "👋 AI-TEAM を終了します"
                         exit 0
                         ;;
                     *)
-                        echo "❌ 無効な選択です。0-8を入力してください。"
+                        echo "❌ 無効な選択です。0-9を入力してください。"
                         read -p "Enterキーで続行..."
                         ;;
                 esac
@@ -637,7 +696,7 @@ main() {
             ;;
         *)
             echo "❌ 無効な引数: $1"
-            echo "💡 使用方法: ./ai-team.sh [setup|start|quick|status|help]"
+            echo "💡 使用方法: ./ai-team.sh [setup|start|president|quick|status|help]"
             exit 1
             ;;
     esac
