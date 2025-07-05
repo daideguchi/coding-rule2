@@ -1,0 +1,451 @@
+# AI Compliance Engine - RBAC Configuration
+# Phase 1: Role-Based Access Control Setup
+
+# Service Accounts for Core Services
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ace-api-service-account
+  namespace: ace-api
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ace-truth-verification-service-account
+  namespace: ace-truth-verification
+  labels:
+    app.kubernetes.io/name: ace-truth-verification
+    app.kubernetes.io/part-of: ai-compliance-engine
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ace-rule-engine-service-account
+  namespace: ace-rule-engine
+  labels:
+    app.kubernetes.io/name: ace-rule-engine
+    app.kubernetes.io/part-of: ai-compliance-engine
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ace-memory-service-account
+  namespace: ace-memory
+  labels:
+    app.kubernetes.io/name: ace-memory
+    app.kubernetes.io/part-of: ai-compliance-engine
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ace-evidence-service-account
+  namespace: ace-evidence
+  labels:
+    app.kubernetes.io/name: ace-evidence
+    app.kubernetes.io/part-of: ai-compliance-engine
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ace-auth-service-account
+  namespace: ace-auth
+  labels:
+    app.kubernetes.io/name: ace-auth
+    app.kubernetes.io/part-of: ai-compliance-engine
+automountServiceAccountToken: true
+
+# Cluster Roles
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ace-api-cluster-role
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ace-monitoring-cluster-role
+  labels:
+    app.kubernetes.io/name: ace-monitoring
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+
+# Roles for specific namespaces
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: ace-api
+  name: ace-api-role
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: ace-truth-verification
+  name: ace-truth-verification-role
+  labels:
+    app.kubernetes.io/name: ace-truth-verification
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: ace-rule-engine
+  name: ace-rule-engine-role
+  labels:
+    app.kubernetes.io/name: ace-rule-engine
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: ace-memory
+  name: ace-memory-role
+  labels:
+    app.kubernetes.io/name: ace-memory
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: ace-evidence
+  name: ace-evidence-role
+  labels:
+    app.kubernetes.io/name: ace-evidence
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: ace-auth
+  name: ace-auth-role
+  labels:
+    app.kubernetes.io/name: ace-auth
+    app.kubernetes.io/part-of: ai-compliance-engine
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Cluster Role Bindings
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ace-api-cluster-role-binding
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-api-service-account
+  namespace: ace-api
+roleRef:
+  kind: ClusterRole
+  name: ace-api-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ace-monitoring-cluster-role-binding
+  labels:
+    app.kubernetes.io/name: ace-monitoring
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: prometheus-server
+  namespace: ace-monitoring
+roleRef:
+  kind: ClusterRole
+  name: ace-monitoring-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
+# Role Bindings
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ace-api-role-binding
+  namespace: ace-api
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-api-service-account
+  namespace: ace-api
+roleRef:
+  kind: Role
+  name: ace-api-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ace-truth-verification-role-binding
+  namespace: ace-truth-verification
+  labels:
+    app.kubernetes.io/name: ace-truth-verification
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-truth-verification-service-account
+  namespace: ace-truth-verification
+roleRef:
+  kind: Role
+  name: ace-truth-verification-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ace-rule-engine-role-binding
+  namespace: ace-rule-engine
+  labels:
+    app.kubernetes.io/name: ace-rule-engine
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-rule-engine-service-account
+  namespace: ace-rule-engine
+roleRef:
+  kind: Role
+  name: ace-rule-engine-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ace-memory-role-binding
+  namespace: ace-memory
+  labels:
+    app.kubernetes.io/name: ace-memory
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-memory-service-account
+  namespace: ace-memory
+roleRef:
+  kind: Role
+  name: ace-memory-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ace-evidence-role-binding
+  namespace: ace-evidence
+  labels:
+    app.kubernetes.io/name: ace-evidence
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-evidence-service-account
+  namespace: ace-evidence
+roleRef:
+  kind: Role
+  name: ace-evidence-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ace-auth-role-binding
+  namespace: ace-auth
+  labels:
+    app.kubernetes.io/name: ace-auth
+    app.kubernetes.io/part-of: ai-compliance-engine
+subjects:
+- kind: ServiceAccount
+  name: ace-auth-service-account
+  namespace: ace-auth
+roleRef:
+  kind: Role
+  name: ace-auth-role
+  apiGroup: rbac.authorization.k8s.io
+
+# Security Policies
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ace-resource-limits
+  namespace: ace-api
+spec:
+  limits:
+  - default:
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "128Mi"
+    type: Container
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ace-resource-limits
+  namespace: ace-truth-verification
+spec:
+  limits:
+  - default:
+      cpu: "1000m"
+      memory: "1Gi"
+    defaultRequest:
+      cpu: "200m"
+      memory: "256Mi"
+    type: Container
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ace-resource-limits
+  namespace: ace-rule-engine
+spec:
+  limits:
+  - default:
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "128Mi"
+    type: Container
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ace-resource-limits
+  namespace: ace-memory
+spec:
+  limits:
+  - default:
+      cpu: "1000m"
+      memory: "2Gi"
+    defaultRequest:
+      cpu: "200m"
+      memory: "512Mi"
+    type: Container
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ace-resource-limits
+  namespace: ace-evidence
+spec:
+  limits:
+  - default:
+      cpu: "500m"
+      memory: "1Gi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "256Mi"
+    type: Container
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ace-resource-limits
+  namespace: ace-auth
+spec:
+  limits:
+  - default:
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "128Mi"
+    type: Container

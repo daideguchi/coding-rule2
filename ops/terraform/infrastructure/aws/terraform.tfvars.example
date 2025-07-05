@@ -1,0 +1,47 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and modify values as needed
+
+# Basic Configuration
+aws_region  = "us-east-1"
+environment = "dev"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+public_subnet_cidrs = [
+  "10.0.1.0/24",
+  "10.0.2.0/24", 
+  "10.0.3.0/24"
+]
+private_subnet_cidrs = [
+  "10.0.101.0/24",
+  "10.0.102.0/24",
+  "10.0.103.0/24"
+]
+
+# EKS Configuration
+kubernetes_version = "1.28"
+node_instance_types = ["t3.medium", "t3.large"]
+node_desired_size = 3
+node_max_size = 10
+node_min_size = 1
+
+# Database Configuration
+postgres_version = "15.4"
+db_instance_class = "db.t3.medium"
+db_allocated_storage = 100
+db_max_allocated_storage = 1000
+db_name = "ace_db"
+db_username = "ace_admin"
+db_password = "your-secure-password-here"
+
+# Redis Configuration
+redis_version = "7.0"
+redis_node_type = "cache.t3.micro"
+redis_num_cache_nodes = 2
+redis_auth_token = "your-redis-auth-token-here"
+
+# Domain Configuration
+domain_name = "ace-dev.example.com"
+
+# Security Configuration
+eks_public_access_cidrs = ["0.0.0.0/0"]  # Restrict this in production

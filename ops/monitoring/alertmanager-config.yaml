@@ -1,0 +1,295 @@
+# AI Compliance Engine - AlertManager Configuration
+# Phase 1: Alert routing and notification setup
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-config
+  namespace: ace-monitoring
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/part-of: ai-compliance-engine
+type: Opaque
+stringData:
+  alertmanager.yml: |
+    global:
+      # Global SMTP configuration
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'alerts@compliance-engine.com'
+      smtp_auth_username: 'alerts@compliance-engine.com'
+      smtp_auth_password: 'your-smtp-password'
+      smtp_require_tls: true
+      
+      # Slack webhook
+      slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+      
+      # PagerDuty integration key
+      pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+      
+      # Global resolve timeout
+      resolve_timeout: 5m
+
+    # Template files
+    templates:
+    - '/etc/alertmanager/templates/*.tmpl'
+
+    # Route configuration
+    route:
+      # Default receiver
+      receiver: 'default'
+      
+      # Group alerts by these labels
+      group_by: ['alertname', 'cluster', 'service']
+      
+      # Wait before sending initial notification
+      group_wait: 10s
+      
+      # Wait before sending additional notifications for same group
+      group_interval: 10s
+      
+      # Wait before sending resolved notification
+      repeat_interval: 1h
+      
+      # Child routes
+      routes:
+      # Critical alerts go to PagerDuty and Slack
+      - match:
+          severity: critical
+        receiver: 'critical-alerts'
+        group_wait: 5s
+        group_interval: 5s
+        repeat_interval: 30m
+        
+      # Warning alerts go to Slack only
+      - match:
+          severity: warning
+        receiver: 'warning-alerts'
+        group_wait: 30s
+        group_interval: 30s
+        repeat_interval: 4h
+        
+      # Security alerts have special handling
+      - match:
+          type: security
+        receiver: 'security-alerts'
+        group_wait: 0s
+        group_interval: 0s
+        repeat_interval: 15m
+        
+      # Performance alerts during business hours
+      - match:
+          type: performance
+        receiver: 'performance-alerts'
+        group_wait: 1m
+        group_interval: 5m
+        repeat_interval: 2h
+        active_time_intervals:
+        - business-hours
+        
+      # Database alerts
+      - match:
+          service: database
+        receiver: 'database-alerts'
+        group_wait: 30s
+        group_interval: 1m
+        repeat_interval: 1h
+        
+      # Infrastructure alerts
+      - match_re:
+          service: 'infrastructure|kubernetes'
+        receiver: 'infrastructure-alerts'
+        group_wait: 1m
+        group_interval: 2m
+        repeat_interval: 6h
+
+    # Time intervals
+    time_intervals:
+    - name: business-hours
+      time_intervals:
+      - times:
+        - start_time: '09:00'
+          end_time: '17:00'
+        weekdays: ['monday:friday']
+        location: 'America/New_York'
+
+    # Inhibition rules
+    inhibit_rules:
+    # Inhibit warning if critical is firing
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      equal: ['alertname', 'cluster', 'service']
+      
+    # Inhibit node alerts if cluster is down
+    - source_match:
+        alertname: 'ClusterDown'
+      target_match_re:
+        alertname: 'Node.*'
+      equal: ['cluster']
+
+    # Receivers
+    receivers:
+    # Default receiver
+    - name: 'default'
+      email_configs:
+      - to: 'devops@compliance-engine.com'
+        subject: '[ACE] {{ .GroupLabels.alertname }} - {{ .Status | toUpper }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+
+    # Critical alerts
+    - name: 'critical-alerts'
+      slack_configs:
+      - channel: '#ace-critical-alerts'
+        username: 'AlertManager'
+        icon_emoji: ':fire:'
+        title: 'CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          *Environment:* {{ .Labels.environment }}
+          *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+        actions:
+        - type: button
+          text: 'View in Grafana'
+          url: 'http://grafana.ace-dev.example.com'
+        - type: button
+          text: 'View in Prometheus'
+          url: 'http://prometheus.ace-dev.example.com'
+        
+      pagerduty_configs:
+      - routing_key: 'your-pagerduty-integration-key'
+        description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        severity: '{{ .CommonLabels.severity }}'
+        details:
+          environment: '{{ .CommonLabels.environment }}'
+          service: '{{ .CommonLabels.service }}'
+          cluster: '{{ .CommonLabels.cluster }}'
+          
+      email_configs:
+      - to: 'oncall@compliance-engine.com'
+        subject: '[CRITICAL] ACE Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          CRITICAL ALERT FIRED
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Environment: {{ .Labels.environment }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          
+          Labels:
+          {{ range .Labels.SortedPairs }}  {{ .Name }}: {{ .Value }}
+          {{ end }}
+          {{ end }}
+
+    # Warning alerts
+    - name: 'warning-alerts'
+      slack_configs:
+      - channel: '#ace-warnings'
+        username: 'AlertManager'
+        icon_emoji: ':warning:'
+        title: 'WARNING: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          *Environment:* {{ .Labels.environment }}
+          {{ end }}
+
+    # Security alerts
+    - name: 'security-alerts'
+      slack_configs:
+      - channel: '#ace-security-alerts'
+        username: 'SecurityBot'
+        icon_emoji: ':shield:'
+        title: 'SECURITY ALERT: {{ .GroupLabels.alertname }}'
+        text: |
+          🚨 SECURITY INCIDENT DETECTED 🚨
+          
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+          
+          Please investigate immediately!
+        
+      email_configs:
+      - to: 'security@compliance-engine.com'
+        subject: '[SECURITY] ACE Security Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          SECURITY ALERT
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+
+    # Performance alerts
+    - name: 'performance-alerts'
+      slack_configs:
+      - channel: '#ace-performance'
+        username: 'PerformanceBot'
+        icon_emoji: ':chart_with_downwards_trend:'
+        title: 'PERFORMANCE: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+
+    # Database alerts
+    - name: 'database-alerts'
+      slack_configs:
+      - channel: '#ace-database'
+        username: 'DatabaseBot'
+        icon_emoji: ':floppy_disk:'
+        title: 'DATABASE: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Database:* {{ .Labels.database }}
+          {{ end }}
+        
+      email_configs:
+      - to: 'dba@compliance-engine.com'
+        subject: '[DATABASE] ACE Database Alert: {{ .GroupLabels.alertname }}'
+
+    # Infrastructure alerts
+    - name: 'infrastructure-alerts'
+      slack_configs:
+      - channel: '#ace-infrastructure'
+        username: 'InfraBot'
+        icon_emoji: ':gear:'
+        title: 'INFRASTRUCTURE: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Node:* {{ .Labels.instance }}
+          {{ end }}
+        
+      email_configs:
+      - to: 'infrastructure@compliance-engine.com'
+        subject: '[INFRA] ACE Infrastructure Alert: {{ .GroupLabels.alertname }}'

@@ -1,0 +1,330 @@
+# AI Compliance Engine - Security Scanning Pipeline
+# Dedicated security scanning workflow
+
+name: Security Scanning
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Dependency Vulnerability Scanning
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety pip-audit
+
+      - name: Generate requirements file
+        run: |
+          find . -name "requirements*.txt" -exec cat {} \; > all-requirements.txt
+
+      - name: Run Safety check
+        run: |
+          safety check -r all-requirements.txt --json --output safety-report.json || true
+          safety check -r all-requirements.txt
+
+      - name: Run pip-audit
+        run: |
+          pip-audit --format=json --output=pip-audit-report.json || true
+          pip-audit
+
+      - name: Upload dependency scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-scan-results
+          path: |
+            safety-report.json
+            pip-audit-report.json
+
+  # Static Application Security Testing (SAST)
+  sast-scan:
+    name: Static Application Security Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install SAST tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit semgrep
+
+      - name: Run Bandit
+        run: |
+          bandit -r src/ -f json -o bandit-report.json || true
+          bandit -r src/ --severity-level medium
+
+      - name: Run Semgrep
+        run: |
+          semgrep --config=auto src/ --json --output=semgrep-report.json || true
+          semgrep --config=auto src/
+
+      - name: Upload SAST results
+        uses: actions/upload-artifact@v3
+        with:
+          name: sast-scan-results
+          path: |
+            bandit-report.json
+            semgrep-report.json
+
+  # Container Security Scanning
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    strategy:
+      matrix:
+        service: ['api', 'truth-verification', 'rule-engine', 'memory', 'evidence', 'auth']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/${{ matrix.service }}
+          file: ./src/${{ matrix.service }}/Dockerfile
+          tags: ace-${{ matrix.service }}:security-scan
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ace-${{ matrix.service }}:security-scan
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service }}.sarif'
+
+      - name: Run Grype vulnerability scanner
+        uses: anchore/scan-action@v3
+        with:
+          image: ace-${{ matrix.service }}:security-scan
+          output-format: sarif
+          output-file: grype-${{ matrix.service }}.sarif
+
+      - name: Upload container scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-${{ matrix.service }}.sarif
+
+      - name: Upload Grype results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: grype-${{ matrix.service }}.sarif
+
+  # Infrastructure Security Scanning
+  iac-scan:
+    name: Infrastructure as Code Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infrastructure/
+          framework: terraform,kubernetes
+          output_format: sarif
+          output_file_path: checkov-report.sarif
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov-report.sarif
+
+      - name: Run TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: Run TFLint on AWS infrastructure
+        run: |
+          cd infrastructure/aws
+          tflint --init
+          tflint --format=json > tflint-aws-report.json || true
+          tflint
+
+      - name: Run TFLint on GCP infrastructure
+        run: |
+          cd infrastructure/gcp
+          tflint --init
+          tflint --format=json > tflint-gcp-report.json || true
+          tflint
+
+      - name: Upload TFLint results
+        uses: actions/upload-artifact@v3
+        with:
+          name: tflint-results
+          path: |
+            infrastructure/aws/tflint-aws-report.json
+            infrastructure/gcp/tflint-gcp-report.json
+
+  # Kubernetes Security Scanning
+  k8s-scan:
+    name: Kubernetes Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Kubesec
+        run: |
+          docker run --rm -v $(pwd):/workspace kubesec/kubesec:latest scan /workspace/kubernetes/*.yaml > kubesec-report.json
+
+      - name: Run Polaris
+        run: |
+          docker run --rm -v $(pwd):/workspace quay.io/fairwinds/polaris:latest \
+            --audit --format=json --config=/workspace/.polaris.yaml \
+            /workspace/kubernetes/ > polaris-report.json
+
+      - name: Upload K8s scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: k8s-scan-results
+          path: |
+            kubesec-report.json
+            polaris-report.json
+
+  # Secret Scanning
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # Compliance Scanning
+  compliance-scan:
+    name: Compliance Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'AI-Compliance-Engine'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --out reports/
+            --suppression dependency-check-suppressions.xml
+
+      - name: Upload OWASP Dependency Check results
+        uses: actions/upload-artifact@v3
+        with:
+          name: owasp-dependency-check
+          path: reports/
+
+  # Security Report Generation
+  security-report:
+    name: Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, sast-scan, container-scan, iac-scan, k8s-scan, secret-scan, compliance-scan]
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate security summary
+        run: |
+          echo "# Security Scan Summary" > security-summary.md
+          echo "Generated on: $(date)" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          echo "## Scan Results" >> security-summary.md
+          echo "- Dependency Scan: ${{ needs.dependency-scan.result }}" >> security-summary.md
+          echo "- SAST Scan: ${{ needs.sast-scan.result }}" >> security-summary.md
+          echo "- Container Scan: ${{ needs.container-scan.result }}" >> security-summary.md
+          echo "- IaC Scan: ${{ needs.iac-scan.result }}" >> security-summary.md
+          echo "- K8s Scan: ${{ needs.k8s-scan.result }}" >> security-summary.md
+          echo "- Secret Scan: ${{ needs.secret-scan.result }}" >> security-summary.md
+          echo "- Compliance Scan: ${{ needs.compliance-scan.result }}" >> security-summary.md
+
+      - name: Upload security summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-summary
+          path: security-summary.md
+
+      - name: Comment PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('security-summary.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  # Security Notification
+  security-notification:
+    name: Security Notification
+    runs-on: ubuntu-latest
+    needs: [security-report]
+    if: failure()
+    
+    steps:
+      - name: Slack notification for security issues
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#security-alerts'
+          webhook_url: ${{ secrets.SECURITY_SLACK_WEBHOOK_URL }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          text: '🚨 Security scan failures detected in AI Compliance Engine'

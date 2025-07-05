@@ -1,0 +1,33 @@
+{
+  "last_updated": "$(date -Iseconds)",
+  "president": {
+    "status": "active",
+    "current_mission": "AI永続化システム実装統括",
+    "active_directive": "hooks-implementation"
+  },
+  "boss": {
+    "status": "managing", 
+    "current_task": "Phase 1 Implementation Coordination",
+    "assigned_workers": ["worker1", "worker2", "worker3"]
+  },
+  "workers": {
+    "worker1": {
+      "role": "Frontend Engineer",
+      "status": "ready",
+      "current_task": null,
+      "session_id": null
+    },
+    "worker2": {
+      "role": "Backend Engineer",
+      "status": "ready", 
+      "current_task": null,
+      "session_id": null
+    },
+    "worker3": {
+      "role": "UI/UX Designer",
+      "status": "ready",
+      "current_task": null,
+      "session_id": null
+    }
+  }
+}

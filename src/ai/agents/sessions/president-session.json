@@ -1,0 +1,12 @@
+{
+  "role": "president",
+  "session_id": "2192C39E-10FA-41C5-B4BE-1EC5DB9069B3",
+  "start_time": "2025-06-26T19:31:44+09:00",
+  "status": "active",
+  "messages": [],
+  "context": {
+    "current_task": null,
+    "priority": "normal",
+    "dependencies": []
+  }
+}

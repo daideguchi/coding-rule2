@@ -1,0 +1,316 @@
+# AI Compliance Engine - Prometheus Configuration
+# Phase 1: Basic monitoring system setup
+
+# Global Prometheus configuration
+prometheus:
+  prometheusSpec:
+    # Retention period
+    retention: 30d
+    retentionSize: 50GB
+    
+    # Storage configuration
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi
+    
+    # Resource limits
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 1000m
+      limits:
+        memory: 4Gi
+        cpu: 2000m
+    
+    # Scrape interval
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    
+    # External labels
+    externalLabels:
+      cluster: ace-cluster-dev
+      environment: dev
+    
+    # Additional scrape configs
+    additionalScrapeConfigs:
+    - job_name: 'ace-api'
+      static_configs:
+      - targets: ['ace-api-service.ace-api.svc.cluster.local:9090']
+      metrics_path: /metrics
+      scrape_interval: 15s
+      
+    - job_name: 'ace-truth-verification'
+      static_configs:
+      - targets: ['ace-truth-verification-service.ace-truth-verification.svc.cluster.local:9090']
+      metrics_path: /metrics
+      scrape_interval: 15s
+      
+    - job_name: 'ace-rule-engine'
+      static_configs:
+      - targets: ['ace-rule-engine-service.ace-rule-engine.svc.cluster.local:9090']
+      metrics_path: /metrics
+      scrape_interval: 15s
+      
+    - job_name: 'ace-memory'
+      static_configs:
+      - targets: ['ace-memory-service.ace-memory.svc.cluster.local:9090']
+      metrics_path: /metrics
+      scrape_interval: 15s
+      
+    - job_name: 'ace-evidence'
+      static_configs:
+      - targets: ['ace-evidence-service.ace-evidence.svc.cluster.local:9090']
+      metrics_path: /metrics
+      scrape_interval: 15s
+      
+    - job_name: 'ace-auth'
+      static_configs:
+      - targets: ['ace-auth-service.ace-auth.svc.cluster.local:9090']
+      metrics_path: /metrics
+      scrape_interval: 15s
+
+    # Recording rules
+    ruleSelector:
+      matchLabels:
+        app: prometheus
+        release: prometheus
+    
+    # Service monitor selector
+    serviceMonitorSelector:
+      matchLabels:
+        app: prometheus
+        release: prometheus
+
+# Grafana configuration
+grafana:
+  enabled: true
+  
+  # Admin credentials
+  adminPassword: admin123!@#
+  
+  # Persistence
+  persistence:
+    enabled: true
+    storageClassName: gp3
+    size: 10Gi
+  
+  # Resources
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 200m
+  
+  # Grafana configuration
+  grafana.ini:
+    server:
+      root_url: http://grafana.ace-dev.example.com
+    security:
+      admin_user: admin
+      admin_password: admin123!@#
+    auth:
+      disable_login_form: false
+    auth.anonymous:
+      enabled: false
+    dashboards:
+      default_home_dashboard_path: /tmp/dashboards/ace-overview.json
+  
+  # Data sources
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-kube-prometheus-prometheus:9090
+        access: proxy
+        isDefault: true
+        editable: true
+  
+  # Dashboard providers
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'ace-dashboards'
+        orgId: 1
+        folder: 'ACE'
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/ace
+  
+  # Dashboards
+  dashboards:
+    ace:
+      ace-overview:
+        gnetId: 1860
+        revision: 29
+        datasource: Prometheus
+
+# AlertManager configuration
+alertmanager:
+  enabled: true
+  
+  alertmanagerSpec:
+    # Storage
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    
+    # Resources
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 200m
+    
+    # Configuration
+    configSecret: alertmanager-config
+    
+    # External URL
+    externalUrl: http://alertmanager.ace-dev.example.com
+
+# Node Exporter
+nodeExporter:
+  enabled: true
+
+# Kube State Metrics
+kubeStateMetrics:
+  enabled: true
+
+# Service Monitors
+additionalServiceMonitors:
+- name: ace-services
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: ai-compliance-engine
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
+
+# Prometheus Rules
+additionalPrometheusRules:
+- name: ace-rules
+  groups:
+  - name: ace.rules
+    rules:
+    # API Response Time
+    - alert: ACEHighAPIResponseTime
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="ace-api"}[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+        service: ace-api
+      annotations:
+        summary: "ACE API high response time"
+        description: "ACE API 95th percentile response time is {{ $value }}s for 5 minutes"
+    
+    # Error Rate
+    - alert: ACEHighErrorRate
+      expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.01
+      for: 2m
+      labels:
+        severity: critical
+        service: ace-api
+      annotations:
+        summary: "ACE API high error rate"
+        description: "ACE API error rate is {{ $value | humanizePercentage }} for 2 minutes"
+    
+    # Truth Verification Accuracy
+    - alert: ACETruthVerificationLowAccuracy
+      expr: truth_verification_accuracy < 0.95
+      for: 10m
+      labels:
+        severity: warning
+        service: truth-verification
+      annotations:
+        summary: "Truth verification accuracy below threshold"
+        description: "Truth verification accuracy is {{ $value | humanizePercentage }}"
+    
+    # Memory Usage
+    - alert: ACEHighMemoryUsage
+      expr: (container_memory_usage_bytes{pod=~"ace-.*"} / container_spec_memory_limit_bytes) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "ACE service high memory usage"
+        description: "{{ $labels.pod }} memory usage is {{ $value | humanizePercentage }}"
+    
+    # CPU Usage
+    - alert: ACEHighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{pod=~"ace-.*"}[5m]) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "ACE service high CPU usage"
+        description: "{{ $labels.pod }} CPU usage is {{ $value | humanizePercentage }}"
+    
+    # Database Connection Pool
+    - alert: ACEDatabaseConnectionPoolHigh
+      expr: database_connection_pool_usage > 0.8
+      for: 5m
+      labels:
+        severity: warning
+        service: database
+      annotations:
+        summary: "Database connection pool usage high"
+        description: "Database connection pool usage is {{ $value | humanizePercentage }}"
+    
+    # Rule Engine Performance
+    - alert: ACERuleEngineSlowProcessing
+      expr: rule_engine_processing_duration_seconds > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        service: rule-engine
+      annotations:
+        summary: "Rule engine slow processing"
+        description: "Rule engine processing time is {{ $value }}s"
+
+# Default rules to disable (we have custom ones)
+defaultRules:
+  create: true
+  rules:
+    alertmanager: true
+    etcd: true
+    configReloaders: true
+    general: true
+    k8s: true
+    kubeApiserver: true
+    kubeApiserverAvailability: true
+    kubeApiserverSlos: true
+    kubelet: true
+    kubeProxy: true
+    kubePrometheusGeneral: true
+    kubePrometheusNodeRecording: true
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
+    kubeScheduler: true
+    kubeStateMetrics: true
+    network: true
+    node: true
+    nodeExporterAlerting: true
+    nodeExporterRecording: true
+    prometheus: true
+    prometheusOperator: true

@@ -1,50 +1,13 @@
 {
   "mcpServers": {
     "o3-search": {
-      "command": "/opt/homebrew/bin/o3-search-mcp",
-      "args": [],
+      "command": "npx",
+      "args": ["o3-search-mcp"],
       "env": {
         "OPENAI_API_KEY": "${OPENAI_API_KEY}",
         "SEARCH_CONTEXT_SIZE": "medium",
-        "REASONING_EFFORT": "high"
+        "REASONING_EFFORT": "medium"
       }
-    },
-    "github-bridge": {
-      "command": "python3",
-      "args": [
-        "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/CLAUDE_MCP_BRIDGE.py"
-      ],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
-        "PROJECT_ROOT": "/Users/dd/Desktop/1_dev/coding-rule2"
-      }
-    },
-    "tmux-integration": {
-      "command": "node",
-      "args": [
-        "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/mcp/tools/tmux_mcp.js"
-      ],
-      "env": {
-        "TMUX_SESSION": "multiagent"
-      }
-    },
-    "filesystem": {
-      "command": "python3",
-      "args": [
-        "/Users/dd/Desktop/1_dev/coding-rule2/ai-agents/mcp/tools/filesystem_mcp.py"
-      ],
-      "env": {
-        "PROJECT_ROOT": "/Users/dd/Desktop/1_dev/coding-rule2"
-      }
-    },
-    "gemini-cli": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@choplin/mcp-gemini-cli",
-        "--allow-npx"
-      ],
-      "env": {}
     }
   }
 }

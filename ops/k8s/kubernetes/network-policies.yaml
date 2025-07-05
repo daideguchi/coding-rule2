@@ -1,0 +1,453 @@
+# AI Compliance Engine - Network Policies
+# Phase 1: Network security and service mesh configuration
+
+# API Gateway Network Policy
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-api-network-policy
+  namespace: ace-api
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: ace-api
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-ingress
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090  # Metrics port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-truth-verification
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-rule-engine
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-memory
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-evidence
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-auth
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+  - to: []  # External APIs (OpenAI, Anthropic, etc.)
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-truth-verification-network-policy
+  namespace: ace-truth-verification
+  labels:
+    app.kubernetes.io/name: ace-truth-verification
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: ace-truth-verification
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090  # Metrics port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-data
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+  - to: []  # External fact-checking APIs
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-rule-engine-network-policy
+  namespace: ace-rule-engine
+  labels:
+    app.kubernetes.io/name: ace-rule-engine
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: ace-rule-engine
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090  # Metrics port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-data
+    ports:
+    - protocol: TCP
+      port: 6379  # Redis for rule caching
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-memory-network-policy
+  namespace: ace-memory
+  labels:
+    app.kubernetes.io/name: ace-memory
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: ace-memory
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090  # Metrics port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-data
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+    - protocol: TCP
+      port: 1536  # Vector database (Pinecone/Weaviate)
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+  - to: []  # Vector database external APIs
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-evidence-network-policy
+  namespace: ace-evidence
+  labels:
+    app.kubernetes.io/name: ace-evidence
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: ace-evidence
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090  # Metrics port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-data
+    ports:
+    - protocol: TCP
+      port: 9200  # Elasticsearch
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+  - to: []  # External evidence sources
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-auth-network-policy
+  namespace: ace-auth
+  labels:
+    app.kubernetes.io/name: ace-auth
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector:
+    matchLabels:
+      app: ace-auth
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    - namespaceSelector:
+        matchLabels:
+          name: ace-ingress
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090  # Metrics port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-data
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis for sessions
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+  - to: []  # External identity providers (SAML, OIDC)
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-data-network-policy
+  namespace: ace-data
+  labels:
+    app.kubernetes.io/name: ace-data
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    - namespaceSelector:
+        matchLabels:
+          name: ace-truth-verification
+    - namespaceSelector:
+        matchLabels:
+          name: ace-rule-engine
+    - namespaceSelector:
+        matchLabels:
+          name: ace-memory
+    - namespaceSelector:
+        matchLabels:
+          name: ace-evidence
+    - namespaceSelector:
+        matchLabels:
+          name: ace-auth
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+    - protocol: TCP
+      port: 9200  # Elasticsearch
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-monitoring-network-policy
+  namespace: ace-monitoring
+  labels:
+    app.kubernetes.io/name: ace-monitoring
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-ingress
+    ports:
+    - protocol: TCP
+      port: 3000  # Grafana
+    - protocol: TCP
+      port: 9090  # Prometheus
+  - from: []  # Allow from all namespaces for metrics collection
+    ports:
+    - protocol: TCP
+      port: 9090  # Prometheus
+  egress:
+  - to: []  # Allow access to all services for metrics scraping
+    ports:
+    - protocol: TCP
+      port: 9090
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-ingress-network-policy
+  namespace: ace-ingress
+  labels:
+    app.kubernetes.io/name: ace-ingress
+    app.kubernetes.io/part-of: ai-compliance-engine
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-api
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-auth
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ace-monitoring
+    ports:
+    - protocol: TCP
+      port: 3000  # Grafana
+    - protocol: TCP
+      port: 9090  # Prometheus
+  - to: []  # DNS resolution
+    ports:
+    - protocol: UDP
+      port: 53
+
+# Default deny-all policy for security
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ace-default-deny-all
+  namespace: ace-security
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress

@@ -1,0 +1,504 @@
+# AI Compliance Engine - Istio Service Mesh Configuration
+# Phase 1: Service mesh setup for enhanced security and observability
+
+# Enable Istio injection for all ACE namespaces
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-api
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-truth-verification
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-rule-engine
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-memory
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-evidence
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-auth
+  labels:
+    istio-injection: enabled
+
+# Istio Gateway for external traffic
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: ace-gateway
+  namespace: ace-api
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "ace-api.example.com"
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - "ace-api.example.com"
+    tls:
+      mode: SIMPLE
+      credentialName: ace-tls-cert
+
+# Virtual Service for API routing
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ace-api-virtual-service
+  namespace: ace-api
+spec:
+  hosts:
+  - "ace-api.example.com"
+  gateways:
+  - ace-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/api/v1/auth"
+    route:
+    - destination:
+        host: ace-auth-service.ace-auth.svc.cluster.local
+        port:
+          number: 8080
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  - match:
+    - uri:
+        prefix: "/api/v1/verify"
+    route:
+    - destination:
+        host: ace-truth-verification-service.ace-truth-verification.svc.cluster.local
+        port:
+          number: 8080
+    timeout: 60s
+    retries:
+      attempts: 2
+      perTryTimeout: 30s
+  - match:
+    - uri:
+        prefix: "/api/v1/rules"
+    route:
+    - destination:
+        host: ace-rule-engine-service.ace-rule-engine.svc.cluster.local
+        port:
+          number: 8080
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  - match:
+    - uri:
+        prefix: "/api/v1/memory"
+    route:
+    - destination:
+        host: ace-memory-service.ace-memory.svc.cluster.local
+        port:
+          number: 8080
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  - match:
+    - uri:
+        prefix: "/api/v1/evidence"
+    route:
+    - destination:
+        host: ace-evidence-service.ace-evidence.svc.cluster.local
+        port:
+          number: 8080
+    timeout: 45s
+    retries:
+      attempts: 2
+      perTryTimeout: 20s
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: ace-api-service.ace-api.svc.cluster.local
+        port:
+          number: 8080
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+
+# Destination Rules for circuit breaking and load balancing
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ace-api-destination-rule
+  namespace: ace-api
+spec:
+  host: ace-api-service.ace-api.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 10
+        maxRequestsPerConnection: 50
+    circuitBreaker:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: LEAST_CONN
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ace-truth-verification-destination-rule
+  namespace: ace-truth-verification
+spec:
+  host: ace-truth-verification-service.ace-truth-verification.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 20
+        maxRequestsPerConnection: 25
+    circuitBreaker:
+      consecutiveErrors: 5
+      interval: 60s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ace-rule-engine-destination-rule
+  namespace: ace-rule-engine
+spec:
+  host: ace-rule-engine-service.ace-rule-engine.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 10
+        maxRequestsPerConnection: 50
+    circuitBreaker:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: LEAST_CONN
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ace-memory-destination-rule
+  namespace: ace-memory
+spec:
+  host: ace-memory-service.ace-memory.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 15
+        maxRequestsPerConnection: 30
+    circuitBreaker:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ace-evidence-destination-rule
+  namespace: ace-evidence
+spec:
+  host: ace-evidence-service.ace-evidence.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 30
+      http:
+        http1MaxPendingRequests: 20
+        maxRequestsPerConnection: 20
+    circuitBreaker:
+      consecutiveErrors: 5
+      interval: 60s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ace-auth-destination-rule
+  namespace: ace-auth
+spec:
+  host: ace-auth-service.ace-auth.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 10
+        maxRequestsPerConnection: 50
+    circuitBreaker:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: LEAST_CONN
+
+# Service Mesh Security Policies
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ace-mtls-policy
+  namespace: ace-api
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ace-mtls-policy
+  namespace: ace-truth-verification
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ace-mtls-policy
+  namespace: ace-rule-engine
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ace-mtls-policy
+  namespace: ace-memory
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ace-mtls-policy
+  namespace: ace-evidence
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ace-mtls-policy
+  namespace: ace-auth
+spec:
+  mtls:
+    mode: STRICT
+
+# Authorization Policies
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ace-api-authz-policy
+  namespace: ace-api
+spec:
+  selector:
+    matchLabels:
+      app: ace-api
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+  - from:
+    - source:
+        namespaces: ["ace-monitoring"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ace-service-authz-policy
+  namespace: ace-truth-verification
+spec:
+  selector:
+    matchLabels:
+      app: ace-truth-verification
+  rules:
+  - from:
+    - source:
+        namespaces: ["ace-api"]
+  - from:
+    - source:
+        namespaces: ["ace-monitoring"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ace-service-authz-policy
+  namespace: ace-rule-engine
+spec:
+  selector:
+    matchLabels:
+      app: ace-rule-engine
+  rules:
+  - from:
+    - source:
+        namespaces: ["ace-api"]
+  - from:
+    - source:
+        namespaces: ["ace-monitoring"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ace-service-authz-policy
+  namespace: ace-memory
+spec:
+  selector:
+    matchLabels:
+      app: ace-memory
+  rules:
+  - from:
+    - source:
+        namespaces: ["ace-api"]
+  - from:
+    - source:
+        namespaces: ["ace-monitoring"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ace-service-authz-policy
+  namespace: ace-evidence
+spec:
+  selector:
+    matchLabels:
+      app: ace-evidence
+  rules:
+  - from:
+    - source:
+        namespaces: ["ace-api"]
+  - from:
+    - source:
+        namespaces: ["ace-monitoring"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ace-auth-authz-policy
+  namespace: ace-auth
+spec:
+  selector:
+    matchLabels:
+      app: ace-auth
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+  - from:
+    - source:
+        namespaces: ["ace-api"]
+  - from:
+    - source:
+        namespaces: ["ace-monitoring"]
+
+# Telemetry Configuration
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: ace-metrics
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+  - overrides:
+    - match:
+        metric: ALL_METRICS
+      tagOverrides:
+        destination_app:
+          value: "{{.destination_workload | default \"unknown\"}}"
+        source_app:
+          value: "{{.source_workload | default \"unknown\"}}"
+
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: ace-tracing
+  namespace: istio-system
+spec:
+  tracing:
+  - providers:
+    - name: jaeger

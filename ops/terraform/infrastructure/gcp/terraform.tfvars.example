@@ -1,0 +1,38 @@
+# Example Terraform variables file for GCP
+# Copy this file to terraform.tfvars and modify values as needed
+
+# Basic Configuration
+gcp_project_id = "your-gcp-project-id"
+gcp_region     = "us-central1"
+gcp_zone       = "us-central1-a"
+environment    = "dev"
+
+# Network Configuration
+gke_subnet_cidr    = "10.1.0.0/20"
+gke_pods_cidr      = "10.1.16.0/20"
+gke_services_cidr  = "10.1.32.0/20"
+gke_master_cidr    = "10.1.48.0/28"
+sql_subnet_cidr    = "10.1.64.0/20"
+
+# GKE Configuration
+gke_machine_type = "e2-standard-4"
+gke_node_count   = 1
+gke_min_nodes    = 1
+gke_max_nodes    = 5
+gke_disk_size    = 100
+
+# Cloud SQL Configuration
+postgres_version = "POSTGRES_15"
+sql_tier         = "db-standard-2"
+sql_disk_size    = 100
+db_name          = "ace_db"
+db_username      = "ace_admin"
+db_password      = "your-secure-password-here"
+
+# Redis Configuration
+redis_version     = "REDIS_7_0"
+redis_memory_size = 4
+redis_ip_range    = "10.1.80.0/29"
+
+# Domain Configuration
+domain_name = "ace-dr.example.com"

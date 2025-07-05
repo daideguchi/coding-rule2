@@ -1,0 +1,82 @@
+#!/bin/bash
+# 厳格ファイル作成検証フック
+# 新規ファイル作成前に自動実行される検証
+
+set -e
+
+# カラー定義
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# プロジェクトルート検出
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+
+# 検証スクリプトパス
+VALIDATOR="$PROJECT_ROOT/scripts/validate-file-creation.py"
+
+# 検証スクリプトの存在確認
+if [ ! -f "$VALIDATOR" ]; then
+    echo -e "${RED}❌ Error: Validation script not found${NC}"
+    echo "Expected at: $VALIDATOR"
+    exit 1
+fi
+
+# 作成対象の検出
+if [ -n "$1" ]; then
+    TARGET="$1"
+else
+    # git status から新規ファイルを検出
+    TARGET=$(git status --porcelain | grep '^??' | awk '{print $2}' | head -1)
+fi
+
+if [ -z "$TARGET" ]; then
+    echo -e "${YELLOW}⚠️  No new files detected${NC}"
+    exit 0
+fi
+
+echo -e "${GREEN}🔍 Validating new file creation...${NC}"
+echo "Target: $TARGET"
+
+# ディレクトリかファイルかを判定
+IS_DIR=""
+if [ -d "$TARGET" ]; then
+    IS_DIR="--directory"
+fi
+
+# 検証実行
+if python3 "$VALIDATOR" "$TARGET" $IS_DIR; then
+    echo -e "${GREEN}✅ Validation passed${NC}"
+    
+    # メタデータ生成の提案
+    echo -e "${YELLOW}💡 Don't forget to add metadata:${NC}"
+    echo "   - Owner/team information"
+    echo "   - Purpose documentation"
+    echo "   - Access controls (if needed)"
+else
+    echo -e "${RED}❌ Validation failed${NC}"
+    echo ""
+    echo "Options:"
+    echo "1. Fix the issues manually"
+    echo "2. Run with auto-fix: python3 $VALIDATOR \"$TARGET\" --fix"
+    echo "3. Check the rules: cat $PROJECT_ROOT/docs/rules/strict-file-creation-rules.md"
+    
+    # 自動修正の提案
+    echo ""
+    echo -e "${YELLOW}🔧 Attempting auto-fix suggestion...${NC}"
+    python3 "$VALIDATOR" "$TARGET" $IS_DIR --fix
+    
+    exit 1
+fi
+
+# セキュリティチェック（オプション）
+if command -v gitleaks &> /dev/null; then
+    echo -e "${GREEN}🔒 Running security scan...${NC}"
+    if ! gitleaks detect --no-git --source="$TARGET" 2>/dev/null; then
+        echo -e "${RED}⚠️  Security warning: Potential secrets detected${NC}"
+        exit 1
+    fi
+fi
+
+exit 0

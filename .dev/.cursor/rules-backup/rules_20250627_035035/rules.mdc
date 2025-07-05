@@ -1,0 +1,102 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 🔄 Cursor Rules for Development Projects
+
+## 🔄 Automatic Git Management Rules
+
+### Rules mdc File Management
+- **自動プッシュルール**: ファイルが修正されたら即座にGitにコミット・プッシュする
+- **コミットメッセージ**: "Update project rules - 変更内容の簡潔な説明"
+- **変更検知**: ファイル保存時に自動実行
+- **前提条件**: 作業ディレクトリがクリーンであること
+
+### Git Workflow Rules
+1. **即座反映対象ファイル**:
+   - .cursor/rules/rules.mdc
+   - README.md
+   - package.json (存在する場合)
+   - 設定ファイル全般
+
+2. **コード変更時のルール**:
+   - 機能追加・修正完了時は即座にコミット
+   - バグ修正は優先的にコミット・プッシュ
+   - テスト後に必ずpush実行
+
+## 📋 Development Guidelines
+
+### Code Quality Rules
+- **関数命名**: 日本語コメント + 英語関数名
+- **エラーハンドリング**: 必ずtry-catch文を使用
+- **ログ出力**: console.log でデバッグ情報を記録
+- **UI表示**: 適切なアラート・通知で分かりやすいメッセージ
+
+### File Organization
+- **src/**: メインソースコード
+  - **components/**: コンポーネント別フォルダ
+  - **utils/**: 共通ユーティリティ
+  - **hooks/**: カスタムフック (React等)
+  - **types/**: 型定義ファイル
+- **tests/**: テスト・デバッグ用ファイル
+- **docs/**: ドキュメント
+
+### Documentation Rules
+- **関数コメント**: JSDoc形式
+- **変更履歴**: ファイルヘッダーに更新日時を記録
+- **機能説明**: 複雑な処理には詳細コメント必須
+
+## 🚀 Automation Commands
+
+### Git Auto Push Command
+```bash
+# rules.mdc変更時の自動実行コマンド
+git add .cursor/rules/rules.mdc
+git commit -m "Update project rules - $(date +'%Y-%m-%d %H:%M')"
+git push origin main
+```
+
+### Development Workflow
+```bash
+# 開発完了時の標準フロー
+git add .
+git commit -m "Feature: 機能名 - 変更内容"
+git push origin main
+```
+
+## 📝 Change Log Template
+
+### Date: Version:
+#### Added
+- 新機能の追加
+
+#### Changed
+- 既存機能の変更
+
+#### Fixed
+- バグ修正
+
+#### Removed
+- 削除された機能
+
+## 🔧 Environment Rules
+- **Node.js**: 推奨バージョンは18以上
+- **IDE**: Cursor Editor推奨
+- **言語**: TypeScript/JavaScript, Python, Go, Rust等
+- **パッケージ管理**: npm, yarn, pnpm等
+
+## 📊 Project Structure Template
+
+project-name/
+├── src/                    # ソースコード
+├── tests/                  # テストファイル
+├── docs/                   # ドキュメント
+├── .cursor/rules/          # Cursorルール
+├── package.json            # 依存関係管理
+└── README.md              # プロジェクト説明
+
+---
+
+/* Last Updated: 2025-06-26
+   Auto commit enabled for this file */

@@ -1,40 +1,99 @@
-.specstory
-.Claude-Code-Communication-backup/
-STATUS.md
-# ai-agents/ コメントアウト - ガバナンスツールは重要なのでコミット対象
-.cursor/
-# logs/ コメントアウト - 作業記録は重要なのでコミット対象
-tmp/
-scripts/*.log
-project-improvement-report.md
-reports/
-.claude/
+# ===== AI Control Rules Template - .gitignore =====
 
-# デプロイ関連一時ファイル
-dist/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 build/
-.vercel/
-.netlify/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
 *.log
+logs/
 
-# デプロイ用バックアップ
-*.bak
-*.tmp
+# Runtime data
+runtime/cache/
+runtime/tmp/
+runtime/*.json
+runtime/*.lock
 
-# ローカル環境設定
-.env.local
-.env.production.local
-.ai-org-configured
-# セキュリティ関連ファイル
-.claude-auth-method
-.env
-*.key
-*.pem
-nohup.out
-# 一時的なログファイル
-/tmp/ai-agents-*.log
-.vercel
-
-# 環境変数ファイル
-.env
+# Environment-specific
 .mcp.json.local
+.env.local
+config/system/.env
+config/system/.mcp.json
+
+# AI/ML
+models/trained/*
+!models/trained/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/raw/*
+!data/raw/.gitkeep
+
+# Build artifacts
+*.tar.gz
+*.zip
+validation_result.json
+STATUS.md
+.ai-org-configured
+.task_status
+
+# Temporary files
+*.tmp
+*.temp
+.shell_integration.bash
+
+# Secret prevention (Critical - Added after API key leak incident)
+.specstory/
+*.secret
+*.key
+.env*
+**/history/
+**/cache/
+**/*api*key*
+**/*token*
+**/*secret*
+**/*password*
+**/*credential*

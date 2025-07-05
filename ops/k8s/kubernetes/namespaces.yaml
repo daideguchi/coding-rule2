@@ -1,0 +1,122 @@
+# AI Compliance Engine - Kubernetes Namespaces
+# Phase 1: Core namespace setup
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-api
+  labels:
+    app.kubernetes.io/name: ace-api
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: application
+  annotations:
+    description: "Core API services for AI Compliance Engine"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-truth-verification
+  labels:
+    app.kubernetes.io/name: ace-truth-verification
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: application
+  annotations:
+    description: "Truth verification service"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-rule-engine
+  labels:
+    app.kubernetes.io/name: ace-rule-engine
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: application
+  annotations:
+    description: "Rule enforcement engine"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-memory
+  labels:
+    app.kubernetes.io/name: ace-memory
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: application
+  annotations:
+    description: "Memory management service"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-evidence
+  labels:
+    app.kubernetes.io/name: ace-evidence
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: application
+  annotations:
+    description: "Evidence search and verification service"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-auth
+  labels:
+    app.kubernetes.io/name: ace-auth
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: security
+  annotations:
+    description: "Authentication and authorization service"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-monitoring
+  labels:
+    app.kubernetes.io/name: ace-monitoring
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: infrastructure
+  annotations:
+    description: "Monitoring and observability stack"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-ingress
+  labels:
+    app.kubernetes.io/name: ace-ingress
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: infrastructure
+  annotations:
+    description: "Ingress controllers and load balancers"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-data
+  labels:
+    app.kubernetes.io/name: ace-data
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: data
+  annotations:
+    description: "Data processing and storage services"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ace-security
+  labels:
+    app.kubernetes.io/name: ace-security
+    app.kubernetes.io/part-of: ai-compliance-engine
+    environment: dev
+    tier: security
+  annotations:
+    description: "Security scanning and compliance tools"
